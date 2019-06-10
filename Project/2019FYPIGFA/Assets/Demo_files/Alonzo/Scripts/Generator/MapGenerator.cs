@@ -4,10 +4,12 @@ using UnityEngine;
 
 public class MapGenerator : MonoBehaviour
 {
+    public GenerationType generationType;
 #if UNITY_EDITOR
     public bool autoUpdate;
     GameObject demoMap;
 #endif
+    public Tile[] tileSet = new Tile[0];
     // Start is called before the first frame update
     void Start()
     {
@@ -43,4 +45,19 @@ public class MapGenerator : MonoBehaviour
         GenerateMap();
     }
 #endif
+    public enum FloorType
+    {
+        INDOOR,
+        OUTDOOR
+    };
+    [System.Serializable]
+    public struct Tile
+    {
+        public Material material;
+        public FloorType floorType;
+    };
+    public enum GenerationType
+    {
+        BSP
+    }
 }

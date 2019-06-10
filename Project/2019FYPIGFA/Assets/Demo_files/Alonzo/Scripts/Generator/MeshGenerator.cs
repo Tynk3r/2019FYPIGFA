@@ -15,20 +15,20 @@ public static class MeshGenerator
 
         m.vertices = new Vector3[]
         {
-            new Vector3(0, 0, 0), // Bottom left
-            new Vector3(_width, 0, 0), // Bottom right
-            new Vector3(_width, _height, 0), // Top right
-            new Vector3(0, _height, 0) // Top left
+            new Vector3(-_width * 0.5f, 0, -_height * 0.5f), // Bottom left
+            new Vector3(_width * 0.5f , 0, -_height * 0.5f), // Bottom right
+            new Vector3(_width * 0.5f , 0, _height * 0.5f), // Top right
+            new Vector3(-_width * 0.5f, 0, _height * 0.5f) // Top left
         };
 
         m.uv = new Vector2[]
         {
             new Vector2(0, 0),
-            new Vector2(0, 1),
-            new Vector2(1, 1),
-            new Vector2(1, 0)
+            new Vector2(0, _width),
+            new Vector2(_width, _width),
+            new Vector2(_width, 0)
         };
-        m.triangles = new int[] { 0, 1, 2, 0, 2, 3 }; // 2 triangles, diagonal bottom left to top right
+        m.triangles = new int[] { 2, 1, 0, 3, 2, 0 }; // 2 triangles, diagonal bottom left to top right
 
         mf.mesh = m;
         if (_collider)

@@ -223,7 +223,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d8e0517d0594dc41986c6bec04a9b1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  generationType: 0
   autoUpdate: 0
+  tileSet:
+  - material: {fileID: 2100000, guid: 912bfbdc2e59d8146ae53d634ec9742b, type: 2}
+    floorType: 1
 --- !u!4 &1542138354
 Transform:
   m_ObjectHideFlags: 0
