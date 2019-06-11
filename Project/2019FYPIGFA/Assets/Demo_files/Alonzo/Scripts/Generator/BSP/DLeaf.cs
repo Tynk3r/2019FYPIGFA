@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class leaf : MonoBehaviour
+public class DLeaf : MonoBehaviour
 {
     private static uint minLeafSize = 6;
     static float dimensionThresh = 1.25f;
@@ -10,11 +10,11 @@ public class leaf : MonoBehaviour
     public int x, y;
     public int width, height;
 
-    public leaf leftChild, rightChild;
+    public DLeaf leftChild, rightChild;
     // TODO: variable for rectangle room (Rectangle room;)
     // TODO: variable for hallway Vector halls
 
-    public leaf(int x, int y, int width, int height)
+    public DLeaf(int x, int y, int width, int height)
     {
         this.x = x;
         this.y = y;
@@ -48,13 +48,13 @@ public class leaf : MonoBehaviour
         // Create our left and right children based on the direction of split
         if (splitHorizontally)
         {
-            leftChild = new leaf(x, y, width, split);
-            rightChild = new leaf(x, y + split, width, height - split);
+            leftChild = new DLeaf(x, y, width, split);
+            rightChild = new DLeaf(x, y + split, width, height - split);
         }
         else
         {
-            leftChild = new leaf(x, y, split, height);
-            rightChild = new leaf(x + split, y, width - split, height);
+            leftChild = new DLeaf(x, y, split, height);
+            rightChild = new DLeaf(x + split, y, width - split, height);
         }
         return true; // split successful!
     }

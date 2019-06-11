@@ -4,8 +4,15 @@ using UnityEngine;
 
 public class MapGenerator : MonoBehaviour
 {
+    RoomGenerator roomGenerator = new RoomGenerator();
     public GenerationType generationType;
+    public Material BSP_mat;
+    public Material BSP_room;
+    public int S_mapWidth, S_mapDepth;
+
+    public float S_minRoomSize = 3f;
 #if UNITY_EDITOR
+    int offsetY = 0;
     public bool autoUpdate;
     GameObject demoMap;
 #endif
@@ -22,9 +29,70 @@ public class MapGenerator : MonoBehaviour
         
     }
 
+    void CullParentLeaves(List<Leaf> leaves)
+    {
+        int i = 0;
+        while (true)
+        {
+            Leaf subject = leaves[i];
+            if (subject.leftChild != null || subject.rightChild != null)
+            {
+                leaves.Remove(subject);
+                Debug.Log("removed one. Now count is " + leaves.Count);
+                if (i == leaves.Count)
+                    break;
+            }
+            else
+            {
+                Debug.Log("i is " + i + "| count is " + leaves.Count + "| yes");
+                if (++i == leaves.Count)
+                    break;
+            }
+        }
+    }
+
+    void CreateLayoutDebug()
+    {
+        List<Leaf> map = MapTreeGenerator.GenerateLeaves(S_mapWidth, S_mapDepth);
+        List<Room> rooms;
+        // If the map generation uses polished layout
+        if (generationType > GenerationType.BSP_LAYOUT_ALL)
+            CullParentLeaves(map);
+        foreach(Leaf i in map)
+        {
+            GameObject leaf = MeshGenerator.CreatePlane(i.width, i.height, false);
+            leaf.transform.Translate(new Vector3(i.x, offsetY, i.y));
+            Renderer rend = leaf.GetComponent<Renderer>();
+            rend.material = BSP_mat;
+            leaf.transform.parent = demoMap.transform;
+            offsetY += 1;
+        }
+        // Generate rooms
+        if (generationType > GenerationType.BSP_LAYOUT_ALL)
+        {
+            rooms = roomGenerator.GenerateRooms(map);
+            
+            foreach(Room i in rooms)
+            {
+                GameObject room = MeshGenerator.CreatePlane(i.m_size.x, i.m_size.y, false);
+                room.transform.Translate(new Vector3(i.m_position.x, offsetY, i.m_position.y));
+                Renderer rend = room.GetComponent<Renderer>();
+                rend.material = BSP_room;
+                room.transform.parent = demoMap.transform;
+                //offsetY += 1;
+            }
+        }
+    }
+
     public void GenerateMap()
     {
+        offsetY = 0;
+        CreateLayoutDebug();
+        return;
         GameObject plane = MeshGenerator.CreatePlane(50, 50);
+        Renderer rend = plane.GetComponent<Renderer>();
+        rend.material = BSP_mat;
+
 #if UNITY_EDITOR
         plane.transform.parent = demoMap.transform;
 #endif
@@ -34,7 +102,7 @@ public class MapGenerator : MonoBehaviour
     {
         if (null == demoMap)
         {
-            demoMap = new GameObject("DEMO MAP");
+            demoMap = new GameObject("MAP");
         }
         else
         {
@@ -58,6 +126,8 @@ public class MapGenerator : MonoBehaviour
     };
     public enum GenerationType
     {
-        BSP
+        BSP_LAYOUT_ALL,
+        BSP_LAYOUT_TOP_LAYER,
+        HIDDEN
     }
 }

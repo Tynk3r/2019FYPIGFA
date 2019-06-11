@@ -24,10 +24,18 @@ public static class MeshGenerator
         m.uv = new Vector2[]
         {
             new Vector2(0, 0),
-            new Vector2(0, _width),
-            new Vector2(_width, _width),
-            new Vector2(_width, 0)
+            new Vector2(0, 1),
+            new Vector2(1, 1),
+            new Vector2(1, 0)
         };
+
+        //m.uv = new Vector2[]
+        //{
+        //    new Vector2(0, 0),
+        //    new Vector2(0, _width),
+        //    new Vector2(_width, _width),
+        //    new Vector2(_width, 0)
+        //};
         m.triangles = new int[] { 2, 1, 0, 3, 2, 0 }; // 2 triangles, diagonal bottom left to top right
 
         mf.mesh = m;
