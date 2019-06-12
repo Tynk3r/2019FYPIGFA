@@ -20,6 +20,22 @@ public class Leaf
         this.width = width;
         this.height = height;
         rightChild = leftChild = null;
+        room = null;
+    }
+    // Returns a leaf containing the room
+    public Leaf GetLowestLeaf()
+    {
+        if (room != null)
+        {
+            Debug.Log("worked");
+            return this;
+        }
+        if (leftChild == null || rightChild == null)
+        {
+            Debug.LogAssertion("Unable to find any room or children in leaf: " + this);
+            return null;
+        }
+        return (Random.value > 0.5f ? leftChild.GetLowestLeaf() : rightChild.GetLowestLeaf());
     }
 
     public bool Split()

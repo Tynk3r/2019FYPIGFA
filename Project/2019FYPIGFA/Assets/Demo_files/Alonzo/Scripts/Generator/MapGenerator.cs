@@ -4,10 +4,12 @@ using UnityEngine;
 
 public class MapGenerator : MonoBehaviour
 {
+    HallwayGenerator hallwayGenerator = new HallwayGenerator();
     RoomGenerator roomGenerator = new RoomGenerator();
     public GenerationType generationType;
     public Material BSP_mat;
     public Material BSP_room;
+    public Material BSP_hall;
     public int S_mapWidth, S_mapDepth;
 
     public float S_minRoomSize = 3f;
@@ -38,13 +40,13 @@ public class MapGenerator : MonoBehaviour
             if (subject.leftChild != null || subject.rightChild != null)
             {
                 leaves.Remove(subject);
-                Debug.Log("removed one. Now count is " + leaves.Count);
+                //Debug.Log("removed one. Now count is " + leaves.Count);
                 if (i == leaves.Count)
                     break;
             }
             else
             {
-                Debug.Log("i is " + i + "| count is " + leaves.Count + "| yes");
+                //Debug.Log("i is " + i + "| count is " + leaves.Count + "| yes");
                 if (++i == leaves.Count)
                     break;
             }
@@ -54,6 +56,7 @@ public class MapGenerator : MonoBehaviour
     void CreateLayoutDebug()
     {
         List<Leaf> map = MapTreeGenerator.GenerateLeaves(S_mapWidth, S_mapDepth);
+        var originalMap = new List<Leaf>(map);
         List<Room> rooms;
         // If the map generation uses polished layout
         if (generationType > GenerationType.BSP_LAYOUT_ALL)
@@ -67,7 +70,7 @@ public class MapGenerator : MonoBehaviour
             leaf.transform.parent = demoMap.transform;
             offsetY += 1;
         }
-        // Generate rooms
+        // Generate rooms and hallways
         if (generationType > GenerationType.BSP_LAYOUT_ALL)
         {
             rooms = roomGenerator.GenerateRooms(map);
@@ -79,7 +82,22 @@ public class MapGenerator : MonoBehaviour
                 Renderer rend = room.GetComponent<Renderer>();
                 rend.material = BSP_room;
                 room.transform.parent = demoMap.transform;
-                //offsetY += 1;
+            }
+            offsetY += 1;
+            // Generate the hallway layout
+            List<Hallway> hallways = hallwayGenerator.GenerateHallways(originalMap);
+            Debug.Log("hallway made with size of ");
+            Debug.Log(hallways.Count);
+            foreach(Hallway hallway in hallways)
+            {
+                foreach(Hallway.Hall i in hallway.m_halls)
+                {
+                    GameObject hall = MeshGenerator.CreatePlane(i.size.x, i.size.y, false);
+                    hall.transform.Translate(new Vector3(i.position.x, offsetY, i.position.y));
+                    Renderer rend = hall.GetComponent<Renderer>();
+                    rend.material = BSP_hall;
+                    hall.transform.parent = demoMap.transform;
+                }
             }
         }
     }

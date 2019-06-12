@@ -27,6 +27,7 @@ public class RoomGenerator
             room.m_position = new Vector2(
                 Random.Range(leafMin.x + room.m_size.x * 0.5f, leafMax.x - room.m_size.x * 0.5f),
                 Random.Range(leafMin.y + room.m_size.y * 0.5f, leafMax.y - room.m_size.y * 0.5f));
+            leaf.room = room;
             // Add the room to the list of rooms
             rooms.Add(room);
         }
