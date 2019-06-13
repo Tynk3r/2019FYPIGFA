@@ -16,8 +16,8 @@ public class RoomGenerator
         {
             // Creating a room
             Room room = new Room(
-                Random.Range(m_minRoomSize, leaf.width - ROOM_LEAF_OFFSET),
-                Random.Range(m_minRoomSize, leaf.height - ROOM_LEAF_OFFSET));
+                Random.Range(Mathf.Max(leaf.width * 0.5f, m_minRoomSize), leaf.width - ROOM_LEAF_OFFSET),
+                Random.Range(Mathf.Max(leaf.height * 0.5f, m_minRoomSize), leaf.height - ROOM_LEAF_OFFSET));
             // Now find the min and max points of the leaf to avoid colliding into other leaves
             Vector2 leafMin = new Vector2(leaf.x - leaf.width * 0.5f + ROOM_LEAF_OFFSET
                 , leaf.y - leaf.height * 0.5f + ROOM_LEAF_OFFSET);

@@ -86,11 +86,10 @@ public class MapGenerator : MonoBehaviour
             offsetY += 1;
             // Generate the hallway layout
             List<Hallway> hallways = hallwayGenerator.GenerateHallways(originalMap);
-            Debug.Log("hallway made with size of ");
-            Debug.Log(hallways.Count);
+            Debug.Log("hallway made with size of " + hallways.Count);
             foreach(Hallway hallway in hallways)
             {
-                foreach(Hallway.Hall i in hallway.m_halls)
+                foreach(Hallway.DHall i in hallway.m_halls)
                 {
                     GameObject hall = MeshGenerator.CreatePlane(i.size.x, i.size.y, false);
                     hall.transform.Translate(new Vector3(i.position.x, offsetY, i.position.y));

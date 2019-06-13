@@ -27,7 +27,6 @@ public class Leaf
     {
         if (room != null)
         {
-            Debug.Log("worked");
             return this;
         }
         if (leftChild == null || rightChild == null)
