@@ -17,11 +17,11 @@ public class Player : MonoBehaviour
 
     [Header("Movement")]
     public float walkSpeed = 5.0f;
-    private float smoothWalkSpeed;
     [Range(1.0f, 3.0f)]
     public float sprintSpeedModifier = 2f;
-    private float sprintSpeed = 7.5f;
-    private float smoothSprintSpeed;
+    private float maxFOV = 0f;
+    [Range(10f,100f)]
+    public float fovDeltaChange = 50f;
     public float jumpSpeed = 6.0f;
     public float gravity = 20.0f;
     private bool doubleJump = false;
@@ -44,12 +44,19 @@ public class Player : MonoBehaviour
         // Variable Initialisation
         health = maxHealth;
         stamina = maxStamina;
-        sprintSpeed = walkSpeed * sprintSpeedModifier;
+        maxFOV = Camera.main.fieldOfView * Mathf.Clamp(1f + ((sprintSpeedModifier - 1f) / 2), 1f, 2f);
         characterController = GetComponent<CharacterController>();
 
         // Misc QOL Stuff
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+    }
+
+    void OnValidate()
+    {
+        health = maxHealth;
+        stamina = maxStamina;
+        maxFOV = Camera.main.fieldOfView * Mathf.Clamp(1f + ((sprintSpeedModifier - 1f) / 2), 1f, 2f);
     }
 
     void Update()
@@ -61,7 +68,6 @@ public class Player : MonoBehaviour
 
     void UpdateMove()
     {
-
         if (characterController.isGrounded)
         {
             doubleJump = false;
@@ -70,18 +76,17 @@ public class Player : MonoBehaviour
             if (Input.GetButton("Sprint") && moveDirection.magnitude > 0f && !staminaRecovering)
             {
                 stamina = Mathf.Max(stamina - (Time.deltaTime * staminaDecayMultiplier), 0f);
-                float maxFOV = defaultFOV * Mathf.Clamp(sprintSpeedModifier * 0.6f, 1f, 100f);
-                Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView + (Time.deltaTime * 50), defaultFOV, maxFOV);
-                moveDirection *= sprintSpeed;
+                Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView + (Time.deltaTime * fovDeltaChange * sprintSpeedModifier), defaultFOV, maxFOV);
+                moveDirection *= walkSpeed * sprintSpeedModifier;
             }
             else if (moveDirection.magnitude > 0f)
             {
-                Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView - (Time.deltaTime * 50), defaultFOV, Camera.main.fieldOfView); // defaultFOV
+                Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView - (Time.deltaTime * fovDeltaChange * sprintSpeedModifier), defaultFOV, Camera.main.fieldOfView); // defaultFOV
                 moveDirection *= walkSpeed;
             }
             else
             {
-                Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView - (Time.deltaTime * 50), defaultFOV, Camera.main.fieldOfView); // defaultFOV
+                Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView - (Time.deltaTime * fovDeltaChange * sprintSpeedModifier), defaultFOV, Camera.main.fieldOfView); // defaultFOV
             }
 
             if (Input.GetButton("Jump"))
@@ -95,12 +100,11 @@ public class Player : MonoBehaviour
             if (Input.GetButton("Sprint") && moveDirection.magnitude > 0f && !staminaRecovering)
             {
                 stamina = Mathf.Max(stamina - (Time.deltaTime * staminaDecayMultiplier), 0f);
-                float maxFOV = defaultFOV * Mathf.Clamp(sprintSpeedModifier * 0.6f, 1f, 100f);
-                Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView + (Time.deltaTime * 50), defaultFOV, maxFOV);
+                Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView + (Time.deltaTime * fovDeltaChange * sprintSpeedModifier), defaultFOV, maxFOV);
             }
             else
             {
-                Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView - (Time.deltaTime * 50), defaultFOV, Camera.main.fieldOfView);
+                Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView - (Time.deltaTime * fovDeltaChange * sprintSpeedModifier), defaultFOV, Camera.main.fieldOfView);
             }
 
             if (doubleJump && Input.GetButtonDown("Jump"))
