@@ -19,9 +19,11 @@ public class Player : MonoBehaviour
     public float walkSpeed = 5.0f;
     [Range(1.0f, 3.0f)]
     public float sprintSpeedModifier = 2f;
+    [Range(0.1f, 1f)]
+    public float strafeSpeedModifier = 0.75f;
     private float maxFOV = 0f;
-    [Range(10f,100f)]
-    public float fovDeltaChange = 50f;
+    [Range(10f, 100f)]
+    public float FOVDeltaChange = 50f;
     public float jumpSpeed = 6.0f;
     public float gravity = 20.0f;
     private bool doubleJump = false;
@@ -71,22 +73,15 @@ public class Player : MonoBehaviour
         if (characterController.isGrounded)
         {
             doubleJump = false;
-            moveDirection = (transform.right * Input.GetAxis("Horizontal")) + (Vector3.ProjectOnPlane(transform.forward, new Vector3(0, 1, 0)) * Input.GetAxis("Vertical"));
-            // Deplete stamina as you sprint/only activates if player is moving and holding sprint button
+            // moveDirection = (transform.right * Input.GetAxis("Horizontal")) + (Vector3.ProjectOnPlane(transform.forward, new Vector3(0, 1, 0)) * Input.GetAxis("Vertical")); // deprecated movement that ignored y look\
             if (Input.GetButton("Sprint") && moveDirection.magnitude > 0f && !staminaRecovering)
             {
                 stamina = Mathf.Max(stamina - (Time.deltaTime * staminaDecayMultiplier), 0f);
-                Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView + (Time.deltaTime * fovDeltaChange * sprintSpeedModifier), defaultFOV, maxFOV);
-                moveDirection *= walkSpeed * sprintSpeedModifier;
+                moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed * sprintSpeedModifier) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * /*sprintSpeedModifier **/ strafeSpeedModifier);
             }
             else if (moveDirection.magnitude > 0f)
             {
-                Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView - (Time.deltaTime * fovDeltaChange * sprintSpeedModifier), defaultFOV, Camera.main.fieldOfView); // defaultFOV
-                moveDirection *= walkSpeed;
-            }
-            else
-            {
-                Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView - (Time.deltaTime * fovDeltaChange * sprintSpeedModifier), defaultFOV, Camera.main.fieldOfView); // defaultFOV
+                moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
             }
 
             if (Input.GetButton("Jump"))
@@ -95,16 +90,11 @@ public class Player : MonoBehaviour
                 moveDirection.y = jumpSpeed;
             }
         }
-        else // Whilst In Air 
+        else
         {
             if (Input.GetButton("Sprint") && moveDirection.magnitude > 0f && !staminaRecovering)
             {
                 stamina = Mathf.Max(stamina - (Time.deltaTime * staminaDecayMultiplier), 0f);
-                Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView + (Time.deltaTime * fovDeltaChange * sprintSpeedModifier), defaultFOV, maxFOV);
-            }
-            else
-            {
-                Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView - (Time.deltaTime * fovDeltaChange * sprintSpeedModifier), defaultFOV, Camera.main.fieldOfView);
             }
 
             if (doubleJump && Input.GetButtonDown("Jump"))
@@ -119,6 +109,12 @@ public class Player : MonoBehaviour
 
     void UpdateLook()
     {
+        // FOV Change Whilst Sprinitng
+        if (Input.GetButton("Sprint") && moveDirection.magnitude > 0f && !staminaRecovering)
+            Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView + (Time.deltaTime * FOVDeltaChange * sprintSpeedModifier), defaultFOV, maxFOV);
+        else
+            Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView - (Time.deltaTime * FOVDeltaChange * sprintSpeedModifier), defaultFOV, Camera.main.fieldOfView);
+
         if (characterController.isGrounded)
         {
             // Strafing Camera Sway
@@ -130,7 +126,9 @@ public class Player : MonoBehaviour
         rotation.y += Input.GetAxis("Mouse X");
         rotation.x += Input.GetAxis("Mouse Y");
         rotation.x = Mathf.Clamp(rotation.x, -maxYLookRange, maxYLookRange); // lock Y look
-        transform.localRotation = Quaternion.Euler(rotation.x * mouseXSpeed, rotation.y * mouseYSpeed, 0);
+        // Left to Right Look on Player, Up Down Look on Camera Look to isolate movement to XZ plane
+        transform.localRotation = Quaternion.Euler(0, rotation.y * mouseYSpeed, 0);
+        cameraLookObject.transform.localRotation = Quaternion.Euler(rotation.x * mouseXSpeed, 0, 0); 
     }
 
     void UpdateUI()
