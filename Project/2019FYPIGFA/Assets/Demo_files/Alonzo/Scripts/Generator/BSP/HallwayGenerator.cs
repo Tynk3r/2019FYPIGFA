@@ -6,7 +6,32 @@ public class HallwayGenerator
 {
     float m_maxDimension;
     Vector2 m_hallwayWidthRange = new Vector2(10f, 6f); // Use this to generate more hallway variations
-    public List<Hallway> GenerateHallways(List<Leaf> _leaves)
+    public List<Hallway> D1_GenerateHallways(List<Leaf> _leaves)
+    {
+        var hallways = new List<Hallway>();
+        // For every leaf that has children, create hallways connecting the 2 children
+        int count = 0;
+        foreach (Leaf leaf in _leaves)
+        {
+            if (leaf.leftChild != null && leaf.rightChild != null)
+            {
+                ++count;
+                Leaf leafA = leaf.leftChild;
+                Leaf leafB = leaf.rightChild;
+                if (leafA != leafB)
+                {
+                    hallways.Add(DCreateHallway2(leafA.GetLowestLeaf(), leafB.GetLowestLeaf()));
+
+                }
+                else
+                    Debug.Log("2 leaves are the same!");
+            }
+        }
+        Debug.Log("count of hall iterations is " + hallways.Count + "| count of iterations is " + count);
+        return hallways;
+    }
+
+    public List<Hallway> D2_GenerateHallways(List<Leaf> _leaves, List<Room> _rooms)
     {
         var hallways = new List<Hallway>();
         // For every leaf that has children, create hallways connecting the 2 children
@@ -32,7 +57,6 @@ public class HallwayGenerator
     }
 
     // TODO: Add improvement on variations of hallways. Curved options, if possible
-    // TODO: Add a auto snapping behaviour to avoid bad meshes
     Hallway DCreateHallway1(Leaf _leafA, Leaf _leafB)
     {
         Hallway hallway = new Hallway(_leafA.room, _leafB.room); // Hallway to return
@@ -54,7 +78,7 @@ public class HallwayGenerator
 
         return hallway;
     }
-    // Create hallway using points instead of layout without culling
+    // Create hallway using points instead of layout with related room culling
     Hallway DCreateHallway2(Leaf _leafA, Leaf _leafB)
     {
         Hallway hallway = new Hallway(_leafA.room, _leafB.room); // Hallway to return
@@ -71,7 +95,23 @@ public class HallwayGenerator
 
         return hallway;
     }
+    // Create hallway using points instead of layout with both related and unrelated room culling
+    Hallway DCreateHallway3(Leaf _leafA, Leaf _leafB, List<Room> _rooms)
+    {
+        Hallway hallway = new Hallway(_leafA.room, _leafB.room); // Hallway to return
+        List<HallPoint> hallPoints;
+        Room roomA = _leafA.room;
+        Room roomB = _leafB.room;
+        Vector2 roomMinL, roomMinR;
+        Vector2 roomMaxL, roomMaxR;
 
+        hallPoints = GenerateHallPoints(roomA, roomB); // Generate hall points
+        hallPoints = CullPointExcess(hallPoints); // Cull and split halls that collides with other rooms
+        // Now Settle for collision with other rooms and Y axis generation
+        hallway.m_halls = CreateHallsFromPoints(hallPoints); // Generate the halls
+
+        return hallway;
+    }
     List<HallPoint> GenerateHallPoints(Room _roomA, Room _roomB)
     {
         var hallPoints = new List<HallPoint>();
@@ -258,7 +298,44 @@ public class HallwayGenerator
         }
         return hallways;
     }
-    // !Deprecated function to create hallways using rectangles. Has limitations and ineffective in determining collisions early
+    // Takes the list of hallways and deals with the second last biggest problem: collision of halls into unrelated rooms
+    List<Hallway> PolishHallways(List<HallPoint> _hallPoints, List<Room> _rooms)
+    {
+        HallPoint pointA, pointB, pointC;
+        pointA = pointB = pointC = null;
+        foreach(HallPoint hallPoint in _hallPoints)
+        {
+            switch(hallPoint.type)
+            {
+                case HallPoint.Type.END_A:
+                    pointA = hallPoint;
+                    break;
+                case HallPoint.Type.END_B:
+                    pointB = hallPoint;
+                    break;
+                case HallPoint.Type.TURN_LINK:
+                    pointC = hallPoint;
+                    break;
+            }
+        }
+        // Case 1: Check rooms between point A and point B and split the hallways
+        if (null == pointC)
+        {
+            // Get ALL the rooms that this hallway collides with (AXIS ALIGNED)
+            var collidingRooms = new List<Room>();
+            bool xAxis = pointA.position.x == pointB.position.x;
+            foreach(Room room in _rooms)
+            {
+                if (xAxis)
+                {
+                    //if (room)
+                }
+            }
+        }
+        // Case 2: Check from point A to point C and point B to point C
+        return null;
+    }
+    // !Deprecated prototyping function to create hallways using rectangles. Has limitations and ineffective in determining collisions early
     List<Hallway.Hall> CreateHalls(Room _roomA, Room _roomB, Vector2 _pointA, Vector2 _pointB)
     {
         var halls = new List<Hallway.Hall>();

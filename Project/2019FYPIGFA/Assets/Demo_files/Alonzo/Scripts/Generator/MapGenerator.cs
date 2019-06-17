@@ -5,6 +5,7 @@ using UnityEngine;
 public class MapGenerator : MonoBehaviour
 {
     HallwayGenerator hallwayGenerator = new HallwayGenerator();
+    RoomPropGenerator roomPropGenerator = new RoomPropGenerator();
     RoomGenerator roomGenerator = new RoomGenerator();
     public GenerationType generationType;
     public Material BSP_mat;
@@ -19,6 +20,7 @@ public class MapGenerator : MonoBehaviour
     GameObject demoMap;
 #endif
     public Tile[] tileSet = new Tile[0];
+    public Tile[] wallTileSet = new Tile[0];
     // Start is called before the first frame update
     void Start()
     {
@@ -53,6 +55,56 @@ public class MapGenerator : MonoBehaviour
         }
     }
 
+    void CreateRooms()
+    {
+        List<Leaf> map = MapTreeGenerator.GenerateLeaves(S_mapWidth, S_mapDepth);
+        var originalMap = new List<Leaf>(map);
+        List<Room> rooms;
+        // If the map generation uses polished layout
+        if (generationType > GenerationType.BSP_LAYOUT_ALL)
+            CullParentLeaves(map);
+        foreach (Leaf i in map)
+        {
+            GameObject leaf = MeshGenerator.CreatePlane(i.width, i.height, 0f, false);
+            leaf.transform.Translate(new Vector3(i.x, offsetY, i.y));
+            Renderer rend = leaf.GetComponent<Renderer>();
+            rend.material = BSP_mat;
+            leaf.transform.parent = demoMap.transform;
+            offsetY += 1;
+        }
+        // Generate rooms and hallways
+        if (generationType > GenerationType.BSP_LAYOUT_ALL)
+        {
+            rooms = roomGenerator.GenerateRooms(map);
+
+            foreach (Room i in rooms)
+            {
+                //GameObject room = MeshGenerator.CreatePlane(i.m_size.x, i.m_size.y, false);
+                //room.transform.Translate(new Vector3(i.m_position.x, offsetY, i.m_position.y));
+                //Renderer rend = room.GetComponent<Renderer>();
+                //rend.material = BSP_room;
+                //room.transform.parent = demoMap.transform;
+                roomPropGenerator.D1_GenerateRoomDetails(i, ref tileSet, ref wallTileSet, offsetY).transform.parent = demoMap.transform;
+                // Create the walls
+            }
+            offsetY += 1;
+            // Generate the hallway layout
+            List<Hallway> hallways = hallwayGenerator.D1_GenerateHallways(originalMap);
+            Debug.Log("hallway made with size of " + hallways.Count);
+            foreach (Hallway hallway in hallways)
+            {
+                foreach (Hallway.Hall i in hallway.m_halls)
+                {
+                    GameObject hall = MeshGenerator.CreatePlane(i.size.x, i.size.y, 0f, true);
+                    hall.transform.Translate(new Vector3(i.position.x, offsetY, i.position.y));
+                    Renderer rend = hall.GetComponent<Renderer>();
+                    rend.material = BSP_hall;
+                    hall.transform.parent = demoMap.transform;
+                }
+            }
+        }
+    }
+
     void CreateLayoutDebug()
     {
         List<Leaf> map = MapTreeGenerator.GenerateLeaves(S_mapWidth, S_mapDepth);
@@ -63,7 +115,7 @@ public class MapGenerator : MonoBehaviour
             CullParentLeaves(map);
         foreach(Leaf i in map)
         {
-            GameObject leaf = MeshGenerator.CreatePlane(i.width, i.height, false);
+            GameObject leaf = MeshGenerator.CreatePlane(i.width, i.height, 0f, false);
             leaf.transform.Translate(new Vector3(i.x, offsetY, i.y));
             Renderer rend = leaf.GetComponent<Renderer>();
             rend.material = BSP_mat;
@@ -77,7 +129,7 @@ public class MapGenerator : MonoBehaviour
             
             foreach(Room i in rooms)
             {
-                GameObject room = MeshGenerator.CreatePlane(i.m_size.x, i.m_size.y, false);
+                GameObject room = MeshGenerator.CreatePlane(i.m_size.x, i.m_size.y, 0f, false);
                 room.transform.Translate(new Vector3(i.m_position.x, offsetY, i.m_position.y));
                 Renderer rend = room.GetComponent<Renderer>();
                 rend.material = BSP_room;
@@ -85,13 +137,13 @@ public class MapGenerator : MonoBehaviour
             }
             offsetY += 1;
             // Generate the hallway layout
-            List<Hallway> hallways = hallwayGenerator.GenerateHallways(originalMap);
+            List<Hallway> hallways = hallwayGenerator.D1_GenerateHallways(originalMap);
             Debug.Log("hallway made with size of " + hallways.Count);
             foreach(Hallway hallway in hallways)
             {
                 foreach(Hallway.Hall i in hallway.m_halls)
                 {
-                    GameObject hall = MeshGenerator.CreatePlane(i.size.x, i.size.y, false);
+                    GameObject hall = MeshGenerator.CreatePlane(i.size.x, i.size.y, 0f, false);
                     hall.transform.Translate(new Vector3(i.position.x, offsetY, i.position.y));
                     Renderer rend = hall.GetComponent<Renderer>();
                     rend.material = BSP_hall;
@@ -104,11 +156,14 @@ public class MapGenerator : MonoBehaviour
     public void GenerateMap()
     {
         offsetY = 0;
-        CreateLayoutDebug();
+        CreateRooms();
         return;
-        GameObject plane = MeshGenerator.CreatePlane(50, 50);
+        CreateLayoutDebug();
+        GameObject plane = MeshGenerator.CreatePlane(100, 200, 1f, false);
         Renderer rend = plane.GetComponent<Renderer>();
-        rend.material = BSP_mat;
+        rend.material = tileSet[0].material;
+        plane.GetComponent<MeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        plane.transform.parent = demoMap.transform;
 
 #if UNITY_EDITOR
         plane.transform.parent = demoMap.transform;

@@ -5,12 +5,11 @@ using UnityEngine;
 public static class MeshGenerator
 {
     // Plane creation
-    public static GameObject CreatePlane(float _width, float _height, bool _collider = true)
+    public static GameObject CreatePlane(float _width, float _height, float _uvScale = 0f, bool _collider = true)
     {
         GameObject go = new GameObject("Plane");
         MeshFilter mf = go.AddComponent(typeof(MeshFilter)) as MeshFilter;
         MeshRenderer mr = go.AddComponent(typeof(MeshRenderer)) as MeshRenderer;
-
         Mesh m = new Mesh();
 
         m.vertices = new Vector3[]
@@ -21,13 +20,28 @@ public static class MeshGenerator
             new Vector3(-_width * 0.5f, 0, _height * 0.5f) // Top left
         };
 
-        m.uv = new Vector2[]
+        if (0f == _uvScale)
         {
-            new Vector2(0, 0),
-            new Vector2(0, 1),
-            new Vector2(1, 1),
-            new Vector2(1, 0)
-        };
+            m.uv = new Vector2[]
+            {
+                new Vector2(0, 0),
+                new Vector2(0, 1f),
+                new Vector2(1f, 1f),
+                new Vector2(1f, 0)
+            };
+        }
+        else
+        {
+            float maxUV = Mathf.Max(_width, _height);
+            m.uv = new Vector2[]
+            {
+                new Vector2(0, 0),
+                new Vector2(0, _width * _uvScale),
+                new Vector2(_height * _uvScale, _width * _uvScale),
+                new Vector2(_height * _uvScale, 0)
+            };
+        }
+
 
         //m.uv = new Vector2[]
         //{
@@ -45,7 +59,6 @@ public static class MeshGenerator
         }
         m.RecalculateBounds();
         m.RecalculateNormals();
-
         return go;
     }
 }
