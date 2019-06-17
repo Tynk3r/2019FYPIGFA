@@ -21,6 +21,8 @@ public class Player : MonoBehaviour
     public float sprintSpeedModifier = 2f;
     [Range(0.1f, 1f)]
     public float strafeSpeedModifier = 0.75f;
+    [Range(0.1f, 1f)]
+    public float retreatSpeedModifier = 0.75f;
     private float maxFOV = 0f;
     [Range(10f, 100f)]
     public float FOVDeltaChange = 50f;
@@ -46,7 +48,7 @@ public class Player : MonoBehaviour
         // Variable Initialisation
         health = maxHealth;
         stamina = maxStamina;
-        maxFOV = Camera.main.fieldOfView * Mathf.Clamp(1f + ((sprintSpeedModifier - 1f) / 2), 1f, 2f);
+        maxFOV = Camera.main.fieldOfView * Mathf.Clamp(1f + ((sprintSpeedModifier - 1f) / 2.5f), 1f, 2f);
         characterController = GetComponent<CharacterController>();
 
         // Misc QOL Stuff
@@ -58,7 +60,7 @@ public class Player : MonoBehaviour
     {
         health = maxHealth;
         stamina = maxStamina;
-        maxFOV = Camera.main.fieldOfView * Mathf.Clamp(1f + ((sprintSpeedModifier - 1f) / 2), 1f, 2f);
+        maxFOV = Camera.main.fieldOfView * Mathf.Clamp(1f + ((sprintSpeedModifier - 1f) / 2.5f), 1f, 2f);
     }
 
     void Update()
@@ -74,12 +76,16 @@ public class Player : MonoBehaviour
         {
             doubleJump = false;
             // moveDirection = (transform.right * Input.GetAxis("Horizontal")) + (Vector3.ProjectOnPlane(transform.forward, new Vector3(0, 1, 0)) * Input.GetAxis("Vertical")); // deprecated movement that ignored y look\
-            if (Input.GetButton("Sprint") && moveDirection.magnitude > 0f && !staminaRecovering)
+            if (Input.GetButton("Sprint") && Input.GetAxis("Vertical") > 0f && !staminaRecovering)
             {
                 stamina = Mathf.Max(stamina - (Time.deltaTime * staminaDecayMultiplier), 0f);
-                moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed * sprintSpeedModifier) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * /*sprintSpeedModifier **/ strafeSpeedModifier);
+                moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed * sprintSpeedModifier) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
             }
-            else if (moveDirection.magnitude > 0f)
+            else if (Input.GetAxis("Vertical") < 0f )
+            {
+                moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed * retreatSpeedModifier) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
+            }
+            else
             {
                 moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
             }
@@ -92,7 +98,7 @@ public class Player : MonoBehaviour
         }
         else
         {
-            if (Input.GetButton("Sprint") && moveDirection.magnitude > 0f && !staminaRecovering)
+            if (Input.GetButton("Sprint") && Input.GetAxis("Vertical") > 0f && !staminaRecovering)
             {
                 stamina = Mathf.Max(stamina - (Time.deltaTime * staminaDecayMultiplier), 0f);
             }
@@ -109,11 +115,11 @@ public class Player : MonoBehaviour
 
     void UpdateLook()
     {
-        // FOV Change Whilst Sprinitng
-        if (Input.GetButton("Sprint") && moveDirection.magnitude > 0f && !staminaRecovering)
-            Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView + (Time.deltaTime * FOVDeltaChange * sprintSpeedModifier), defaultFOV, maxFOV);
+        // FOV Change Whilst Sprintng
+        if (Input.GetButton("Sprint") && Input.GetAxis("Vertical") > 0f && !staminaRecovering)
+            Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView + (Time.deltaTime * FOVDeltaChange), defaultFOV, maxFOV);
         else
-            Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView - (Time.deltaTime * FOVDeltaChange * sprintSpeedModifier), defaultFOV, Camera.main.fieldOfView);
+            Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView - (Time.deltaTime * FOVDeltaChange), defaultFOV, Camera.main.fieldOfView);
 
         if (characterController.isGrounded)
         {
