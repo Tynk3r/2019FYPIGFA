@@ -10,7 +10,7 @@ public class RoomPropGenerator
         GameObject room = new GameObject("Room" + roomCount);
         // Generate the floor
         GameObject floor = MeshGenerator.CreatePlane(_room.m_size.x, _room.m_size.y, 1f, true);
-        floor.GetComponent<Renderer>().material = _floorTiles[Random.Range(0, _floorTiles.Length - 1)].material;
+        floor.GetComponent<Renderer>().material = _floorTiles[Random.Range(0, _floorTiles.Length)].material;
         floor.transform.Translate(_room.m_position.x, offset, _room.m_position.y);
         floor.transform.parent = room.transform;
         GameObject[] wall = new GameObject[]
@@ -41,7 +41,7 @@ public class RoomPropGenerator
         {
             i.transform.parent = room.transform;
             Renderer rend = i.GetComponent<Renderer>();
-            int randomIndex = Random.Range(0, _wallTiles.Length - 1);
+            int randomIndex = Random.Range(0, _wallTiles.Length);
             rend.material = _wallTiles[randomIndex].material;
         }
         return room;
