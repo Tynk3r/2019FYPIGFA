@@ -10,7 +10,7 @@ public class ClothingRackKids : MonoBehaviour
         IDLE,           // LOOKING FOR TARGET
         ORIENTING,      // FOUND TARGET, ROTATING TOWARDS
         SPEEDINGUP,     // ACCELERATING TOWARDS TARGET
-        REORIENT,      // HEADING TOWARD TARGET, WILL TRY AND RAM BY ROTATING TOWARDS
+        REORIENT,       // HEADING TOWARD TARGET, WILL TRY AND RAM BY ROTATING TOWARDS
         SLOWINGDOWN,    // DECELERATING 
     }
 
@@ -65,7 +65,6 @@ public class ClothingRackKids : MonoBehaviour
                     moveTimer = 0f;
                     currDist = (target.position - transform.position).magnitude;
                     prevFrameDist = currDist;
-                    Debug.Log("Changing to " + currState);
                 }
                 break;
             case STATES.SPEEDINGUP:
@@ -78,7 +77,6 @@ public class ClothingRackKids : MonoBehaviour
                 if (smoothMoveSpeed == moveSpeed)
                 {
                     currState = STATES.REORIENT;
-                    Debug.Log("Changing to " + currState);
                     currDist = (target.position - transform.position).magnitude;
                     prevFrameDist = currDist;
                 }
@@ -87,7 +85,6 @@ public class ClothingRackKids : MonoBehaviour
                     currState = STATES.SLOWINGDOWN;
                     moveTimer = 0f;
                     tempSpd = smoothMoveSpeed;
-                    Debug.Log("Changing to " + currState);
                 }
 
                 prevFrameDist = currDist;
@@ -102,7 +99,6 @@ public class ClothingRackKids : MonoBehaviour
                     currState = STATES.SLOWINGDOWN;
                     moveTimer = 0f;
                     tempSpd = smoothMoveSpeed;
-                    Debug.Log("Changing to " + currState);
                 }
 
                 prevFrameDist = currDist;
@@ -115,7 +111,6 @@ public class ClothingRackKids : MonoBehaviour
                 {
                     currState = STATES.ORIENTING;
                     tempSpd = moveSpeed;
-                    Debug.Log("Changing to " + currState);
                 }
                 break;
             default:

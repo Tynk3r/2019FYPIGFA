@@ -40,6 +40,14 @@ public class Player : MonoBehaviour
     private int defaultFOV = 60;
     private float cameraSwayAngle = 0f;
     private float cameraSwayMaxAngle = 0.5f;
+    // View Bobbing
+    public float maximumXBobFront;
+    public float maximumYBobFront;
+    public float maximumXBobBack;
+    public float maximumYBobBack;
+    public float viewBobSpeedFront;
+    public float viewBobSpeedBack;
+    private float viewBobTimer = 0.5f;
 
     private CharacterController characterController;
 
@@ -81,7 +89,7 @@ public class Player : MonoBehaviour
                 stamina = Mathf.Max(stamina - (Time.deltaTime * staminaDecayMultiplier), 0f);
                 moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed * sprintSpeedModifier) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
             }
-            else if (Input.GetAxis("Vertical") < 0f )
+            else if (Input.GetAxis("Vertical") < 0f)
             {
                 moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed * retreatSpeedModifier) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
             }
@@ -128,13 +136,39 @@ public class Player : MonoBehaviour
         }
         Camera.main.transform.localRotation = Quaternion.Euler(0, 0, cameraSwayAngle);
 
+        // View Bobbing
+        if (Input.GetAxis("Vertical") > 0 && characterController.isGrounded)
+        {
+            viewBobTimer += Time.deltaTime * viewBobSpeedFront;
+            Camera.main.transform.localPosition = new Vector3(Input.GetAxis("Vertical") * maximumXBobFront * Mathf.Sin(viewBobTimer * (2 * Mathf.PI)),
+                                                              Input.GetAxis("Vertical") * maximumYBobFront * Mathf.Sin(viewBobTimer * (4 * Mathf.PI)),
+                                                              0);
+            if (viewBobTimer >= 1)
+                viewBobTimer = 0f;
+        }
+        else if (Input.GetAxis("Vertical") < 0 && characterController.isGrounded)
+        {
+            viewBobTimer += Time.deltaTime * viewBobSpeedBack;
+            Camera.main.transform.localPosition = new Vector3(Input.GetAxis("Vertical") * maximumXBobBack * Mathf.Sin(viewBobTimer * (2 * Mathf.PI)),
+                                                              Input.GetAxis("Vertical") * maximumYBobBack * Mathf.Sin(viewBobTimer * (4 * Mathf.PI)),
+                                                              0);
+            if (viewBobTimer >= 1)
+                viewBobTimer = 0f;
+        }
+        else
+        {
+            Camera.main.transform.localPosition = new Vector3(Input.GetAxis("Vertical") * maximumXBobFront * Mathf.Sin(viewBobTimer * (2 * Mathf.PI)),
+                                                              Input.GetAxis("Vertical") * maximumYBobFront * Mathf.Sin(viewBobTimer * (4 * Mathf.PI)),
+                                                              0);
+        }
+
         // Mouse Controls
         rotation.y += Input.GetAxis("Mouse X");
         rotation.x += Input.GetAxis("Mouse Y");
         rotation.x = Mathf.Clamp(rotation.x, -maxYLookRange, maxYLookRange); // lock Y look
         // Left to Right Look on Player, Up Down Look on Camera Look to isolate movement to XZ plane
         transform.localRotation = Quaternion.Euler(0, rotation.y * mouseYSpeed, 0);
-        cameraLookObject.transform.localRotation = Quaternion.Euler(rotation.x * mouseXSpeed, 0, 0); 
+        cameraLookObject.transform.localRotation = Quaternion.Euler(rotation.x * mouseXSpeed, 0, 0);
     }
 
     void UpdateUI()
