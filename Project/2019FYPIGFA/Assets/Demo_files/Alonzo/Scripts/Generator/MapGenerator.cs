@@ -130,7 +130,7 @@ public class MapGenerator : MonoBehaviour
             foreach(Room i in rooms)
             {
                 GameObject room = MeshGenerator.CreatePlane(i.m_size.x, i.m_size.y, 0f, false);
-                room.transform.Translate(new Vector3(i.m_position.x, offsetY, i.m_position.y));
+                room.transform.Translate(new Vector3(i._position.x, offsetY, i._position.z));
                 Renderer rend = room.GetComponent<Renderer>();
                 rend.material = BSP_room;
                 room.transform.parent = demoMap.transform;
@@ -158,12 +158,12 @@ public class MapGenerator : MonoBehaviour
         offsetY = 0;
         CreateRooms();
         return;
-        CreateLayoutDebug();
-        GameObject plane = MeshGenerator.CreatePlane(100, 200, 1f, false);
+        GameObject plane = MeshGenerator.CreateStairs();// (10, 10, 1f, false);
         Renderer rend = plane.GetComponent<Renderer>();
         rend.material = tileSet[0].material;
         plane.GetComponent<MeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         plane.transform.parent = demoMap.transform;
+        CreateLayoutDebug();
 
 #if UNITY_EDITOR
         plane.transform.parent = demoMap.transform;

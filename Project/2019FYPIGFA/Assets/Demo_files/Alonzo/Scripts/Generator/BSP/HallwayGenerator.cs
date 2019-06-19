@@ -78,11 +78,11 @@ public class HallwayGenerator
 
         // Pick random points within the 2 rooms
         Vector2 pointA = new Vector2(
-            roomA.m_position.x + Random.Range(-0.5f * roomA.m_size.x, 0.5f * roomA.m_size.x),
-            roomA.m_position.y + Random.Range(-0.5f * roomA.m_size.y, 0.5f * roomA.m_size.y));
+            roomA._position.x + Random.Range(-0.5f * roomA.m_size.x, 0.5f * roomA.m_size.x),
+            roomA._position.z + Random.Range(-0.5f * roomA.m_size.y, 0.5f * roomA.m_size.y));
         Vector2 pointB = new Vector2(
-            roomB.m_position.x + Random.Range(-0.5f * roomB.m_size.x, 0.5f * roomB.m_size.x),
-            roomB.m_position.y + Random.Range(-0.5f * roomB.m_size.y, 0.5f * roomB.m_size.y));
+            roomB._position.x + Random.Range(-0.5f * roomB.m_size.x, 0.5f * roomB.m_size.x),
+            roomB._position.z + Random.Range(-0.5f * roomB.m_size.y, 0.5f * roomB.m_size.y));
         // This allows us to get RAW hallways that are not culled and has no intersection or y axis checks
         hallway.m_halls = CreateHalls(roomA, roomB, pointA, pointB);
         // Cull and split halls that collides with other rooms
@@ -137,11 +137,11 @@ public class HallwayGenerator
 
         // Pick random points within the 2 rooms
         Vector2 pointA = new Vector2(
-            _roomA.m_position.x + Random.Range(-0.5f * _roomA.m_size.x, 0.5f * _roomA.m_size.x),
-            _roomA.m_position.y + Random.Range(-0.5f * _roomA.m_size.y, 0.5f * _roomA.m_size.y));
+            _roomA._position.x + Random.Range(-0.5f * _roomA.m_size.x, 0.5f * _roomA.m_size.x),
+            _roomA._position.z + Random.Range(-0.5f * _roomA.m_size.y, 0.5f * _roomA.m_size.y));
         Vector2 pointB = new Vector2(
-            _roomB.m_position.x + Random.Range(-0.5f * _roomB.m_size.x, 0.5f * _roomB.m_size.x),
-            _roomB.m_position.y + Random.Range(-0.5f * _roomB.m_size.y, 0.5f * _roomB.m_size.y));
+            _roomB._position.x + Random.Range(-0.5f * _roomB.m_size.x, 0.5f * _roomB.m_size.x),
+            _roomB._position.z + Random.Range(-0.5f * _roomB.m_size.y, 0.5f * _roomB.m_size.y));
         // Find the linking point between point A and B (this point is the corner of the 90 degree turning point)
         Vector2 pointC = new Vector2(pointB.x, pointA.y);
         // Create 2 hall points for the random points
@@ -184,16 +184,16 @@ public class HallwayGenerator
         }
         //Debug.Log("the state of points is not " + (HallPoint.Type.END_A != pointA.type || HallPoint.Type.END_B != pointB.type));
         // Check if the link is within any of the known rooms. If it is, replace that room's end point with the link
-        if (Mathf.Abs(pointC.position.x - roomA.m_position.x) <= roomA.m_size.x * 0.5f &&
-            Mathf.Abs(pointC.position.z - roomA.m_position.y) <= roomA.m_size.y * 0.5f)
+        if (Mathf.Abs(pointC.position.x - roomA._position.x) <= roomA.m_size.x * 0.5f &&
+            Mathf.Abs(pointC.position.z - roomA._position.z) <= roomA.m_size.y * 0.5f)
         {
             _hallPoints.Remove(pointA);
             pointC.type = HallPoint.Type.END_A; // Replacing room A point with link
             pointA = pointC;    // Update the new pointA
             pointC = null;
         }
-        else if (Mathf.Abs(pointC.position.x - roomB.m_position.x) <= roomB.m_size.x * 0.5f &&
-                    Mathf.Abs(pointC.position.z - roomB.m_position.y) <= roomB.m_size.y * 0.5f)
+        else if (Mathf.Abs(pointC.position.x - roomB._position.x) <= roomB.m_size.x * 0.5f &&
+                    Mathf.Abs(pointC.position.z - roomB._position.z) <= roomB.m_size.y * 0.5f)
         {
             _hallPoints.Remove(pointB);
             pointC.type = HallPoint.Type.END_B; // Replacing room B point with link
@@ -206,19 +206,19 @@ public class HallwayGenerator
         {
             // POINT A
             if (pointC.position.x != pointA.position.x) // If the path follows only the X axis
-                pointA.position.x = pointA.roomA.m_position.x
+                pointA.position.x = pointA.roomA._position.x
                     + pointA.roomA.m_size.x * (pointC.position.x < pointA.position.x ? -0.5f : 0.5f);
             else if (pointC.position.z != pointA.position.z) // If the path follows only the Z axis
-                pointA.position.z = pointA.roomA.m_position.y
+                pointA.position.z = pointA.roomA._position.z
                     + pointA.roomA.m_size.y * (pointC.position.z < pointA.position.z ? -0.5f : 0.5f);
             else
                 Debug.LogError("Points A and C are not aligned");
             // POINT B
             if (pointC.position.x != pointB.position.x) // If the path follows only the X axis
-                pointB.position.x = pointB.roomB.m_position.x
+                pointB.position.x = pointB.roomB._position.x
                     + pointB.roomB.m_size.x * (pointC.position.x < pointB.position.x ? -0.5f : 0.5f);
             else if (pointC.position.z != pointB.position.z) // If the path follows only the Z axis
-                pointB.position.z = pointB.roomB.m_position.y
+                pointB.position.z = pointB.roomB._position.z
                     + pointB.roomB.m_size.y * (pointC.position.z < pointB.position.z ? -0.5f : 0.5f);
             else
                 Debug.LogError("Points A and C are not aligned");
@@ -228,19 +228,19 @@ public class HallwayGenerator
         {
             // POINT A
             if (pointB.position.x != pointA.position.x) // If the path follows only the X axis
-                pointA.position.x = pointA.roomA.m_position.x
+                pointA.position.x = pointA.roomA._position.x
                     + pointA.roomA.m_size.x * (pointB.position.x < pointA.position.x ? -0.5f : 0.5f);
             else if (pointB.position.z != pointA.position.z) // If the path follows only the Z axis
-                pointA.position.z = pointA.roomA.m_position.y
+                pointA.position.z = pointA.roomA._position.z
                     + pointA.roomA.m_size.y * (pointB.position.z < pointA.position.z ? -0.5f : 0.5f);
             else
                 Debug.LogError("Points A and B are not aligned");
             // POINT B
             if (pointA.position.x != pointB.position.x) // If the path follows only the X axis
-                pointB.position.x = pointB.roomB.m_position.x
+                pointB.position.x = pointB.roomB._position.x
                     + pointB.roomB.m_size.x * (pointA.position.x < pointB.position.x ? -0.5f : 0.5f);
             else if (pointA.position.z != pointB.position.z) // If the path follows only the Z axis
-                pointB.position.z = pointB.roomB.m_position.y
+                pointB.position.z = pointB.roomB._position.z
                     + pointB.roomB.m_size.y * (pointA.position.z < pointB.position.z ? -0.5f : 0.5f);
             else
                 Debug.LogError("Points A and B are not aligned");
@@ -351,16 +351,16 @@ public class HallwayGenerator
             {
                 if (xAxis)
                 {
-                    if (room.m_position.y - room.m_size.y * 0.5f < pointA.position.z &&
-                        room.m_position.y + room.m_size.y * 0.5f > pointA.position.z &&
-                        room.m_position.x > Mathf.Min(pointA.position.x, pointB.position.x) &&
-                        room.m_position.x < Mathf.Max(pointA.position.x, pointB.position.x))
+                    if (room._position.z - room.m_size.y * 0.5f < pointA.position.z &&
+                        room._position.z + room.m_size.y * 0.5f > pointA.position.z &&
+                        room._position.x > Mathf.Min(pointA.position.x, pointB.position.x) &&
+                        room._position.x < Mathf.Max(pointA.position.x, pointB.position.x))
                         collidingRooms.Add(room);
                 }
-                else if(room.m_position.x - room.m_size.x * 0.5f < pointA.position.x &&
-                        room.m_position.x + room.m_size.x * 0.5f > pointA.position.x &&
-                        room.m_position.y > Mathf.Min(pointA.position.z, pointB.position.z) &&
-                        room.m_position.y < Mathf.Max(pointA.position.z, pointB.position.z))
+                else if(room._position.x - room.m_size.x * 0.5f < pointA.position.x &&
+                        room._position.x + room.m_size.x * 0.5f > pointA.position.x &&
+                        room._position.z > Mathf.Min(pointA.position.z, pointB.position.z) &&
+                        room._position.z < Mathf.Max(pointA.position.z, pointB.position.z))
                         collidingRooms.Add(room);
             }
             // Now split the hallways that collide with the rooms, starting with the closest room to A
@@ -376,39 +376,39 @@ public class HallwayGenerator
                     }
                     else if (xAxis)
                     {
-                        if (Mathf.Abs(room.m_position.x - pointA.position.x) < Mathf.Abs(closest.m_position.x - pointA.position.x))
+                        if (Mathf.Abs(room._position.x - pointA.position.x) < Mathf.Abs(closest._position.x - pointA.position.x))
                             closest = room;
                     }
                     else
                     {
-                        if (Mathf.Abs(room.m_position.y - pointA.position.z) < Mathf.Abs(closest.m_position.y - pointA.position.z))
+                        if (Mathf.Abs(room._position.z - pointA.position.z) < Mathf.Abs(closest._position.z - pointA.position.z))
                             closest = room;
                     }
                 }
                 // Add a shortened hallway from pointA to closest room
                 HallPoint newPointB = new HallPoint(new Vector3(0f, 0f, 0f), HallPoint.Type.END_B, pointA.roomA, closest);
                 newPointB.position.x = xAxis ? pointA.position.x + 
-                    ((closest.m_position.x + closest.m_size.x * (closest.m_position.x < pointA.position.x ? 0.5f : -0.5f)) - pointA.position.x) : pointA.position.x;    // X axis here
+                    ((closest._position.x + closest.m_size.x * (closest._position.x < pointA.position.x ? 0.5f : -0.5f)) - pointA.position.x) : pointA.position.x;    // X axis here
                 newPointB.position.z = xAxis ? pointA.position.z : pointA.position.z + 
-                    (closest.m_position.y + closest.m_size.y * (closest.m_position.y < pointA.position.z ? 0.5f : -0.5f) - pointA.position.z);
+                    (closest._position.z + closest.m_size.y * (closest._position.z < pointA.position.z ? 0.5f : -0.5f) - pointA.position.z);
                 // Add the points into the hallpoint list
-                var newHallpoints = new List<HallPoint>();
-                newHallpoints.Add(pointA);
-                newHallpoints.Add(newPointB);
-                hallPointsList.Add(newHallpoints);
+                var newHallPoints = new List<HallPoint>();
+                newHallPoints.Add(pointA);
+                newHallPoints.Add(newPointB);
+                hallPointsList.Add(newHallPoints);
                 // Update the new pointA past the closest room
                 HallPoint newPointA = new HallPoint(new Vector3(0f, 0f, 0f), HallPoint.Type.END_A, closest, null);
-                newPointA.position.x = xAxis ? closest.m_position.x + closest.m_size.x * (closest.m_position.x < pointA.position.x ? -0.5f : 0.5f) : pointA.position.x;
-                newPointA.position.z = xAxis ? pointA.position.z : closest.m_position.y + closest.m_size.y * (closest.m_position.y < pointA.position.z ? -0.5f : 0.5f);
+                newPointA.position.x = xAxis ? closest._position.x + closest.m_size.x * (closest._position.x < pointA.position.x ? -0.5f : 0.5f) : pointA.position.x;
+                newPointA.position.z = xAxis ? pointA.position.z : closest._position.z + closest.m_size.y * (closest._position.z < pointA.position.z ? -0.5f : 0.5f);
                 Debug.Log("hallway split has occured! At" + newPointB.position);
                 // Update the new pointA
                 pointA = newPointA;
                 if (1 == collidingRooms.Count)
                 {
-                    newHallpoints = new List<HallPoint>();
-                    newHallpoints.Add(pointA); // Settle the linking to the final room
-                    newHallpoints.Add(pointB);
-                    hallPointsList.Add(newHallpoints);
+                    newHallPoints = new List<HallPoint>();
+                    newHallPoints.Add(pointA); // Settle the linking to the final room
+                    newHallPoints.Add(pointB);
+                    hallPointsList.Add(newHallPoints);
                 }
                 collidingRooms.Remove(closest);
             }
@@ -416,12 +416,100 @@ public class HallwayGenerator
         // Case 2: Check from point A to point C and point B to point C
         else
         {
-            hallPointsList.Add(_hallPoints);
+            //hallPointsList.Add(_hallPoints);
+            //return hallPointsList;
+            var collidingRooms = new List<Room>();
+            bool xAxis = pointA.position.z == pointC.position.z;
+            bool finishedCorner = false;
+            bool polished = false;
+            while (!polished)
+            {
+                // Get colliding rooms from point A to point C
+                foreach (Room room in _rooms)
+                {
+                    if (xAxis)
+                    {
+                        if (room._position.z - room.m_size.y * 0.5f < pointA.position.z &&
+                            room._position.z + room.m_size.y * 0.5f > pointA.position.z &&
+                            room._position.x > Mathf.Min(pointA.position.x, pointC.position.x) &&
+                            room._position.x < Mathf.Max(pointA.position.x, pointC.position.x))
+                            collidingRooms.Add(room);
+                    }
+                    else if (room._position.x - room.m_size.x * 0.5f < pointA.position.x &&
+                            room._position.x + room.m_size.x * 0.5f > pointA.position.x &&
+                            room._position.z > Mathf.Min(pointA.position.z, pointC.position.z) &&
+                            room._position.z < Mathf.Max(pointA.position.z, pointC.position.z))
+                        collidingRooms.Add(room);
+                }
+                while (collidingRooms.Count != 0)
+                {
+                    Room closest = null;
+                    // Get closest room
+                    foreach (Room room in collidingRooms)
+                    {
+                        if (null == closest)
+                        {
+                            closest = room;
+                            continue;
+                        }
+                        else if (xAxis)
+                        {
+                            if (Mathf.Abs(room._position.x - pointA.position.x) < Mathf.Abs(closest._position.x - pointA.position.x))
+                                closest = room;
+                        }
+                        else
+                        {
+                            if (Mathf.Abs(room._position.z - pointA.position.z) < Mathf.Abs(closest._position.z - pointA.position.z))
+                                closest = room;
+                        }
+                    }
+                    // Add shortened hallway from pointA to closest room
+                    HallPoint newPointB = new HallPoint(new Vector3(0f, 0f, 0f), HallPoint.Type.END_B, pointA.roomA, closest);
+                    newPointB.position.x = xAxis ? pointA.position.x +
+                        ((closest._position.x + closest.m_size.x * (closest._position.x < pointA.position.x ? 0.5f : -0.5f)) - pointA.position.x) : pointA.position.x;    // X axis here
+                    newPointB.position.z = xAxis ? pointA.position.z : pointA.position.z +
+                        (closest._position.z + closest.m_size.y * (closest._position.z < pointA.position.z ? 0.5f : -0.5f) - pointA.position.z);
+                    // Add the points into the hallpoint list
+                    var newHallpoints = new List<HallPoint>();
+                    newHallpoints.Add(pointA);
+                    newHallpoints.Add(newPointB);
+                    hallPointsList.Add(newHallpoints);
+                    // Update the new pointA past the closest room
+                    HallPoint newPointA = new HallPoint(new Vector3(0f, 0f, 0f), HallPoint.Type.END_A, closest, null);
+                    newPointA.position.x = xAxis ? closest._position.x + closest.m_size.x * (closest._position.x < pointA.position.x ? -0.5f : 0.5f) : pointA.position.x;
+                    newPointA.position.z = xAxis ? pointA.position.z : closest._position.z + closest.m_size.y * (closest._position.z < pointA.position.z ? -0.5f : 0.5f);
+                    Debug.Log("hallway split has occured! At" + newPointB.position);
+                    // Update the new pointA
+                    pointA = newPointA;
+                    if (1 == collidingRooms.Count)
+                    {
+                        if (!finishedCorner)    // If corner hasn't been polished, add pointA to corner and update new point A to be corner
+                        {
+                            finishedCorner = true;
+                            // Add the last link
+                            newHallpoints = new List<HallPoint>();
+                            newHallpoints.Add(pointA);
+                            newHallpoints.Add(pointC);
+                            pointA = pointC;
+                            xAxis = !xAxis;
+                        }
+                        else
+                        {
+                            newHallpoints = new List<HallPoint>();
+                            newHallpoints.Add(pointA);
+                            newHallpoints.Add(pointB);
+                            polished = true;
+                        }
+                    }
+                    collidingRooms.Remove(closest);
+                }
+            }
         }
         if (hallPointsList.Count == 0)
             hallPointsList.Add(_hallPoints);
         return hallPointsList;
     }
+
     // !Deprecated prototyping function to create hallways using rectangles. Has limitations and ineffective in determining collisions early
     List<Hallway.Hall> CreateHalls(Room _roomA, Room _roomB, Vector2 _pointA, Vector2 _pointB)
     {

@@ -24,8 +24,8 @@ public class RoomGenerator
             Vector2 leafMax = new Vector2(leaf.x + leaf.width * 0.5f - ROOM_LEAF_OFFSET
                 , leaf.y + leaf.height * 0.5f - ROOM_LEAF_OFFSET);
             // Now set the coordinates based on the size and boundaries of the leaf
-            room.m_position = new Vector2(
-                Random.Range(leafMin.x + room.m_size.x * 0.5f, leafMax.x - room.m_size.x * 0.5f),
+            room._position = new Vector3(
+                Random.Range(leafMin.x + room.m_size.x * 0.5f, leafMax.x - room.m_size.x * 0.5f), 0f,
                 Random.Range(leafMin.y + room.m_size.y * 0.5f, leafMax.y - room.m_size.y * 0.5f));
             leaf.room = room;
             // Add the room to the list of rooms

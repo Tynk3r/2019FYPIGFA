@@ -11,7 +11,7 @@ public class RoomPropGenerator
         // Generate the floor
         GameObject floor = MeshGenerator.CreatePlane(_room.m_size.x, _room.m_size.y, 1f, true);
         floor.GetComponent<Renderer>().material = _floorTiles[Random.Range(0, _floorTiles.Length)].material;
-        floor.transform.Translate(_room.m_position.x, offset, _room.m_position.y);
+        floor.transform.Translate(_room._position.x, offset, _room._position.z);
         floor.transform.parent = room.transform;
         GameObject[] wall = new GameObject[]
         {
@@ -22,10 +22,10 @@ public class RoomPropGenerator
         };
         // Rotate the walls
         // Translate the walls
-        wall[0].transform.Translate(new Vector3(_room.m_position.x, _room.m_roomHeight * 0.5f + offset, _room.m_position.y + _room.m_size.y * 0.5f)); // Translate top wall
-        wall[1].transform.Translate(new Vector3(_room.m_position.x, _room.m_roomHeight * 0.5f + offset, _room.m_position.y - _room.m_size.y * 0.5f)); // Translate bottom wall
-        wall[2].transform.Translate(new Vector3(_room.m_position.x - _room.m_size.x * 0.5f, _room.m_roomHeight * 0.5f + offset, _room.m_position.y)); // Translate left wall
-        wall[3].transform.Translate(new Vector3(_room.m_position.x + _room.m_size.x * 0.5f, _room.m_roomHeight * 0.5f + offset, _room.m_position.y)); // Translate right wall
+        wall[0].transform.Translate(new Vector3(_room._position.x, _room.m_roomHeight * 0.5f + offset, _room._position.z + _room.m_size.y * 0.5f)); // Translate top wall
+        wall[1].transform.Translate(new Vector3(_room._position.x, _room.m_roomHeight * 0.5f + offset, _room._position.z - _room.m_size.y * 0.5f)); // Translate bottom wall
+        wall[2].transform.Translate(new Vector3(_room._position.x - _room.m_size.x * 0.5f, _room.m_roomHeight * 0.5f + offset, _room._position.z)); // Translate left wall
+        wall[3].transform.Translate(new Vector3(_room._position.x + _room.m_size.x * 0.5f, _room.m_roomHeight * 0.5f + offset, _room._position.z)); // Translate right wall
 
         //wall[0].transform.Translate(new Vector3(_room.m_position.x, offset, _room.m_position.y)); // Translate top wall
         //wall[1].transform.Translate(new Vector3(_room.m_position.x, offset, _room.m_position.y)); // Translate bottom wall
