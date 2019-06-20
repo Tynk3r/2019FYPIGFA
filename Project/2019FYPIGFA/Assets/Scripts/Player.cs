@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 [RequireComponent(typeof(CharacterController))]
 public class Player : MonoBehaviour
@@ -32,7 +33,7 @@ public class Player : MonoBehaviour
     private Vector3 moveDirection = Vector3.zero;
 
     [Header("Look")]
-    public float mouseXSpeed = 3f;
+    public float mouseXSpeed = 3f;  
     public float mouseYSpeed = 3f;
     public float maxYLookRange = 15f;
     public GameObject cameraLookObject;
@@ -48,6 +49,10 @@ public class Player : MonoBehaviour
     public float viewBobSpeedFront;
     public float viewBobSpeedBack;
     private float viewBobTimer = 0.5f;
+
+    [Header("Inventory")]
+    public float weaponInventorySize = 5;
+    public Inventory weaponInventory;
 
     private CharacterController characterController;
 
@@ -75,7 +80,32 @@ public class Player : MonoBehaviour
     {
         UpdateMove();
         UpdateLook();
+        UpdatePickup();
         UpdateUI();
+
+        // Debug
+        if (Input.GetKeyDown(KeyCode.U))
+            weaponInventory.PrintAllItems();
+    }
+
+    void UpdatePickup()
+    {
+        // Raycast from Mouse, if object is interactable and canPickUp, add to inventory
+        RaycastHit hit;
+        if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out hit, 100))
+        {
+            Debug.DrawLine(Camera.main.transform.position, hit.point);
+            if(hit.collider.GetComponent<Interactable>() != null)
+            {
+                GameObject interactable = hit.transform.gameObject;
+                if (Input.GetAxis("Pick Up") > 0)
+                {
+                    // add to inv
+                    interactable.GetComponent<Interactable>().OnPickedUp(this.gameObject);
+                }
+            }
+        }
+        //Debug.Log(weapInv);
     }
 
     void UpdateMove()
@@ -140,7 +170,7 @@ public class Player : MonoBehaviour
         if (Input.GetAxis("Vertical") > 0 && characterController.isGrounded)
         {
             viewBobTimer += Time.deltaTime * viewBobSpeedFront;
-            Camera.main.transform.localPosition = new Vector3(Input.GetAxis("Vertical") * maximumXBobFront * Mathf.Sin(viewBobTimer * (2 * Mathf.PI)),
+            cameraLookObject.transform.localPosition = new Vector3(Input.GetAxis("Vertical") * maximumXBobFront * Mathf.Sin(viewBobTimer * (2 * Mathf.PI)),
                                                               Input.GetAxis("Vertical") * maximumYBobFront * Mathf.Sin(viewBobTimer * (4 * Mathf.PI)),
                                                               0);
             if (viewBobTimer >= 1)
@@ -149,7 +179,7 @@ public class Player : MonoBehaviour
         else if (Input.GetAxis("Vertical") < 0 && characterController.isGrounded)
         {
             viewBobTimer += Time.deltaTime * viewBobSpeedBack;
-            Camera.main.transform.localPosition = new Vector3(Input.GetAxis("Vertical") * maximumXBobBack * Mathf.Sin(viewBobTimer * (2 * Mathf.PI)),
+            cameraLookObject.transform.localPosition = new Vector3(Input.GetAxis("Vertical") * maximumXBobBack * Mathf.Sin(viewBobTimer * (2 * Mathf.PI)),
                                                               Input.GetAxis("Vertical") * maximumYBobBack * Mathf.Sin(viewBobTimer * (4 * Mathf.PI)),
                                                               0);
             if (viewBobTimer >= 1)
@@ -157,10 +187,13 @@ public class Player : MonoBehaviour
         }
         else
         {
-            Camera.main.transform.localPosition = new Vector3(Input.GetAxis("Vertical") * maximumXBobFront * Mathf.Sin(viewBobTimer * (2 * Mathf.PI)),
+            cameraLookObject.transform.localPosition = new Vector3(Input.GetAxis("Vertical") * maximumXBobFront * Mathf.Sin(viewBobTimer * (2 * Mathf.PI)),
                                                               Input.GetAxis("Vertical") * maximumYBobFront * Mathf.Sin(viewBobTimer * (4 * Mathf.PI)),
                                                               0);
         }
+
+        // Landing Animation
+        // TODO
 
         // Mouse Controls
         rotation.y += Input.GetAxis("Mouse X");
@@ -220,4 +253,6 @@ public class Player : MonoBehaviour
     {
         return stamina / maxStamina;
     }
+
+
 }
