@@ -69,13 +69,6 @@ public class Player : MonoBehaviour
         Cursor.visible = false;
     }
 
-    void OnValidate()
-    {
-        health = maxHealth;
-        stamina = maxStamina;
-        maxFOV = Camera.main.fieldOfView * Mathf.Clamp(1f + ((sprintSpeedModifier - 1f) / 2.5f), 1f, 2f);
-    }
-
     void Update()
     {
         UpdateMove();
@@ -169,7 +162,6 @@ public class Player : MonoBehaviour
             // Strafing Camera Sway
             cameraSwayAngle = Input.GetAxis("Horizontal") * -cameraSwayMaxAngle;
         }
-        Camera.main.transform.localRotation = Quaternion.Euler(0, 0, cameraSwayAngle);
 
         // View Bobbing
         if (Input.GetAxis("Vertical") > 0 && characterController.isGrounded)
@@ -206,7 +198,7 @@ public class Player : MonoBehaviour
         rotation.x = Mathf.Clamp(rotation.x, -maxYLookRange, maxYLookRange); // lock Y look
         // Left to Right Look on Player, Up Down Look on Camera Look to isolate movement to XZ plane
         transform.localRotation = Quaternion.Euler(0, rotation.y * mouseYSpeed, 0);
-        cameraLookObject.transform.localRotation = Quaternion.Euler(rotation.x * mouseXSpeed, 0, 0);
+        cameraLookObject.transform.localRotation = Quaternion.Euler(rotation.x * mouseXSpeed, 0, cameraSwayAngle);
     }
 
     void UpdateUI()
