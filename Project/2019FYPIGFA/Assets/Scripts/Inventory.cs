@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Inventory : MonoBehaviour
 {
-    List<ItemData> itemList = new List<ItemData>();
+    public List<ItemData> itemList = new List<ItemData>();
 
     public void AddItem(ItemData itemToAdd)
     {
@@ -13,14 +13,12 @@ public class Inventory : MonoBehaviour
 
     public void PrintAllItems()
     {
-        int i = 0;
         string toPrint = "";
         foreach (ItemData item in itemList)
         {
-            i++;
-            toPrint += i + ". " + item.type + "\n";
+            toPrint += (itemList.IndexOf(item)+1) + ". " + item.type + "\n";
         }
-        if (i <= 0)
+        if (toPrint == "")
             toPrint = "No Items Found In Inventory";
         Debug.Log(toPrint);
     }

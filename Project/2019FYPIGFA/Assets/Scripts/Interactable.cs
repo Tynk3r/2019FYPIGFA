@@ -32,6 +32,5 @@ public class Interactable : MonoBehaviour
         if (player.GetComponent<Inventory>() != null)
             player.GetComponent<Inventory>().AddItem(itemTemplate.itemData.Clone());
         Destroy(gameObject);
-        Debug.Log("Destwoyed");
     }
 }

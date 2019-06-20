@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public sealed class ItemTemplate : MonoBehaviour
+public class ItemTemplate : MonoBehaviour
 {
     public ItemData itemData;
 }

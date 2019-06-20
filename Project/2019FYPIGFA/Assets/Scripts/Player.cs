@@ -51,8 +51,8 @@ public class Player : MonoBehaviour
     private float viewBobTimer = 0.5f;
 
     [Header("Inventory")]
-    public float weaponInventorySize = 5;
     public Inventory weaponInventory;
+    public HeldWeapon currWeap;
 
     private CharacterController characterController;
 
@@ -79,18 +79,22 @@ public class Player : MonoBehaviour
     void Update()
     {
         UpdateMove();
+        UpdateWeapon();
         UpdateLook();
         UpdatePickup();
         UpdateUI();
+    }
 
-        // Debug
-        if (Input.GetKeyDown(KeyCode.U))
-            weaponInventory.PrintAllItems();
+    void UpdateWeapon()
+    {
+        if (currWeap.itemData.type == "" && weaponInventory.itemList.Capacity != 0)
+        {
+            currWeap.ChangeWeap(weaponInventory.itemList[0]);
+        }
     }
 
     void UpdatePickup()
     {
-        // Raycast from Mouse, if object is interactable and canPickUp, add to inventory
         RaycastHit hit;
         if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out hit, 100))
         {
@@ -100,12 +104,13 @@ public class Player : MonoBehaviour
                 GameObject interactable = hit.transform.gameObject;
                 if (Input.GetAxis("Pick Up") > 0)
                 {
-                    // add to inv
-                    interactable.GetComponent<Interactable>().OnPickedUp(this.gameObject);
+                    if (weaponInventory.itemList.Count >= 3)
+                        Debug.Log("No Space Left in Inventory");
+                    else
+                        interactable.GetComponent<Interactable>().OnPickedUp(this.gameObject);
                 }
             }
         }
-        //Debug.Log(weapInv);
     }
 
     void UpdateMove()
@@ -206,6 +211,11 @@ public class Player : MonoBehaviour
 
     void UpdateUI()
     {
+        // Inventory
+        if (Input.GetKeyDown(KeyCode.U))
+            weaponInventory.PrintAllItems();
+
+        // Stamina
         if (GetStam() <= 0f && !staminaRecovering && stamRegenTimerDone)
         {
             GameObject.FindGameObjectWithTag("Stam Bar Outline").GetComponentInChildren<Blink>().StartBlink();
