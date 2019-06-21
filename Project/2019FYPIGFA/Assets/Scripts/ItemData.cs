@@ -4,6 +4,13 @@ using UnityEngine;
 [Serializable]
 public class ItemData
 {
+    public enum WEAPON_TYPE
+    {
+        CLOSE_RANGE,
+        PROJECTILE,
+    }
+
+    public WEAPON_TYPE weaponType;
     public string type;
     public Mesh mesh;
     public Material material;

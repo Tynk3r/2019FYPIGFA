@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System;
+using TMPro;
 
 [RequireComponent(typeof(CharacterController))]
 public class Player : MonoBehaviour
@@ -15,6 +16,13 @@ public class Player : MonoBehaviour
     private float staminaDecayMultiplier = 1f;
     private float health, stamina;
     private bool staminaRecovering;
+
+    [Header("UI")]
+    public GameObject enemyName;
+    public GameObject enemyHealthBarOutline;
+    public GameObject enemyHealthBar;
+    public Vector2 enemyHealthBarPosition;
+    private Enemy currTarget = null;
 
     [Header("Movement")]
     public float walkSpeed = 5.0f;
@@ -33,7 +41,7 @@ public class Player : MonoBehaviour
     private Vector3 moveDirection = Vector3.zero;
 
     [Header("Look")]
-    public float mouseXSpeed = 3f;  
+    public float mouseXSpeed = 3f;
     public float mouseYSpeed = 3f;
     public float maxYLookRange = 15f;
     public GameObject cameraLookObject;
@@ -80,9 +88,18 @@ public class Player : MonoBehaviour
 
     void UpdateWeapon()
     {
+        // Changing Weapons
         if (currWeap.itemData.type == "" && weaponInventory.itemList.Capacity != 0)
         {
             currWeap.ChangeWeap(weaponInventory.itemList[0]);
+        }
+
+        // Attacking
+        if (Input.GetAxis("Fire1") > 0)
+        {
+            // play atk animation
+
+            currWeap.Fire();
         }
     }
 
@@ -92,7 +109,7 @@ public class Player : MonoBehaviour
         if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out hit, 100))
         {
             Debug.DrawLine(Camera.main.transform.position, hit.point);
-            if(hit.collider.GetComponent<Interactable>() != null)
+            if (hit.collider.GetComponent<Interactable>() != null)
             {
                 GameObject interactable = hit.transform.gameObject;
                 if (Input.GetAxis("Pick Up") > 0)
@@ -233,6 +250,33 @@ public class Player : MonoBehaviour
             stamina = Mathf.Min(stamina + (Time.deltaTime * 0.5f * staminaRegenMultiplier), maxStamina);
         GameObject staminaBar = GameObject.FindGameObjectWithTag("Stam Bar");
         staminaBar.GetComponent<RectTransform>().localScale = new Vector3(GetStam() * 4, staminaBar.transform.localScale.y, staminaBar.transform.localScale.z);
+
+        // Current Enemy Health Bar
+        RaycastHit hit;
+        if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out hit, 100))
+        {
+            // Switch Targets (Will not set any Values unless the looked at entity changes)
+            if (hit.collider.GetComponent<Enemy>() != null)
+            {
+                Enemy enemy = hit.collider.GetComponent<Enemy>();
+                if (currTarget != enemy)
+                {
+                    currTarget = enemy;
+                    if (!enemyName.activeSelf)
+                        enemyName.SetActive(true);
+                    enemyName.GetComponent<TextMeshProUGUI>().SetText(Enum.GetName(typeof(Enemy.ENEMY_TYPE), enemy.enemyType));
+                    //enemyHealthBarOutline.GetComponent<RectTransform>().localScale = new Vector3(enemy.maxHealth * 0.1f, enemyHealthBarOutline.transform.localScale.y, enemyHealthBarOutline.transform.localScale.z);
+                    enemyHealthBar.GetComponent<RectTransform>().localScale = new Vector3(enemy.health/enemy.maxHealth, enemyHealthBar.transform.localScale.y, enemyHealthBar.transform.localScale.z);
+                }
+            }
+            else if (currTarget != null)
+            {
+                currTarget = null;
+                if (enemyName.activeSelf)
+                    enemyName.SetActive(false);
+            }
+
+        }
     }
 
     /// <summary>

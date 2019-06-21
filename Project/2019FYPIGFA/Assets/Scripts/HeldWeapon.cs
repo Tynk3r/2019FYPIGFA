@@ -2,6 +2,7 @@
 
 [RequireComponent(typeof(MeshFilter))]
 [RequireComponent(typeof(MeshRenderer))]
+[RequireComponent(typeof(Collider))]
 public class HeldWeapon : MonoBehaviour
 {
     [HideInInspector]
@@ -17,7 +18,7 @@ public class HeldWeapon : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     public void ChangeWeap(ItemData newWeap)
@@ -25,5 +26,20 @@ public class HeldWeapon : MonoBehaviour
         itemData = newWeap;
         GetComponent<MeshFilter>().mesh = itemData.mesh;
         GetComponent<MeshRenderer>().material = itemData.material;
+    }
+
+    public void Fire()
+    {
+        switch (itemData.weaponType)
+        {
+            case ItemData.WEAPON_TYPE.CLOSE_RANGE:
+
+                break;
+            case ItemData.WEAPON_TYPE.PROJECTILE:
+                break;
+            default:
+                break;
+        }
+
     }
 }

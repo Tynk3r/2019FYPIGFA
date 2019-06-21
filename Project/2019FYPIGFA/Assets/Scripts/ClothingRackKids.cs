@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(CharacterController))]
-public class ClothingRackKids : MonoBehaviour
+public class ClothingRackKids : Enemy
 {
     enum STATES
     {
