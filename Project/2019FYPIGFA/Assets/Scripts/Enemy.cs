@@ -13,7 +13,7 @@ public class Enemy : MonoBehaviour
     }
 
     public ENEMY_TYPE enemyType;
-    public float health = 0;
+    public float health = 1;
     public float maxHealth;
 
     // Start is called before the first frame update
@@ -23,9 +23,20 @@ public class Enemy : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    public virtual void Update()
     {
-        
+        health = Mathf.Clamp(health, 0, maxHealth);
+
+        if (health <= 0)
+        {
+            health = 0;
+            Die();
+        }
     }
     
+    public void Die()
+    {
+        // Def :(
+    }
+
 }

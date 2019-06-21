@@ -35,8 +35,10 @@ public class ClothingRackKids : Enemy
     }
 
     // Update is called once per frame
-    void Update()
+    public override void Update()
     {
+        base.Update();
+
         switch (currState)
         {
             case STATES.IDLE:

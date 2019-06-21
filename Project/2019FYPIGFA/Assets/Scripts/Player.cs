@@ -60,7 +60,7 @@ public class Player : MonoBehaviour
 
     [Header("Inventory")]
     public Inventory weaponInventory;
-    public HeldWeapon currWeap;
+    public HeldWeapon currentWeapon;
 
     private CharacterController characterController;
 
@@ -88,18 +88,38 @@ public class Player : MonoBehaviour
 
     void UpdateWeapon()
     {
-        // Changing Weapons
-        if (currWeap.itemData.type == "" && weaponInventory.itemList.Capacity != 0)
+        if (currentWeapon && currentWeapon.itemData != null && currentWeapon.itemData.weaponType != ItemData.WEAPON_TYPE.NONE)
         {
-            currWeap.ChangeWeap(weaponInventory.itemList[0]);
+            if (Input.GetButtonDown("Fire1"))
+            {
+                currentWeapon.Fire();
+                if (currTarget != null)
+                    enemyHealthBar.GetComponent<RectTransform>().localScale = new Vector3(currTarget.health / currTarget.maxHealth, enemyHealthBar.transform.localScale.y, enemyHealthBar.transform.localScale.z);
+            }
+            if (currentWeapon.itemData.durability <= 0)
+            {
+                weaponInventory.RemoveItem(currentWeapon.itemData);
+                currentWeapon.RemoveWeapon();
+                Debug.Log("Weapon Broke!");
+            }
+            if (Input.GetButtonDown("Next Weapon"))
+            {
+                if (weaponInventory.itemList.Count == 0)
+                    Debug.Log("You Don't Have Any Weapons!");
+                else if (weaponInventory.itemList.Count == 1)
+                    Debug.Log("You Don't Have Any Other Weapons!");
+                else if (weaponInventory.itemList.Count > 1)
+                {
+                    int nextWeaponIndex = weaponInventory.itemList.IndexOf(currentWeapon.itemData) + 1;
+                    if (weaponInventory.itemList.IndexOf(currentWeapon.itemData) == weaponInventory.itemList.Count - 1)
+                        nextWeaponIndex = 0;
+                    currentWeapon.ChangeWeapon(weaponInventory.itemList[nextWeaponIndex]);
+                }
+            }
         }
-
-        // Attacking
-        if (Input.GetAxis("Fire1") > 0)
+        else if (weaponInventory.itemList.Count != 0)
         {
-            // play atk animation
-
-            currWeap.Fire();
+            currentWeapon.ChangeWeapon(weaponInventory.itemList[0]);
         }
     }
 
@@ -128,7 +148,7 @@ public class Player : MonoBehaviour
         if (characterController.isGrounded)
         {
             doubleJump = false;
-            // moveDirection = (transform.right * Input.GetAxis("Horizontal")) + (Vector3.ProjectOnPlane(transform.forward, new Vector3(0, 1, 0)) * Input.GetAxis("Vertical")); // deprecated movement that ignored y look\
+            // moveDirection = (transform.right * Input.GetAxis("Horizontal")) + (Vector3.ProjectOnPlane(transform.forward, new Vector3(0, 1, 0)) * Input.GetAxis("Vertical")); // deprecated movement that ignored y look
             if (Input.GetButton("Sprint") && Input.GetAxis("Vertical") > 0f && !staminaRecovering)
             {
                 stamina = Mathf.Max(stamina - (Time.deltaTime * staminaDecayMultiplier), 0f);
@@ -222,7 +242,7 @@ public class Player : MonoBehaviour
     {
         // Inventory
         if (Input.GetKeyDown(KeyCode.U))
-            weaponInventory.PrintAllItems();
+            weaponInventory.PrintAllItems(currentWeapon.itemData);
 
         // Stamina
         if (GetStam() <= 0f && !staminaRecovering && stamRegenTimerDone)
@@ -253,9 +273,14 @@ public class Player : MonoBehaviour
 
         // Current Enemy Health Bar
         RaycastHit hit;
-        if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out hit, 100))
+        float range = 0f;
+        if (currentWeapon && currentWeapon.itemData != null && currentWeapon.itemData.weaponType != ItemData.WEAPON_TYPE.NONE)
+            range = currentWeapon.itemData.range;
+        else
+            range = 100f;
+        if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out hit, range))
         {
-            // Switch Targets (Will not set any Values unless the looked at entity changes)
+            // Switch Targets (Will not set any values unless the looked at entity changes)
             if (hit.collider.GetComponent<Enemy>() != null)
             {
                 Enemy enemy = hit.collider.GetComponent<Enemy>();
@@ -265,17 +290,15 @@ public class Player : MonoBehaviour
                     if (!enemyName.activeSelf)
                         enemyName.SetActive(true);
                     enemyName.GetComponent<TextMeshProUGUI>().SetText(Enum.GetName(typeof(Enemy.ENEMY_TYPE), enemy.enemyType));
-                    //enemyHealthBarOutline.GetComponent<RectTransform>().localScale = new Vector3(enemy.maxHealth * 0.1f, enemyHealthBarOutline.transform.localScale.y, enemyHealthBarOutline.transform.localScale.z);
-                    enemyHealthBar.GetComponent<RectTransform>().localScale = new Vector3(enemy.health/enemy.maxHealth, enemyHealthBar.transform.localScale.y, enemyHealthBar.transform.localScale.z);
+                    enemyHealthBar.GetComponent<RectTransform>().localScale = new Vector3(enemy.health / enemy.maxHealth, enemyHealthBar.transform.localScale.y, enemyHealthBar.transform.localScale.z);
                 }
             }
-            else if (currTarget != null)
-            {
-                currTarget = null;
-                if (enemyName.activeSelf)
-                    enemyName.SetActive(false);
-            }
-
+        }
+        else if (currTarget != null)
+        {
+            currTarget = null;
+            if (enemyName.activeSelf)
+                enemyName.SetActive(false);
         }
     }
 

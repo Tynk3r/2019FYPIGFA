@@ -11,12 +11,20 @@ public class Inventory : MonoBehaviour
         itemList.Add(itemToAdd);
     }
 
-    public void PrintAllItems()
+    public void RemoveItem(ItemData itemToRemove)
+    {
+        itemList.Remove(itemToRemove);
+    }
+
+    public void PrintAllItems(ItemData currWeapon = null)
     {
         string toPrint = "";
         foreach (ItemData item in itemList)
         {
-            toPrint += (itemList.IndexOf(item)+1) + ". " + item.type + "\n";
+            toPrint += (itemList.IndexOf(item) + 1) + ". " + item.type;
+            if (item == currWeapon)
+                toPrint += " (Currently Equipped)";
+            toPrint += "\n";
         }
         if (toPrint == "")
             toPrint = "No Items Found In Inventory";
