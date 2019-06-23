@@ -12,18 +12,18 @@ public class Hallway
     {
         m_roomA = roomA;
         m_roomB = roomB;
-        //m_halls = new List<Hall>();
+        m_halls = new List<Hall>();
     }
 
 
     public struct Hall
     {
-        public Vector2 position;
+        public Vector3 position;
         public Vector2 size;
         private Room roomA;
         private Room roomB;
 
-        public Hall(Vector2 position, Vector2 size, Room roomA, Room roomB) : this()
+        public Hall(Vector3 position, Vector2 size, Room roomA, Room roomB) : this()
         {
             this.position = position;
             this.size = size;

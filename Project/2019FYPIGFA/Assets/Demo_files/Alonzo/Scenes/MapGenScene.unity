@@ -239,6 +239,8 @@ MonoBehaviour:
   S_mapWidth: 100
   S_mapDepth: 100
   S_minRoomSize: 3
+  S_maxLeafSize: 30
+  S_minLeafSize: 30
   autoUpdate: 0
   tileSet:
   - material: {fileID: 2100000, guid: 7de36032ab127644bbbf7ecd74332d7d, type: 2}

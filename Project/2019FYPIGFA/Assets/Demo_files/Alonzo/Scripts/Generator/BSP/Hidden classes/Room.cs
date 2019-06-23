@@ -6,7 +6,7 @@ public class Room
 {
     public Vector2 m_size;
     public Vector3 _position;
-    public List<HallPoint> m_entrances = new List<HallPoint>();
+    public List<List<HallPoint>> m_entrances = new List<List<HallPoint>>();
     public float m_roomHeight = 1;
     public Room(float width, float height)
     {

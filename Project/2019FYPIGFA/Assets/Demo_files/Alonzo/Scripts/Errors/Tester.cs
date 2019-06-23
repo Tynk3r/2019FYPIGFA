@@ -7,12 +7,24 @@ public class Tester : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        int testInt = 5;
-        TestPoint testPoint = new TestPoint();
-        TestPoint mainPoint = testPoint;
-        Debug.Log("Original main point proof " + mainPoint.proof);
-        testPoint.proof = true;
-        Debug.Log("Now it's " + mainPoint.proof);
+        var list = new List<TestPoint>();
+        list.Add(new TestPoint(9));
+        list.Add(new TestPoint(8));
+        list.Add(new TestPoint(7));
+        list.Add(new TestPoint(6));
+        list.Add(new TestPoint(5));
+        list.Add(new TestPoint(4));
+        list.Add(new TestPoint(3));
+        list.Add(new TestPoint(2));
+        list.Add(new TestPoint(1));
+        list.Add(new TestPoint(0));
+        list.Sort((x, y) => x.nextint.CompareTo(y.nextint));
+
+        //Debug.Log("the sorted list goes by this order: ");
+        //foreach(TestPoint i in list)
+        //{
+        //    Debug.Log("Tester: " + i.nextint);
+        //}
     }
 
     // Update is called once per frame
@@ -24,6 +36,10 @@ public class Tester : MonoBehaviour
 
 public class TestPoint
 {
+    public TestPoint(int i)
+    {
+        nextint = i;   
+    }
     public bool proof = false;
     public TestPoint next = null;
     public int nextint;

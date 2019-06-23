@@ -9,11 +9,15 @@ public class RoomGenerator
     // TODO: add different variables and map conditions for guranteed essential rooms
 
     // Create a room for each leaf. This function assumes there are no rooms.
-    public List<Room> GenerateRooms(List<Leaf> _leaves)
+    public List<Room> GenerateRooms(ref List<Leaf> _leaves)
     {
         var rooms = new List<Room>();
         foreach(Leaf leaf in _leaves)
         {
+            if (null != leaf.leftChild && null != leaf.rightChild)
+            {
+                continue;
+            }
             // Creating a room
             Room room = new Room(
                 Random.Range(Mathf.Max(leaf.width * 0.5f, m_minRoomSize), leaf.width - ROOM_LEAF_OFFSET),

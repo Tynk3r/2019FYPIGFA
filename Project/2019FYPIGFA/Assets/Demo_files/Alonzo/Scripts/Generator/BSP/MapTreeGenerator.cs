@@ -4,8 +4,8 @@ using UnityEngine;
 
 public static class MapTreeGenerator
 {
-    public static int MAX_LEAF_SIZE = 20;
-
+    public static float MAX_LEAF_SIZE = 20f;
+    public static float MIN_LEAF_SIZE = 6f;
     // This function only generates the room layout and not the details
     public static List<Leaf> GenerateLeaves(int _mapWidth, int _mapHeight)
     {
@@ -16,30 +16,34 @@ public static class MapTreeGenerator
         bool splitting = true;
 
         // First, create a root leaf
-        leaves.Add(new Leaf(0, 0, _mapWidth, _mapHeight));
+        leaves.Add(new Leaf(0, 0, _mapWidth, _mapHeight, 0));
+        leaves[0].Split(MIN_LEAF_SIZE, MAX_LEAF_SIZE, 1, ref leaves);
+        Debug.Log("The number of leaves generated is: " + leaves.Count);
+        // Now sort the leaves and bring them salvation!
+        leaves.Sort((x, y) => x.level.CompareTo(y.level));
         // Loop through every leaf and resize whenever split occurs
-        while (splitting && i < count)
-        {
-           // Debug.Log("Iteration no: " + i + "| count is " + count + "| length is " + leaves.Count);
-            splitting = false;
-            leaf = leaves[i++];
+        //while (splitting && i < count)
+        //{
+        //   // Debug.Log("Iteration no: " + i + "| count is " + count + "| length is " + leaves.Count);
+        //    splitting = false;
+        //    leaf = leaves[i++];
 
-            if (leaf.leftChild == null && leaf.rightChild == null)
-            {
-                // If the leaf is too big, or 75% chance
-                if (leaf.width > MAX_LEAF_SIZE || leaf.height > MAX_LEAF_SIZE || Random.value > 0.25f)
-                {
-                    if (leaf.Split())
-                    {
-                        // If we split, push the child leafs to the list, increase count
-                        count += 2;
-                        leaves.Add(leaf.leftChild);
-                        leaves.Add(leaf.rightChild);
-                        splitting = true;
-                    }
-                }
-            }
-        }
+        //    if (leaf.leftChild == null && leaf.rightChild == null)
+        //    {
+        //        // If the leaf is too big, or 75% chance
+        //        if (leaf.width > MAX_LEAF_SIZE || leaf.height > MAX_LEAF_SIZE || Random.value > 0.25f)
+        //        {
+        //            if (leaf.Split())
+        //            {
+        //                // If we split, push the child leafs to the list, increase count
+        //                count += 2;
+        //                leaves.Add(leaf.leftChild);
+        //                leaves.Add(leaf.rightChild);
+        //                splitting = true;
+        //            }
+        //        }
+        //    }
+        //}
         return leaves;
     }
 
