@@ -1133,6 +1133,7 @@ MonoBehaviour:
   FOVDeltaChange: 60
   jumpSpeed: 5
   gravity: 20
+  minDownwardVelocity: -0.01
   mouseXSpeed: 3
   mouseYSpeed: 3
   maxYLookRange: 25
