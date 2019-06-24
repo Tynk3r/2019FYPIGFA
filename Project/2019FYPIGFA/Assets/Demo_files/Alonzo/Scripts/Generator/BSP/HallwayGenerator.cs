@@ -5,7 +5,7 @@ using UnityEngine;
 public class HallwayGenerator
 {
     float m_maxDimension = 1f;
-    Vector2 m_hallwayWidthRange = new Vector2(10f, 6f); // Use this to generate more hallway variations
+    Vector2 m_hallwayWidthRange = new Vector2(1f, 1f); // Use this to generate more hallway variations
 
     // From the second highest level leaf, unify the 2 children together, if any and continue upwards to the heavens
     public List<Hallway> D2GenerateHallways(ref List<Leaf> _leaves)
@@ -32,7 +32,9 @@ public class HallwayGenerator
             {
                 if (null == leaf.leftChild && null == leaf.rightChild) // Means that this leaf has a room and no children
                     continue;
-                hallPointList.Add(GenerateHallPoints(leaf));
+                List<HallPoint> points = GenerateHallPoints(leaf);
+                if (null != points)
+                    hallPointList.Add(GenerateHallPoints(leaf));
             }
             --currentLevel;
         }
@@ -64,18 +66,34 @@ public class HallwayGenerator
         // Determine min and max boundaries of both rooms
         Vector2 leftBoundaries = GetBoundaries(leftRooms, onXAxis);
         Vector2 rightBoundaries = GetBoundaries(rightRooms, onXAxis);
+        Vector2 boundaries = new Vector2(Mathf.Max(leftBoundaries.x, rightBoundaries.x), Mathf.Min(leftBoundaries.y, rightBoundaries.y));
+        // TODO: check if boundaries are too small
         // TODO: Check if boundaries don't meet at all (RARE CASE)
         if (Mathf.Min(leftBoundaries.y, rightBoundaries.y) - Mathf.Max(leftBoundaries.x, rightBoundaries.x) < m_maxDimension)
         {
-            Debug.LogError("THE BOUNDARIES ARE OPEN");
+            Debug.Log("THE BOUNDARIES ARE OPEN " + (Mathf.Min(leftBoundaries.y, rightBoundaries.y) - Mathf.Max(leftBoundaries.x, rightBoundaries.x)));
         }
-        // Pick a random point that lies in both boundaries
-        float randomPoint = Random.Range(Mathf.Max(leftBoundaries.x, rightBoundaries.x) + m_maxDimension * 0.5f,
-            Mathf.Min(leftBoundaries.y, rightBoundaries.y) - m_maxDimension * 0.5f);
-        // Determine the possible rooms hit, pick the closest room 
         
-        // Pick the closest hallway instead if no rooms
+        // Determine the possible rooms hit, TODO : pick the closest room if there's more than one
+        List<Room> leftRoomsFound = GetRoomsInBoundaries(boundaries, leftRooms, onXAxis);
+        List<Room> rightRoomsFound = GetRoomsInBoundaries(boundaries, rightRooms, onXAxis);
+        Room chosenLeftRoom, chosenRightRoom;
+        chosenLeftRoom = chosenRightRoom = null;
+        float point, width; // For point, it would be X if onXAxis is false
+        point = width = 0f;
+        if (!GetFirstVisibleRoom(leftRoomsFound, rightRoomsFound, ref point, ref width, ref chosenLeftRoom, ref chosenRightRoom, boundaries, onXAxis))
+            return null;
         // Generate a straight hallway from leaf to leaf
+        HallPoint pointA = new HallPoint(new Vector3(
+            onXAxis ? (chosenLeftRoom._position.x + chosenLeftRoom.m_size.x * (chosenLeftRoom._position.x > chosenRightRoom._position.x ? -0.5f : 0.5f)) : point, 0f,
+            onXAxis ? point : (chosenLeftRoom._position.z + chosenLeftRoom.m_size.y * chosenLeftRoom._position.z > chosenRightRoom._position.z ? -0.5f : 0.5f)),
+            HallPoint.Type.END_A, chosenLeftRoom, chosenRightRoom);
+        
+        HallPoint pointB = new HallPoint(new Vector3(
+            onXAxis ? (chosenRightRoom._position.x + chosenRightRoom.m_size.x * (chosenRightRoom._position.x > chosenLeftRoom._position.x ? -0.5f : 0.5f)) : point, 0f,
+            onXAxis ? point : (chosenRightRoom._position.z + chosenRightRoom.m_size.y * chosenRightRoom._position.z > chosenLeftRoom._position.z ? -0.5f : 0.5f)),
+            HallPoint.Type.END_B, chosenLeftRoom, chosenRightRoom);
+        // TODO: Pick the closest hallway instead if no rooms
         hallPoints.Add(pointA);
         hallPoints.Add(pointB);
         return hallPoints;
@@ -105,26 +123,22 @@ public class HallwayGenerator
 
     Vector2 GetBoundaries(List<Room> _rooms, bool _onXAxis)
     {
-        Vector2 boundaries;
-        if (_onXAxis)
-            boundaries = new Vector2(_rooms[0]._position.x, _rooms[0]._position.x);
-        else
-            boundaries = new Vector2(_rooms[0]._position.z, _rooms[0]._position.z);
+        Vector2 boundaries = new Vector2(float.MinValue, float.MaxValue);
         foreach (Room room in _rooms)
         {
             if (_onXAxis)
             {
-                if (room._position.x - room.m_size.x * 0.5f < boundaries.x)
-                    boundaries.x = room._position.x - room.m_size.x * 0.5f;
-                if (room._position.x + room.m_size.x * 0.5f > boundaries.y)
-                    boundaries.y = room._position.x + room.m_size.x * 0.5f;
+                if (room._position.z - room.m_size.y * 0.5f > boundaries.x)
+                    boundaries.x = room._position.z - room.m_size.y * 0.5f;
+                if (room._position.z + room.m_size.y * 0.5f < boundaries.y)
+                    boundaries.y = room._position.z + room.m_size.y * 0.5f;
             }
             else
             {
-                if (room._position.z - room.m_size.y * 0.5f < boundaries.x)
-                    boundaries.x = room._position.z - room.m_size.y * 0.5f;
-                if (room._position.z + room.m_size.y * 0.5f > boundaries.y)
-                    boundaries.y = room._position.z + room.m_size.y * 0.5f;
+                if (room._position.x - room.m_size.x * 0.5f > boundaries.x)
+                    boundaries.x = room._position.x - room.m_size.x * 0.5f;
+                if (room._position.x + room.m_size.x * 0.5f < boundaries.y)
+                    boundaries.y = room._position.x + room.m_size.x * 0.5f;
             }
         }
         return boundaries;
@@ -132,11 +146,91 @@ public class HallwayGenerator
 
     List<Room> GetRoomsInBoundaries(Vector2 _boundaries, List<Room> _rooms, bool _onXAxis)
     {
+        var result = new List<Room>();
         // Rooms in boundaries have to collide and provide enough space for hall
-        foreach(Room room in _rooms)
+        foreach (Room room in _rooms)
         {
-
+            // If either the min or max points are in boundaries, and can house the min room size
+            if (_onXAxis)
+            {
+                Vector2 roomZBoundaries = new Vector2(room._position.z - room.m_size.y * 0.5f, room._position.z + room.m_size.y * 0.5f);
+                if (roomZBoundaries.x > _boundaries.x && roomZBoundaries.x < _boundaries.y && 
+                    Mathf.Max(roomZBoundaries.x - _boundaries.x, _boundaries.y - roomZBoundaries.x) >= m_hallwayWidthRange.x)
+                    result.Add(room);
+                else if (roomZBoundaries.y > _boundaries.x && roomZBoundaries.y < _boundaries.y &&
+                    Mathf.Max(roomZBoundaries.y - _boundaries.x, _boundaries.y - roomZBoundaries.y) >= m_hallwayWidthRange.x)
+                    result.Add(room);
+                else if (_boundaries.x > roomZBoundaries.x && _boundaries.x < roomZBoundaries.y && roomZBoundaries.y - _boundaries.x >= m_hallwayWidthRange.x)
+                    result.Add(room);
+                else if (_boundaries.y > roomZBoundaries.x && _boundaries.y < roomZBoundaries.y && _boundaries.y - roomZBoundaries.x >= m_hallwayWidthRange.x)
+                    result.Add(room);
+            }
+            else
+            {
+                Vector2 roomXBoundaries = new Vector2(room._position.x - room.m_size.x * 0.5f, room._position.x + room.m_size.x * 0.5f);
+                if (roomXBoundaries.x >= _boundaries.x && roomXBoundaries.y <= _boundaries.y)
+                {
+                    if (Mathf.Min(roomXBoundaries.x - _boundaries.x, _boundaries.y - roomXBoundaries.y) >= m_hallwayWidthRange.x)
+                        result.Add(room);
+                }
+            }
         }
+        return result;
+    }
+
+    List<List<HallPoint>> GetHallwaysInBoundaries(Vector2 _boundaries, List<Room> _rooms, bool _onXAxis)
+    {
+        return null;
+    }
+
+    bool GetFirstVisibleRoom(List<Room> _roomsLeft, List<Room> _roomsRight, 
+        ref float _point, ref float _width, ref Room _roomLeft, ref Room _roomRight, Vector2 _boundaries, bool _onXAxis)
+    {
+        if (_roomsLeft.Count == 0 || _roomsRight.Count == 0)
+        {
+            Debug.Log("One or more of the rooms found lists are empty!");
+        }
+        // Edit the point to suit the max range of the rooms. If boundaries are too small, edit to fit
+        float biggestWidth = _boundaries.y - _boundaries.x < m_hallwayWidthRange.y ? _boundaries.y - _boundaries.x : m_hallwayWidthRange.y;
+        // Pick a random point that lies in both boundaries
+        float randomPoint = Random.Range(_boundaries.x + biggestWidth, _boundaries.y - biggestWidth);
+        // Now get the affected rooms on both sides
+        List<Room> foundLeftRooms = GetRoomsContainingPoint(_roomsLeft, randomPoint, _onXAxis);
+        List<Room> foundRightRooms = GetRoomsContainingPoint(_roomsRight, randomPoint, _onXAxis);
+        // If more than one room is found, get the closest one
+        if (foundLeftRooms.Count > 1)
+        {
+            return false;
+        }
+        if (foundRightRooms.Count > 1)
+        {
+            return false;
+        }
+        if (foundLeftRooms.Count == 0 || foundRightRooms.Count == 0)
+            return false;
+        // Else, remove every other element
+        _roomLeft = foundLeftRooms[0];
+        _roomRight = foundRightRooms[0];
+        return true;
+    }
+
+    List<Room> GetRoomsContainingPoint(List<Room> _roomList, float _point, bool _onXAxis)
+    {
+        var result = new List<Room>();
+        foreach(Room room in _roomList)
+        {
+            if (_onXAxis)
+            {
+                if (room._position.z - room.m_size.y * 0.5f < _point && room._position.z + room.m_size.y * 0.5f > _point)
+                    result.Add(room);
+            }
+            else
+            {
+                if (room._position.x - room.m_size.x * 0.5f < _point && room._position.x + room.m_size.x * 0.5f > _point)
+                    result.Add(room);
+            }
+        }
+        return result;
     }
 
     List<Hallway> GenerateHalls(List<List<HallPoint>> _hallPointList)

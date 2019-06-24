@@ -64,15 +64,15 @@ public class MapGenerator : MonoBehaviour
         var rooms = roomGenerator.GenerateRooms(ref map);
         List<Hallway> hallways = hallwayGenerator.D2GenerateHallways(ref map);
 
-        foreach (Leaf i in map)
-        {
-            GameObject leaf = MeshGenerator.CreatePlane(i.width, i.height, 0f, false);
-            leaf.transform.Translate(new Vector3(i.x, i.level * 5, i.y));
-            Renderer rend = leaf.GetComponent<Renderer>();
-            rend.material = BSP_mat;
-            leaf.transform.parent = demoMap.transform;
-            offsetY += 1;
-        }
+        //foreach (Leaf i in map)
+        //{
+        //    GameObject leaf = MeshGenerator.CreatePlane(i.width, i.height, 0f, false);
+        //    leaf.transform.Translate(new Vector3(i.x, i.level * 5, i.y));
+        //    Renderer rend = leaf.GetComponent<Renderer>();
+        //    rend.material = BSP_mat;
+        //    leaf.transform.parent = demoMap.transform;
+        //    offsetY += 1;
+        //}
 
         foreach (Room i in rooms)
         {
@@ -81,7 +81,7 @@ public class MapGenerator : MonoBehaviour
             //Renderer rend = room.GetComponent<Renderer>();
             //rend.material = BSP_room;
             //room.transform.parent = demoMap.transform;
-            //roomPropGenerator.D1_GenerateRoomDetails(i, ref tileSet, ref wallTileSet, offsetY).transform.parent = demoMap.transform;
+            roomPropGenerator.D1_GenerateRoomDetails(i, ref tileSet, ref wallTileSet, offsetY).transform.parent = demoMap.transform;
             // Create the walls
         }
         foreach (Hallway hallway in hallways)
