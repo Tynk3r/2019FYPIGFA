@@ -16,6 +16,8 @@ public class HeldWeapon : MonoBehaviour
         attackTimer = 0f;
         GetComponent<MeshFilter>().mesh = itemData.mesh;
         GetComponent<MeshRenderer>().material = itemData.material;
+        transform.localPosition = itemData.heldPosition;
+        transform.localRotation = Quaternion.Euler(itemData.heldRotation);
     }
 
     // Update is called once per frame
@@ -32,6 +34,8 @@ public class HeldWeapon : MonoBehaviour
         itemData = newWeap;
         GetComponent<MeshFilter>().mesh = itemData.mesh;
         GetComponent<MeshRenderer>().material = itemData.material;
+        transform.localPosition = itemData.heldPosition;
+        transform.localRotation = Quaternion.Euler(itemData.heldRotation);
     }
 
     public void RemoveWeapon()
@@ -41,16 +45,19 @@ public class HeldWeapon : MonoBehaviour
         itemData.attackRate = 0;
         itemData.durability = 0;
         itemData.durabilityDecay = 0;
-        itemData.range = 0;
+        itemData.attackRange = 0;
         itemData.type = null;
         itemData.mesh = null;
         itemData.material = null;
+        itemData.heldPosition = Vector3.zero;
+        itemData.heldRotation = Vector3.zero;
         Destroy(GetComponent<MeshFilter>().mesh);
         Destroy(GetComponent<MeshRenderer>().material);
     }
 
     public bool Fire()
     {
+        RaycastHit hit;
         // attackrate = times per second can attack
         // attacktimer = when zero, can attack
         // attack timer set to (1 / attackrate) when attack
@@ -58,8 +65,7 @@ public class HeldWeapon : MonoBehaviour
         switch (itemData.weaponType)
         {
             case ItemData.WEAPON_TYPE.CLOSE_RANGE:
-                RaycastHit hit;
-                if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out hit, itemData.range))
+                if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out hit, itemData.attackRange))
                 {
                     if (attackTimer > 0f)
                         return false;
@@ -74,7 +80,22 @@ public class HeldWeapon : MonoBehaviour
                     }
                 }
                 break;
-            case ItemData.WEAPON_TYPE.PROJECTILE:
+            case ItemData.WEAPON_TYPE.CONDIMENT_MUSTARD:
+                if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out hit, itemData.attackRange))
+                {
+                    if (attackTimer > 0f)
+                        return false;
+
+                    if (hit.collider.GetComponent<Enemy>() != null)
+                    {
+                        Enemy enemy = hit.collider.GetComponent<Enemy>();
+                        enemy.health = Mathf.Clamp(enemy.health - itemData.weaponDamage, 0, enemy.maxHealth);
+                        attackTimer = 1 / itemData.attackRate;
+                        itemData.durability = Mathf.Clamp(itemData.durability - itemData.durabilityDecay, 0, 100);
+                        Debug.Log("Hit " + enemy.enemyType + " for " + itemData.weaponDamage + " damage with " + itemData.type + ". Durability Left: " + itemData.durability + "%");
+                    }
+                }
+
                 break;
             default:
                 break;

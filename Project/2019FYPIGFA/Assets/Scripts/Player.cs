@@ -44,7 +44,8 @@ public class Player : MonoBehaviour
     public float mouseXSpeed = 3f;
     public float mouseYSpeed = 3f;
     public float maxYLookRange = 15f;
-    public GameObject cameraLookObject;
+    public GameObject yLookObject;
+    public GameObject viewBobObject;
     private Vector2 rotation = Vector2.zero;
     private int defaultFOV = 60;
     private float cameraSwayAngle = 0f;
@@ -62,7 +63,11 @@ public class Player : MonoBehaviour
     private float landingVelocity = 0;
     public float landingSpeedMultiplier;
     public float landingDistanceMultiplier;
+    public float weaponLandingDistanceMultiplier = 0.5f;
+    private float smoothWeaponLandingDistanceMultiplier = 0f;
     public float recoverSpeed;
+    private IEnumerator landingCo;
+    private IEnumerator recoveringCo;
 
     [Header("Inventory")]
     public Inventory weaponInventory;
@@ -77,6 +82,7 @@ public class Player : MonoBehaviour
         stamina = maxStamina;
         maxFOV = Camera.main.fieldOfView * Mathf.Clamp(1f + ((sprintSpeedModifier - 1f) / 2.5f), 1f, 2f);
         characterController = GetComponent<CharacterController>();
+        smoothWeaponLandingDistanceMultiplier = weaponLandingDistanceMultiplier;
 
         // Misc QOL Stuff
         Cursor.lockState = CursorLockMode.Locked;
@@ -175,6 +181,8 @@ public class Player : MonoBehaviour
                 doubleJump = true;
                 moveDirection.y = jumpSpeed;
             }
+            if (smoothWeaponLandingDistanceMultiplier != weaponLandingDistanceMultiplier)
+                smoothWeaponLandingDistanceMultiplier = weaponLandingDistanceMultiplier;
         }
         else
         {
@@ -188,6 +196,8 @@ public class Player : MonoBehaviour
                 doubleJump = false;
                 moveDirection.y = jumpSpeed;
             }
+            if (smoothWeaponLandingDistanceMultiplier != 1)
+                smoothWeaponLandingDistanceMultiplier = 1;
         }
         moveDirection.y -= gravity * Time.deltaTime; // Ensure a Stunk to floor
         characterController.Move(moveDirection * Time.deltaTime);
@@ -211,7 +221,7 @@ public class Player : MonoBehaviour
         if (Input.GetAxis("Vertical") > 0 && characterController.isGrounded)
         {
             viewBobTimer += Time.deltaTime * viewBobSpeedFront;
-            cameraLookObject.transform.localPosition = new Vector3(Input.GetAxis("Vertical") * maximumXBobFront * Mathf.Sin(viewBobTimer * (2 * Mathf.PI)),
+            viewBobObject.transform.localPosition = new Vector3(Input.GetAxis("Vertical") * maximumXBobFront * Mathf.Sin(viewBobTimer * (2 * Mathf.PI)),
                                                               Input.GetAxis("Vertical") * maximumYBobFront * Mathf.Sin(viewBobTimer * (4 * Mathf.PI)),
                                                               0);
             if (viewBobTimer >= 1)
@@ -220,7 +230,7 @@ public class Player : MonoBehaviour
         else if (Input.GetAxis("Vertical") < 0 && characterController.isGrounded)
         {
             viewBobTimer += Time.deltaTime * viewBobSpeedBack;
-            cameraLookObject.transform.localPosition = new Vector3(Input.GetAxis("Vertical") * maximumXBobBack * Mathf.Sin(viewBobTimer * (2 * Mathf.PI)),
+            viewBobObject.transform.localPosition = new Vector3(Input.GetAxis("Vertical") * maximumXBobBack * Mathf.Sin(viewBobTimer * (2 * Mathf.PI)),
                                                               Input.GetAxis("Vertical") * maximumYBobBack * Mathf.Sin(viewBobTimer * (4 * Mathf.PI)),
                                                               0);
             if (viewBobTimer >= 1)
@@ -228,7 +238,7 @@ public class Player : MonoBehaviour
         }
         else
         {
-            cameraLookObject.transform.localPosition = new Vector3(Input.GetAxis("Vertical") * maximumXBobFront * Mathf.Sin(viewBobTimer * (2 * Mathf.PI)),
+            viewBobObject.transform.localPosition = new Vector3(Input.GetAxis("Vertical") * maximumXBobFront * Mathf.Sin(viewBobTimer * (2 * Mathf.PI)),
                                                               Input.GetAxis("Vertical") * maximumYBobFront * Mathf.Sin(viewBobTimer * (4 * Mathf.PI)),
                                                               0);
         }
@@ -240,7 +250,8 @@ public class Player : MonoBehaviour
             {
                 falling = false;
                 Debug.Log("Landed with velocity of " + landingVelocity);
-                StartCoroutine(LandingSink(landingVelocity));
+                landingCo = LandingSink(landingVelocity);
+                StartCoroutine(landingCo);
             }
             else
                 landingVelocity = characterController.velocity.y;
@@ -256,7 +267,8 @@ public class Player : MonoBehaviour
         rotation.x = Mathf.Clamp(rotation.x, -maxYLookRange, maxYLookRange); // lock Y look
         // Left to Right Look on Player, Up Down Look on Camera Look to isolate movement to XZ plane
         transform.localRotation = Quaternion.Euler(0, rotation.y * mouseYSpeed, 0);
-        cameraLookObject.transform.localRotation = Quaternion.Euler(rotation.x * mouseXSpeed, 0, cameraSwayAngle);
+        yLookObject.transform.localRotation = Quaternion.Euler(rotation.x * mouseXSpeed, 0, 0);
+        viewBobObject.transform.localRotation = Quaternion.Euler(0, 0, cameraSwayAngle);
     }
 
     IEnumerator LandingSink(float landingVelocity)
@@ -264,11 +276,22 @@ public class Player : MonoBehaviour
         float displacement = 0f;
         while (landingVelocity < 0)
         {
-            displacement += landingVelocity * Time.deltaTime * landingDistanceMultiplier;
-            Camera.main.transform.localPosition = new Vector3(0, displacement, 0);
+            //displacement += landingVelocity * Time.deltaTime * landingDistanceMultiplier;
+            //Camera.main.transform.localPosition = new Vector3(0, displacement, 0);
+            //landingVelocity += landingSpeedMultiplier;
+            //if (landingVelocity >= 0)
+            //    StartCoroutine(LandingRecovery());
+            //yield return null;
+            displacement = landingVelocity * Time.deltaTime * landingDistanceMultiplier;
+            Camera.main.transform.Translate(0, displacement, 0, Space.World);
+            currentWeapon.transform.Translate(0, displacement * smoothWeaponLandingDistanceMultiplier, 0, Space.World);
             landingVelocity += landingSpeedMultiplier;
             if (landingVelocity >= 0)
-                StartCoroutine(LandingRecovery());
+            {
+                recoveringCo = LandingRecovery();
+                StartCoroutine(recoveringCo);
+                StopCoroutine(landingCo);
+            }
             yield return null;
         }
     }
@@ -279,9 +302,18 @@ public class Player : MonoBehaviour
         float recoverTimer = 0;
         while (Camera.main.transform.localPosition.y < 0)
         {
-            recoverTimer += Time.deltaTime * recoverSpeed;
-            Camera.main.transform.localPosition = new Vector3(0, Mathf.Lerp(displacement, 0, recoverTimer), 0);
+            //recoverTimer += Time.deltaTime * recoverSpeed;
+            //Camera.main.transform.localPosition = new Vector3(0, Mathf.Lerp(displacement, 0, recoverTimer), 0);
+            //yield return null;
+            Camera.main.transform.Translate(0, recoverSpeed, 0, Space.World);
+            currentWeapon.transform.Translate(0, recoverSpeed * smoothWeaponLandingDistanceMultiplier, 0, Space.World);
             yield return null;
+        }
+        if (Camera.main.transform.localPosition.y >= 0)
+        {
+            Camera.main.transform.localPosition = Vector3.zero;
+            currentWeapon.transform.localPosition = currentWeapon.itemData.heldPosition;
+            StopCoroutine(recoveringCo);
         }
     }
 
@@ -321,8 +353,8 @@ public class Player : MonoBehaviour
         // Current Enemy Health Bar
         RaycastHit hit;
         float range = 0f;
-        if (currentWeapon && currentWeapon.itemData != null && currentWeapon.itemData.weaponType != ItemData.WEAPON_TYPE.NONE)
-            range = currentWeapon.itemData.range;
+        if (currentWeapon && currentWeapon.itemData != null && currentWeapon.itemData.weaponType == ItemData.WEAPON_TYPE.CLOSE_RANGE)
+            range = currentWeapon.itemData.attackRange;
         else
             range = 100f;
         if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out hit, range) && hit.collider.GetComponent<Enemy>())

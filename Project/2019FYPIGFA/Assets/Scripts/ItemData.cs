@@ -8,6 +8,7 @@ public class ItemData
     {
         NONE,
         CLOSE_RANGE,
+        CONDIMENT_MUSTARD,
         PROJECTILE,
     }
 
@@ -20,10 +21,12 @@ public class ItemData
     public float durability;
     [Tooltip("Durability Damage Done Per Attack (in %)")]
     public float durabilityDecay;
-    public float range;
+    public float attackRange;
     public string type;
     public Mesh mesh;
     public Material material;
+    public Vector3 heldPosition;
+    public Vector3 heldRotation;
 
     public ItemData Clone()
     {
@@ -34,10 +37,12 @@ public class ItemData
             attackRate = this.attackRate,
             durability = this.durability,
             durabilityDecay = this.durabilityDecay,
-            range = this.range,
+            attackRange = this.attackRange,
             type = this.type,
             mesh = this.mesh,
-            material = this.material
+            material = this.material,
+            heldPosition = this.heldPosition,
+            heldRotation = this.heldRotation
         };
         return clone;
     }
