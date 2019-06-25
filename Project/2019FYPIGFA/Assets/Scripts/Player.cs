@@ -18,6 +18,9 @@ public class Player : MonoBehaviour
     private bool staminaRecovering;
 
     [Header("UI")]
+    public GameObject staminaBarOutline;
+    public GameObject staminaBar;
+    public Vector2 staminaBarPosition;
     public GameObject enemyName;
     public GameObject enemyHealthBarOutline;
     public GameObject enemyHealthBar;
@@ -98,7 +101,6 @@ public class Player : MonoBehaviour
         UpdateUI();
     }
 
-
     void UpdateWeapon()
     {
         if (currentWeapon && currentWeapon.itemData != null && currentWeapon.itemData.weaponType != ItemData.WEAPON_TYPE.NONE)
@@ -131,9 +133,7 @@ public class Player : MonoBehaviour
             }
         }
         else if (weaponInventory.itemList.Count != 0)
-        {
             currentWeapon.ChangeWeapon(weaponInventory.itemList[0]);
-        }
     }
 
     void UpdatePickup()
@@ -168,13 +168,9 @@ public class Player : MonoBehaviour
                 moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed * sprintSpeedModifier) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
             }
             else if (Input.GetAxis("Vertical") < 0f)
-            {
                 moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed * retreatSpeedModifier) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
-            }
             else
-            {
                 moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
-            }
 
             if (Input.GetButton("Jump"))
             {
@@ -187,9 +183,7 @@ public class Player : MonoBehaviour
         else
         {
             if (Input.GetButton("Sprint") && Input.GetAxis("Vertical") > 0f && !staminaRecovering)
-            {
                 stamina = Mathf.Max(stamina - (Time.deltaTime * staminaDecayMultiplier), 0f);
-            }
 
             if (doubleJump && Input.GetButtonDown("Jump"))
             {
@@ -211,19 +205,17 @@ public class Player : MonoBehaviour
         else
             Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView - (Time.deltaTime * FOVDeltaChange), defaultFOV, Camera.main.fieldOfView);
 
+        // Strafing Camera Sway
         if (characterController.isGrounded)
-        {
-            // Strafing Camera Sway
             cameraSwayAngle = Input.GetAxis("Horizontal") * -cameraSwayMaxAngle;
-        }
 
         // View Bobbing
         if (Input.GetAxis("Vertical") > 0 && characterController.isGrounded)
         {
             viewBobTimer += Time.deltaTime * viewBobSpeedFront;
             viewBobObject.transform.localPosition = new Vector3(Input.GetAxis("Vertical") * maximumXBobFront * Mathf.Sin(viewBobTimer * (2 * Mathf.PI)),
-                                                              Input.GetAxis("Vertical") * maximumYBobFront * Mathf.Sin(viewBobTimer * (4 * Mathf.PI)),
-                                                              0);
+                                                                Input.GetAxis("Vertical") * maximumYBobFront * Mathf.Sin(viewBobTimer * (4 * Mathf.PI)),
+                                                                0);
             if (viewBobTimer >= 1)
                 viewBobTimer = 0f;
         }
@@ -231,17 +223,15 @@ public class Player : MonoBehaviour
         {
             viewBobTimer += Time.deltaTime * viewBobSpeedBack;
             viewBobObject.transform.localPosition = new Vector3(Input.GetAxis("Vertical") * maximumXBobBack * Mathf.Sin(viewBobTimer * (2 * Mathf.PI)),
-                                                              Input.GetAxis("Vertical") * maximumYBobBack * Mathf.Sin(viewBobTimer * (4 * Mathf.PI)),
-                                                              0);
+                                                                Input.GetAxis("Vertical") * maximumYBobBack * Mathf.Sin(viewBobTimer * (4 * Mathf.PI)),
+                                                                0);
             if (viewBobTimer >= 1)
                 viewBobTimer = 0f;
         }
         else
-        {
             viewBobObject.transform.localPosition = new Vector3(Input.GetAxis("Vertical") * maximumXBobFront * Mathf.Sin(viewBobTimer * (2 * Mathf.PI)),
-                                                              Input.GetAxis("Vertical") * maximumYBobFront * Mathf.Sin(viewBobTimer * (4 * Mathf.PI)),
-                                                              0);
-        }
+                                                                Input.GetAxis("Vertical") * maximumYBobFront * Mathf.Sin(viewBobTimer * (4 * Mathf.PI)),
+                                                                0);
 
         // Landing Animation
         if (falling)
@@ -257,9 +247,7 @@ public class Player : MonoBehaviour
                 landingVelocity = characterController.velocity.y;
         }
         else if (!characterController.isGrounded)
-        {
             falling = true;
-        }
 
         // Mouse Controls
         rotation.y += Input.GetAxis("Mouse X");
@@ -299,7 +287,7 @@ public class Player : MonoBehaviour
     IEnumerator LandingRecovery()
     {
         float displacement = Camera.main.transform.localPosition.y;
-        float recoverTimer = 0;
+        //float recoverTimer = 0;
         while (Camera.main.transform.localPosition.y < 0)
         {
             //recoverTimer += Time.deltaTime * recoverSpeed;
@@ -324,9 +312,11 @@ public class Player : MonoBehaviour
             weaponInventory.PrintAllItems(currentWeapon.itemData);
 
         // Stamina
+        if (staminaBarOutline.GetComponent<RectTransform>().localPosition != new Vector3(staminaBarPosition.x, staminaBarPosition.y, 0))
+            staminaBarOutline.GetComponent<RectTransform>().localPosition = new Vector3(staminaBarPosition.x, staminaBarPosition.y, 0);
         if (GetStam() <= 0f && !staminaRecovering && stamRegenTimerDone)
         {
-            GameObject.FindGameObjectWithTag("Stam Bar Outline").GetComponentInChildren<Blink>().StartBlink();
+            staminaBarOutline.GetComponentInChildren<Blink>().StartBlink();
             stamRegenTimer = 2f;
             stamRegenTimerDone = false;
             staminaRecovering = true;
@@ -339,7 +329,7 @@ public class Player : MonoBehaviour
         else if (GetStam() >= 1f && staminaRecovering)
         {
             staminaRecovering = false;
-            GameObject.FindGameObjectWithTag("Stam Bar Outline").GetComponentInChildren<Blink>().StopBlink();
+            staminaBarOutline.GetComponentInChildren<Blink>().StopBlink();
         }
         else
         {
@@ -347,10 +337,11 @@ public class Player : MonoBehaviour
         }
         if (stamRegenTimerDone)
             stamina = Mathf.Min(stamina + (Time.deltaTime * 0.5f * staminaRegenMultiplier), maxStamina);
-        GameObject staminaBar = GameObject.FindGameObjectWithTag("Stam Bar");
-        staminaBar.GetComponent<RectTransform>().localScale = new Vector3(GetStam() * 4, staminaBar.transform.localScale.y, staminaBar.transform.localScale.z);
+        staminaBar.GetComponent<RectTransform>().localScale = new Vector3(stamina / maxStamina, staminaBar.transform.localScale.y, staminaBar.transform.localScale.z);
 
         // Current Enemy Health Bar
+        if (enemyName.GetComponent<RectTransform>().localPosition != new Vector3(enemyHealthBarPosition.x, enemyHealthBarPosition.y, 0))
+            enemyName.GetComponent<RectTransform>().localPosition = new Vector3(enemyHealthBarPosition.x, enemyHealthBarPosition.y, 0);
         RaycastHit hit;
         float range = 0f;
         if (currentWeapon && currentWeapon.itemData != null && currentWeapon.itemData.weaponType == ItemData.WEAPON_TYPE.CLOSE_RANGE)
