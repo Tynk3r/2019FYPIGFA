@@ -49,7 +49,7 @@ MonoBehaviour:
     attackRate: 1
     durability: 40
     durabilityDecay: 20
-    range: 2
+    attackRange: 5
     type: ScawyCube
     mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
     material: {fileID: 2100000, guid: 9afdac12ce6f0c043b442ae9b2298808, type: 2}

@@ -18,6 +18,9 @@ public class Player : MonoBehaviour
     private bool staminaRecovering;
 
     [Header("UI")]
+    public GameObject staminaBarOutline;
+    public GameObject staminaBar;
+    public Vector2 staminaBarPosition;
     public GameObject enemyName;
     public GameObject enemyHealthBarOutline;
     public GameObject enemyHealthBar;
@@ -44,7 +47,8 @@ public class Player : MonoBehaviour
     public float mouseXSpeed = 3f;
     public float mouseYSpeed = 3f;
     public float maxYLookRange = 15f;
-    public GameObject cameraLookObject;
+    public GameObject yLookObject;
+    public GameObject viewBobObject;
     private Vector2 rotation = Vector2.zero;
     private int defaultFOV = 60;
     private float cameraSwayAngle = 0f;
@@ -62,7 +66,11 @@ public class Player : MonoBehaviour
     private float landingVelocity = 0;
     public float landingSpeedMultiplier;
     public float landingDistanceMultiplier;
+    public float weaponLandingDistanceMultiplier = 0.5f;
+    private float smoothWeaponLandingDistanceMultiplier = 0f;
     public float recoverSpeed;
+    private IEnumerator landingCo;
+    private IEnumerator recoveringCo;
 
     [Header("Inventory")]
     public Inventory weaponInventory;
@@ -77,6 +85,7 @@ public class Player : MonoBehaviour
         stamina = maxStamina;
         maxFOV = Camera.main.fieldOfView * Mathf.Clamp(1f + ((sprintSpeedModifier - 1f) / 2.5f), 1f, 2f);
         characterController = GetComponent<CharacterController>();
+        smoothWeaponLandingDistanceMultiplier = weaponLandingDistanceMultiplier;
 
         // Misc QOL Stuff
         Cursor.lockState = CursorLockMode.Locked;
@@ -91,7 +100,6 @@ public class Player : MonoBehaviour
         UpdatePickup();
         UpdateUI();
     }
-
 
     void UpdateWeapon()
     {
@@ -125,9 +133,7 @@ public class Player : MonoBehaviour
             }
         }
         else if (weaponInventory.itemList.Count != 0)
-        {
             currentWeapon.ChangeWeapon(weaponInventory.itemList[0]);
-        }
     }
 
     void UpdatePickup()
@@ -162,32 +168,30 @@ public class Player : MonoBehaviour
                 moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed * sprintSpeedModifier) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
             }
             else if (Input.GetAxis("Vertical") < 0f)
-            {
                 moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed * retreatSpeedModifier) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
-            }
             else
-            {
                 moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
-            }
 
             if (Input.GetButton("Jump"))
             {
                 doubleJump = true;
                 moveDirection.y = jumpSpeed;
             }
+            if (smoothWeaponLandingDistanceMultiplier != weaponLandingDistanceMultiplier)
+                smoothWeaponLandingDistanceMultiplier = weaponLandingDistanceMultiplier;
         }
         else
         {
             if (Input.GetButton("Sprint") && Input.GetAxis("Vertical") > 0f && !staminaRecovering)
-            {
                 stamina = Mathf.Max(stamina - (Time.deltaTime * staminaDecayMultiplier), 0f);
-            }
 
             if (doubleJump && Input.GetButtonDown("Jump"))
             {
                 doubleJump = false;
                 moveDirection.y = jumpSpeed;
             }
+            if (smoothWeaponLandingDistanceMultiplier != 1)
+                smoothWeaponLandingDistanceMultiplier = 1;
         }
         moveDirection.y -= gravity * Time.deltaTime; // Ensure a Stunk to floor
         characterController.Move(moveDirection * Time.deltaTime);
@@ -201,37 +205,33 @@ public class Player : MonoBehaviour
         else
             Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView - (Time.deltaTime * FOVDeltaChange), defaultFOV, Camera.main.fieldOfView);
 
+        // Strafing Camera Sway
         if (characterController.isGrounded)
-        {
-            // Strafing Camera Sway
             cameraSwayAngle = Input.GetAxis("Horizontal") * -cameraSwayMaxAngle;
-        }
 
         // View Bobbing
         if (Input.GetAxis("Vertical") > 0 && characterController.isGrounded)
         {
             viewBobTimer += Time.deltaTime * viewBobSpeedFront;
-            cameraLookObject.transform.localPosition = new Vector3(Input.GetAxis("Vertical") * maximumXBobFront * Mathf.Sin(viewBobTimer * (2 * Mathf.PI)),
-                                                              Input.GetAxis("Vertical") * maximumYBobFront * Mathf.Sin(viewBobTimer * (4 * Mathf.PI)),
-                                                              0);
+            viewBobObject.transform.localPosition = new Vector3(Input.GetAxis("Vertical") * maximumXBobFront * Mathf.Sin(viewBobTimer * (2 * Mathf.PI)),
+                                                                Input.GetAxis("Vertical") * maximumYBobFront * Mathf.Sin(viewBobTimer * (4 * Mathf.PI)),
+                                                                0);
             if (viewBobTimer >= 1)
                 viewBobTimer = 0f;
         }
         else if (Input.GetAxis("Vertical") < 0 && characterController.isGrounded)
         {
             viewBobTimer += Time.deltaTime * viewBobSpeedBack;
-            cameraLookObject.transform.localPosition = new Vector3(Input.GetAxis("Vertical") * maximumXBobBack * Mathf.Sin(viewBobTimer * (2 * Mathf.PI)),
-                                                              Input.GetAxis("Vertical") * maximumYBobBack * Mathf.Sin(viewBobTimer * (4 * Mathf.PI)),
-                                                              0);
+            viewBobObject.transform.localPosition = new Vector3(Input.GetAxis("Vertical") * maximumXBobBack * Mathf.Sin(viewBobTimer * (2 * Mathf.PI)),
+                                                                Input.GetAxis("Vertical") * maximumYBobBack * Mathf.Sin(viewBobTimer * (4 * Mathf.PI)),
+                                                                0);
             if (viewBobTimer >= 1)
                 viewBobTimer = 0f;
         }
         else
-        {
-            cameraLookObject.transform.localPosition = new Vector3(Input.GetAxis("Vertical") * maximumXBobFront * Mathf.Sin(viewBobTimer * (2 * Mathf.PI)),
-                                                              Input.GetAxis("Vertical") * maximumYBobFront * Mathf.Sin(viewBobTimer * (4 * Mathf.PI)),
-                                                              0);
-        }
+            viewBobObject.transform.localPosition = new Vector3(Input.GetAxis("Vertical") * maximumXBobFront * Mathf.Sin(viewBobTimer * (2 * Mathf.PI)),
+                                                                Input.GetAxis("Vertical") * maximumYBobFront * Mathf.Sin(viewBobTimer * (4 * Mathf.PI)),
+                                                                0);
 
         // Landing Animation
         if (falling)
@@ -240,15 +240,14 @@ public class Player : MonoBehaviour
             {
                 falling = false;
                 Debug.Log("Landed with velocity of " + landingVelocity);
-                StartCoroutine(LandingSink(landingVelocity));
+                landingCo = LandingSink(landingVelocity);
+                StartCoroutine(landingCo);
             }
             else
                 landingVelocity = characterController.velocity.y;
         }
         else if (!characterController.isGrounded)
-        {
             falling = true;
-        }
 
         // Mouse Controls
         rotation.y += Input.GetAxis("Mouse X");
@@ -256,7 +255,8 @@ public class Player : MonoBehaviour
         rotation.x = Mathf.Clamp(rotation.x, -maxYLookRange, maxYLookRange); // lock Y look
         // Left to Right Look on Player, Up Down Look on Camera Look to isolate movement to XZ plane
         transform.localRotation = Quaternion.Euler(0, rotation.y * mouseYSpeed, 0);
-        cameraLookObject.transform.localRotation = Quaternion.Euler(rotation.x * mouseXSpeed, 0, cameraSwayAngle);
+        yLookObject.transform.localRotation = Quaternion.Euler(rotation.x * mouseXSpeed, 0, 0);
+        viewBobObject.transform.localRotation = Quaternion.Euler(0, 0, cameraSwayAngle);
     }
 
     IEnumerator LandingSink(float landingVelocity)
@@ -264,11 +264,22 @@ public class Player : MonoBehaviour
         float displacement = 0f;
         while (landingVelocity < 0)
         {
-            displacement += landingVelocity * Time.deltaTime * landingDistanceMultiplier;
-            Camera.main.transform.localPosition = new Vector3(0, displacement, 0);
+            //displacement += landingVelocity * Time.deltaTime * landingDistanceMultiplier;
+            //Camera.main.transform.localPosition = new Vector3(0, displacement, 0);
+            //landingVelocity += landingSpeedMultiplier;
+            //if (landingVelocity >= 0)
+            //    StartCoroutine(LandingRecovery());
+            //yield return null;
+            displacement = landingVelocity * Time.deltaTime * landingDistanceMultiplier;
+            Camera.main.transform.Translate(0, displacement, 0, Space.World);
+            currentWeapon.transform.Translate(0, displacement * smoothWeaponLandingDistanceMultiplier, 0, Space.World);
             landingVelocity += landingSpeedMultiplier;
             if (landingVelocity >= 0)
-                StartCoroutine(LandingRecovery());
+            {
+                recoveringCo = LandingRecovery();
+                StartCoroutine(recoveringCo);
+                StopCoroutine(landingCo);
+            }
             yield return null;
         }
     }
@@ -276,12 +287,21 @@ public class Player : MonoBehaviour
     IEnumerator LandingRecovery()
     {
         float displacement = Camera.main.transform.localPosition.y;
-        float recoverTimer = 0;
+        //float recoverTimer = 0;
         while (Camera.main.transform.localPosition.y < 0)
         {
-            recoverTimer += Time.deltaTime * recoverSpeed;
-            Camera.main.transform.localPosition = new Vector3(0, Mathf.Lerp(displacement, 0, recoverTimer), 0);
+            //recoverTimer += Time.deltaTime * recoverSpeed;
+            //Camera.main.transform.localPosition = new Vector3(0, Mathf.Lerp(displacement, 0, recoverTimer), 0);
+            //yield return null;
+            Camera.main.transform.Translate(0, recoverSpeed, 0, Space.World);
+            currentWeapon.transform.Translate(0, recoverSpeed * smoothWeaponLandingDistanceMultiplier, 0, Space.World);
             yield return null;
+        }
+        if (Camera.main.transform.localPosition.y >= 0)
+        {
+            Camera.main.transform.localPosition = Vector3.zero;
+            currentWeapon.transform.localPosition = currentWeapon.itemData.heldPosition;
+            StopCoroutine(recoveringCo);
         }
     }
 
@@ -292,9 +312,11 @@ public class Player : MonoBehaviour
             weaponInventory.PrintAllItems(currentWeapon.itemData);
 
         // Stamina
+        if (staminaBarOutline.GetComponent<RectTransform>().localPosition != new Vector3(staminaBarPosition.x, staminaBarPosition.y, 0))
+            staminaBarOutline.GetComponent<RectTransform>().localPosition = new Vector3(staminaBarPosition.x, staminaBarPosition.y, 0);
         if (GetStam() <= 0f && !staminaRecovering && stamRegenTimerDone)
         {
-            GameObject.FindGameObjectWithTag("Stam Bar Outline").GetComponentInChildren<Blink>().StartBlink();
+            staminaBarOutline.GetComponentInChildren<Blink>().StartBlink();
             stamRegenTimer = 2f;
             stamRegenTimerDone = false;
             staminaRecovering = true;
@@ -307,7 +329,7 @@ public class Player : MonoBehaviour
         else if (GetStam() >= 1f && staminaRecovering)
         {
             staminaRecovering = false;
-            GameObject.FindGameObjectWithTag("Stam Bar Outline").GetComponentInChildren<Blink>().StopBlink();
+            staminaBarOutline.GetComponentInChildren<Blink>().StopBlink();
         }
         else
         {
@@ -315,14 +337,15 @@ public class Player : MonoBehaviour
         }
         if (stamRegenTimerDone)
             stamina = Mathf.Min(stamina + (Time.deltaTime * 0.5f * staminaRegenMultiplier), maxStamina);
-        GameObject staminaBar = GameObject.FindGameObjectWithTag("Stam Bar");
-        staminaBar.GetComponent<RectTransform>().localScale = new Vector3(GetStam() * 4, staminaBar.transform.localScale.y, staminaBar.transform.localScale.z);
+        staminaBar.GetComponent<RectTransform>().localScale = new Vector3(stamina / maxStamina, staminaBar.transform.localScale.y, staminaBar.transform.localScale.z);
 
         // Current Enemy Health Bar
+        if (enemyName.GetComponent<RectTransform>().localPosition != new Vector3(enemyHealthBarPosition.x, enemyHealthBarPosition.y, 0))
+            enemyName.GetComponent<RectTransform>().localPosition = new Vector3(enemyHealthBarPosition.x, enemyHealthBarPosition.y, 0);
         RaycastHit hit;
         float range = 0f;
-        if (currentWeapon && currentWeapon.itemData != null && currentWeapon.itemData.weaponType != ItemData.WEAPON_TYPE.NONE)
-            range = currentWeapon.itemData.range;
+        if (currentWeapon && currentWeapon.itemData != null && currentWeapon.itemData.weaponType == ItemData.WEAPON_TYPE.CLOSE_RANGE)
+            range = currentWeapon.itemData.attackRange;
         else
             range = 100f;
         if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out hit, range) && hit.collider.GetComponent<Enemy>())
