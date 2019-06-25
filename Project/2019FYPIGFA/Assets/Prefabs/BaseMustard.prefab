@@ -53,3 +53,5 @@ MonoBehaviour:
     type: Mustard
     mesh: {fileID: 4300002, guid: 70ce7dae986fa914dbfb8a09a0b5bf4c, type: 3}
     material: {fileID: 2100000, guid: 7f70be5cdc08b974d883826b3d1f27cd, type: 2}
+    heldPosition: {x: 0.28, y: -0.22, z: 0.41}
+    heldRotation: {x: -60.9, y: -194.1, z: -7.4}
