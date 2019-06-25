@@ -12,6 +12,8 @@ GameObject:
   - component: {fileID: 5196290828706633426}
   - component: {fileID: 5196290828706633427}
   - component: {fileID: 5196290828706633428}
+  - component: {fileID: 1953837185}
+  - component: {fileID: 1953837184}
   m_Layer: 0
   m_Name: Ahma
   m_TagString: Untagged
@@ -92,3 +94,36 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 14
   m_Mesh: {fileID: 4300000, guid: 0849de4c91967314b8083c6c9464cfa2, type: 3}
+--- !u!143 &1953837185
+CharacterController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5196290828706633429}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Height: 2.2019184
+  m_Radius: 0.5135059
+  m_SlopeLimit: 45
+  m_StepOffset: 0.3
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1953837184
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5196290828706633429}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8d952aa6320ba44a9e226e3d88d149a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyType: 1
+  health: 100
+  maxHealth: 100

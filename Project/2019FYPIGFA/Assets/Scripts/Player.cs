@@ -92,6 +92,7 @@ public class Player : MonoBehaviour
         UpdateUI();
     }
 
+
     void UpdateWeapon()
     {
         if (currentWeapon && currentWeapon.itemData != null && currentWeapon.itemData.weaponType != ItemData.WEAPON_TYPE.NONE)
