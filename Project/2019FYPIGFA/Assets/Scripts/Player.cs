@@ -57,6 +57,12 @@ public class Player : MonoBehaviour
     public float viewBobSpeedFront;
     public float viewBobSpeedBack;
     private float viewBobTimer = 0.5f;
+    // Landing Animation
+    private bool falling = false;
+    private float landingVelocity = 0;
+    public float landingSpeedMultiplier;
+    public float landingDistanceMultiplier;
+    public float recoverSpeed;
 
     [Header("Inventory")]
     public Inventory weaponInventory;
@@ -85,6 +91,7 @@ public class Player : MonoBehaviour
         UpdatePickup();
         UpdateUI();
     }
+
 
     void UpdateWeapon()
     {
@@ -227,7 +234,21 @@ public class Player : MonoBehaviour
         }
 
         // Landing Animation
-        // TODO
+        if (falling)
+        {
+            if (characterController.isGrounded)
+            {
+                falling = false;
+                Debug.Log("Landed with velocity of " + landingVelocity);
+                StartCoroutine(LandingSink(landingVelocity));
+            }
+            else
+                landingVelocity = characterController.velocity.y;
+        }
+        else if (!characterController.isGrounded)
+        {
+            falling = true;
+        }
 
         // Mouse Controls
         rotation.y += Input.GetAxis("Mouse X");
@@ -236,6 +257,32 @@ public class Player : MonoBehaviour
         // Left to Right Look on Player, Up Down Look on Camera Look to isolate movement to XZ plane
         transform.localRotation = Quaternion.Euler(0, rotation.y * mouseYSpeed, 0);
         cameraLookObject.transform.localRotation = Quaternion.Euler(rotation.x * mouseXSpeed, 0, cameraSwayAngle);
+    }
+
+    IEnumerator LandingSink(float landingVelocity)
+    {
+        float displacement = 0f;
+        while (landingVelocity < 0)
+        {
+            displacement += landingVelocity * Time.deltaTime * landingDistanceMultiplier;
+            Camera.main.transform.localPosition = new Vector3(0, displacement, 0);
+            landingVelocity += landingSpeedMultiplier;
+            if (landingVelocity >= 0)
+                StartCoroutine(LandingRecovery());
+            yield return null;
+        }
+    }
+
+    IEnumerator LandingRecovery()
+    {
+        float displacement = Camera.main.transform.localPosition.y;
+        float recoverTimer = 0;
+        while (Camera.main.transform.localPosition.y < 0)
+        {
+            recoverTimer += Time.deltaTime * recoverSpeed;
+            Camera.main.transform.localPosition = new Vector3(0, Mathf.Lerp(displacement, 0, recoverTimer), 0);
+            yield return null;
+        }
     }
 
     void UpdateUI()
@@ -278,20 +325,16 @@ public class Player : MonoBehaviour
             range = currentWeapon.itemData.range;
         else
             range = 100f;
-        if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out hit, range))
+        if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out hit, range) && hit.collider.GetComponent<Enemy>())
         {
-            // Switch Targets (Will not set any values unless the looked at entity changes)
-            if (hit.collider.GetComponent<Enemy>() != null)
+            Enemy enemy = hit.collider.GetComponent<Enemy>();
+            if (currTarget != enemy)
             {
-                Enemy enemy = hit.collider.GetComponent<Enemy>();
-                if (currTarget != enemy)
-                {
-                    currTarget = enemy;
-                    if (!enemyName.activeSelf)
-                        enemyName.SetActive(true);
-                    enemyName.GetComponent<TextMeshProUGUI>().SetText(Enum.GetName(typeof(Enemy.ENEMY_TYPE), enemy.enemyType));
-                    enemyHealthBar.GetComponent<RectTransform>().localScale = new Vector3(enemy.health / enemy.maxHealth, enemyHealthBar.transform.localScale.y, enemyHealthBar.transform.localScale.z);
-                }
+                currTarget = enemy;
+                if (!enemyName.activeSelf)
+                    enemyName.SetActive(true);
+                enemyName.GetComponent<TextMeshProUGUI>().SetText(Enum.GetName(typeof(Enemy.ENEMY_TYPE), enemy.enemyType));
+                enemyHealthBar.GetComponent<RectTransform>().localScale = new Vector3(enemy.health / enemy.maxHealth, enemyHealthBar.transform.localScale.y, enemyHealthBar.transform.localScale.z);
             }
         }
         else if (currTarget != null)
