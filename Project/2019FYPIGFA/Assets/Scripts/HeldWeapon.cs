@@ -51,6 +51,7 @@ public class HeldWeapon : MonoBehaviour
         itemData.material = null;
         itemData.heldPosition = Vector3.zero;
         itemData.heldRotation = Vector3.zero;
+        itemData.impactEffect = null;
         Destroy(GetComponent<MeshFilter>().mesh);
         Destroy(GetComponent<MeshRenderer>().material);
     }
@@ -61,44 +62,25 @@ public class HeldWeapon : MonoBehaviour
         // attackrate = times per second can attack
         // attacktimer = when zero, can attack
         // attack timer set to (1 / attackrate) when attack
-
-        switch (itemData.weaponType)
+        if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out hit, itemData.attackRange))
         {
-            case ItemData.WEAPON_TYPE.CLOSE_RANGE:
-                if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out hit, itemData.attackRange))
-                {
-                    if (attackTimer > 0f)
-                        return false;
+            if (attackTimer > 0f)
+                return false;
 
-                    if (hit.collider.GetComponent<Enemy>() != null)
-                    {
-                        Enemy enemy = hit.collider.GetComponent<Enemy>();
-                        enemy.health = Mathf.Clamp(enemy.health - itemData.weaponDamage, 0, enemy.maxHealth);
-                        attackTimer = 1 / itemData.attackRate;
-                        itemData.durability = Mathf.Clamp(itemData.durability - itemData.durabilityDecay, 0, 100);
-                        Debug.Log("Hit " + enemy.enemyType + " for " + itemData.weaponDamage + " damage with " + itemData.type + ". Durability Left: " + itemData.durability + "%");
-                    }
-                }
-                break;
-            case ItemData.WEAPON_TYPE.CONDIMENT_MUSTARD:
-                if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out hit, itemData.attackRange))
-                {
-                    if (attackTimer > 0f)
-                        return false;
+            if (hit.collider.GetComponent<Enemy>() != null)
+            {
+                Enemy enemy = hit.collider.GetComponent<Enemy>();
+                enemy.health = Mathf.Clamp(enemy.health - itemData.weaponDamage, 0, enemy.maxHealth);
+                attackTimer = 1 / itemData.attackRate;
+                itemData.durability = Mathf.Clamp(itemData.durability - itemData.durabilityDecay, 0, 100);
+                Debug.Log("Hit " + enemy.enemyType + " for " + itemData.weaponDamage + " damage with " + itemData.type + ". Durability Left: " + itemData.durability + "%");
+            }
 
-                    if (hit.collider.GetComponent<Enemy>() != null)
-                    {
-                        Enemy enemy = hit.collider.GetComponent<Enemy>();
-                        enemy.health = Mathf.Clamp(enemy.health - itemData.weaponDamage, 0, enemy.maxHealth);
-                        attackTimer = 1 / itemData.attackRate;
-                        itemData.durability = Mathf.Clamp(itemData.durability - itemData.durabilityDecay, 0, 100);
-                        Debug.Log("Hit " + enemy.enemyType + " for " + itemData.weaponDamage + " damage with " + itemData.type + ". Durability Left: " + itemData.durability + "%");
-                    }
-                }
-
-                break;
-            default:
-                break;
+            if (itemData.impactEffect)
+            {
+                GameObject impackEfek = Instantiate(itemData.impactEffect, hit.point, Quaternion.LookRotation((transform.position - hit.point).normalized), hit.transform);
+                Destroy(impackEfek, 2f);
+            }
         }
 
         return true;

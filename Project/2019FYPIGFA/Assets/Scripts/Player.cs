@@ -107,7 +107,14 @@ public class Player : MonoBehaviour
         {
             if (Input.GetButtonDown("Fire1"))
             {
-                currentWeapon.Fire();
+                if(currentWeapon.Fire())
+                {
+                    //hit
+                }
+                else
+                {
+                    //weapon cooldown
+                }
                 if (currTarget != null)
                     enemyHealthBar.GetComponent<RectTransform>().localScale = new Vector3(currTarget.health / currTarget.maxHealth, enemyHealthBar.transform.localScale.y, enemyHealthBar.transform.localScale.z);
             }
@@ -239,7 +246,7 @@ public class Player : MonoBehaviour
             if (characterController.isGrounded)
             {
                 falling = false;
-                Debug.Log("Landed with velocity of " + landingVelocity);
+                //Debug.Log("Landed with velocity of " + landingVelocity);
                 landingCo = LandingSink(landingVelocity);
                 StartCoroutine(landingCo);
             }

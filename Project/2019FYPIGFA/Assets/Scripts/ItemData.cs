@@ -27,6 +27,7 @@ public class ItemData
     public Material material;
     public Vector3 heldPosition;
     public Vector3 heldRotation;
+    public GameObject impactEffect;
 
     public ItemData Clone()
     {
@@ -42,7 +43,8 @@ public class ItemData
             mesh = this.mesh,
             material = this.material,
             heldPosition = this.heldPosition,
-            heldRotation = this.heldRotation
+            heldRotation = this.heldRotation,
+            impactEffect = this.impactEffect
         };
         return clone;
     }
