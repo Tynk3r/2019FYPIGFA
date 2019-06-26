@@ -9,12 +9,17 @@ public class AIManager : Enemy
     NavMeshAgent agent;
     
     // Start is called before the first frame update
-    virtual public void Start()
+    public virtual void Start()
     {
         agent = gameObject.GetComponent<NavMeshAgent>();
     }
 
-    void MoveToTarget(Transform _targetTransform)
+    public virtual void Die()
+    {
+        agent.enabled = false;
+    }
+
+    public void MoveToTarget(Transform _targetTransform)
     {
         agent.SetDestination(_targetTransform.position);
     }
@@ -29,8 +34,10 @@ public class AIManager : Enemy
     {
         agent.SetDestination(_target);
     }
-    public virtual void Die()
+
+    public void SimpleMove(Vector3 direction, float speed)
     {
-        agent.enabled = false;
+        agent.Move(direction * speed * Time.deltaTime);
     }
+
 }

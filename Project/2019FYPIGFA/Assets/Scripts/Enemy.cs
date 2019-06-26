@@ -15,33 +15,17 @@ public class Enemy : MonoBehaviour
     public float health = 1;
     public float maxHealth;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
-
     // Update is called once per frame
     public virtual void Update()
     {
         health = Mathf.Clamp(health, 0, maxHealth);
-
-        if (health <= 0)
-        {
-            health = 0;
-            Die();
-        }
     }
 
     public virtual bool TakeDamage(float _damage)
     {
-        Debug.Log("Took damage in enemy");
-        return (health -= _damage) <= 0f;
-    }
-
-    public void Die()
-    {
-        // Def :(
+        float trueDamage = Mathf.Clamp(_damage, 0, health);
+        Debug.Log(enemyType + " took " + trueDamage + " damage.");
+        return (health -= trueDamage) <= 0f;
     }
 
 }
