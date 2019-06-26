@@ -8,7 +8,7 @@ public class Enemy : MonoBehaviour
     {
         CLOTHING_RACK_KIDS,
         AHMA,
-
+        FERAL_SHOPPER
     }
 
     public ENEMY_TYPE enemyType;
@@ -32,7 +32,13 @@ public class Enemy : MonoBehaviour
             Die();
         }
     }
-    
+
+    public virtual bool TakeDamage(float _damage)
+    {
+        Debug.Log("Took damage in enemy");
+        return (health -= _damage) <= 0f;
+    }
+
     public void Die()
     {
         // Def :(
