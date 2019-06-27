@@ -97,7 +97,7 @@ public class Player : MonoBehaviour
         UpdateMove();
         UpdateWeapon();
         UpdateLook();
-        UpdatePickup();
+        UpdateInventory();
         UpdateUI();
     }
 
@@ -107,7 +107,7 @@ public class Player : MonoBehaviour
         {
             if (Input.GetButtonDown("Fire1"))
             {
-                if(currentWeapon.Fire())
+                if (currentWeapon.Fire())
                 {
                     //hit
                 }
@@ -143,21 +143,43 @@ public class Player : MonoBehaviour
             currentWeapon.ChangeWeapon(weaponInventory.itemList[0]);
     }
 
-    void UpdatePickup()
+    void UpdateInventory()
     {
-        RaycastHit hit;
-        if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out hit, 100))
+        // Pickup Interactables
+        if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out RaycastHit hit, 100))
         {
             Debug.DrawLine(Camera.main.transform.position, hit.point);
             if (hit.collider.GetComponent<Interactable>() != null)
             {
                 GameObject interactable = hit.transform.gameObject;
-                if (Input.GetAxis("Pick Up") > 0)
+                if (Input.GetButtonDown("Pick Up"))
                 {
                     if (weaponInventory.itemList.Count >= 3)
                         Debug.Log("No Space Left in Inventory");
                     else
                         interactable.GetComponent<Interactable>().OnPickedUp(this.gameObject);
+                }
+            }
+        }
+
+        // Drop Weapons From Inventory as Interactables
+        if (Input.GetButtonDown("Drop Weapon"))
+        {
+            if (!currentWeapon || currentWeapon.itemData == null || currentWeapon.itemData.weaponType == ItemData.WEAPON_TYPE.NONE)
+            {
+                Debug.Log("No weapon is currently being held.");
+            }
+            else
+            {
+                weaponInventory.RemoveItem(currentWeapon.itemData);
+                GameObject droppedWeapon = new GameObject("dropped" + currentWeapon.itemData.type, typeof(Interactable));
+                droppedWeapon.GetComponent<Interactable>().Initialize(currentWeapon.RemoveWeapon());
+                droppedWeapon.transform.position = transform.position;
+                //droppedWeapon.GetComponent<Rigidbody>().AddForce(transform.forward);
+
+                if (currentWeapon.itemData != null)
+                {
+                    Debug.LogError("Held Weapon was not destroyed");
                 }
             }
         }
@@ -307,7 +329,8 @@ public class Player : MonoBehaviour
         if (Camera.main.transform.localPosition.y >= 0)
         {
             Camera.main.transform.localPosition = Vector3.zero;
-            currentWeapon.transform.localPosition = currentWeapon.itemData.heldPosition;
+            if (currentWeapon && currentWeapon.itemData != null)
+                currentWeapon.transform.localPosition = currentWeapon.itemData.heldPosition;
             StopCoroutine(recoveringCo);
         }
     }
@@ -346,16 +369,13 @@ public class Player : MonoBehaviour
             stamina = Mathf.Min(stamina + (Time.deltaTime * 0.5f * staminaRegenMultiplier), maxStamina);
         staminaBar.GetComponent<RectTransform>().localScale = new Vector3(stamina / maxStamina, staminaBar.transform.localScale.y, staminaBar.transform.localScale.z);
 
-        // Current Enemy Health Bar
+        // Target Info
         if (enemyName.GetComponent<RectTransform>().localPosition != new Vector3(enemyHealthBarPosition.x, enemyHealthBarPosition.y, 0))
             enemyName.GetComponent<RectTransform>().localPosition = new Vector3(enemyHealthBarPosition.x, enemyHealthBarPosition.y, 0);
-        RaycastHit hit;
-        float range = 0f;
+        float range = 100f; // Default
         if (currentWeapon && currentWeapon.itemData != null && currentWeapon.itemData.weaponType == ItemData.WEAPON_TYPE.CLOSE_RANGE)
             range = currentWeapon.itemData.attackRange;
-        else
-            range = 100f;
-        if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out hit, range) && hit.collider.GetComponent<Enemy>())
+        if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out RaycastHit hit, range) && hit.collider.GetComponent<Enemy>())
         {
             Enemy enemy = hit.collider.GetComponent<Enemy>();
             if (currTarget != enemy)
@@ -367,9 +387,10 @@ public class Player : MonoBehaviour
                 enemyHealthBar.GetComponent<RectTransform>().localScale = new Vector3(enemy.health / enemy.maxHealth, enemyHealthBar.transform.localScale.y, enemyHealthBar.transform.localScale.z);
             }
         }
-        else if (currTarget != null)
+        else
         {
-            currTarget = null;
+            if (currTarget != null)
+                currTarget = null;
             if (enemyName.activeSelf)
                 enemyName.SetActive(false);
         }

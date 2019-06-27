@@ -38,8 +38,9 @@ public class HeldWeapon : MonoBehaviour
         transform.localRotation = Quaternion.Euler(itemData.heldRotation);
     }
 
-    public void RemoveWeapon()
+    public ItemData RemoveWeapon()
     {
+        ItemData tempItem = itemData.Clone();
         itemData.weaponType = ItemData.WEAPON_TYPE.NONE;
         itemData.weaponDamage = 0;
         itemData.attackRate = 0;
@@ -52,8 +53,10 @@ public class HeldWeapon : MonoBehaviour
         itemData.heldPosition = Vector3.zero;
         itemData.heldRotation = Vector3.zero;
         itemData.impactEffect = null;
+        itemData = null;
         Destroy(GetComponent<MeshFilter>().mesh);
         Destroy(GetComponent<MeshRenderer>().material);
+        return tempItem;
     }
 
     public bool Fire()

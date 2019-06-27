@@ -9,15 +9,30 @@ using UnityEngine.Events;
 [RequireComponent(typeof(MeshCollider))]
 public class Interactable : MonoBehaviour
 {
-    public ItemTemplate itemTemplate;
+    [SerializeField]
+    private ItemTemplate itemTemplate = null;
+    [HideInInspector]
+    public ItemData itemData = null;
     public bool canPickUp = true;
+
+    public void Initialize(ItemData itemdata)
+    {
+        itemData = itemdata;
+    }
 
     // Start is called before the first frame update
     void Start()
     {
-        GetComponent<MeshFilter>().mesh = itemTemplate.itemData.mesh;
-        GetComponent<MeshRenderer>().material = itemTemplate.itemData.material;
-        GetComponent<MeshCollider>().sharedMesh = itemTemplate.itemData.mesh;
+        if (itemTemplate)
+            itemData = itemTemplate.itemData;
+        else if (itemData == null)
+        {
+            Debug.LogError("Initiate this Interactable with an ItemData. Object erroring: " + gameObject);
+            Destroy(this);
+        }
+        GetComponent<MeshFilter>().mesh = itemData.mesh;
+        GetComponent<MeshRenderer>().material = itemData.material;
+        GetComponent<MeshCollider>().sharedMesh = itemData.mesh;
         GetComponent<MeshCollider>().convex = true;
     }
 
@@ -30,7 +45,7 @@ public class Interactable : MonoBehaviour
     public void OnPickedUp(GameObject player)
     {
         if (player.GetComponent<Inventory>() != null)
-            player.GetComponent<Inventory>().AddItem(itemTemplate.itemData.Clone());
+            player.GetComponent<Inventory>().AddItem(itemData.Clone());
         Destroy(gameObject);
     }
 }
