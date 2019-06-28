@@ -17,7 +17,7 @@ public class ItemData
     [Tooltip("Attacks Per Second")]
     public float attackRate;
     [Tooltip("Expressed as a Percentage")]
-    [Range(1f,100f)]
+    [Range(1f, 100f)]
     public float durability;
     [Tooltip("Durability Damage Done Per Attack (in %)")]
     public float durabilityDecay;
@@ -47,17 +47,5 @@ public class ItemData
             impactEffect = this.impactEffect
         };
         return clone;
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
     }
 }
