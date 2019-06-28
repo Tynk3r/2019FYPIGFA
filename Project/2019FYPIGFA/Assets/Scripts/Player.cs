@@ -75,6 +75,10 @@ public class Player : MonoBehaviour
     [Header("Inventory")]
     public Inventory weaponInventory;
     public HeldWeapon currentWeapon;
+    public RectTransform inventoryPanel;
+    private IEnumerator openInventoryCo;
+    private IEnumerator closeInventoryCo;
+    private float inventoryAnimRate = 1f;
 
     private CharacterController characterController;
 
@@ -86,6 +90,8 @@ public class Player : MonoBehaviour
         maxFOV = Camera.main.fieldOfView * Mathf.Clamp(1f + ((sprintSpeedModifier - 1f) / 2.5f), 1f, 2f);
         characterController = GetComponent<CharacterController>();
         smoothWeaponLandingDistanceMultiplier = weaponLandingDistanceMultiplier;
+        openInventoryCo = OpenInventory();
+        closeInventoryCo = CloseInventory();
 
         // Misc QOL Stuff
         Cursor.lockState = CursorLockMode.Locked;
@@ -339,7 +345,10 @@ public class Player : MonoBehaviour
     {
         // Inventory
         if (Input.GetKeyDown(KeyCode.U))
-            weaponInventory.PrintAllItems(currentWeapon.itemData);
+        {
+            weaponInventory.PrintAllItems();
+            inventoryPanel.gameObject.SetActive(!inventoryPanel.gameObject.activeSelf);
+        }
 
         // Stamina
         if (staminaBarOutline.GetComponent<RectTransform>().localPosition != new Vector3(staminaBarPosition.x, staminaBarPosition.y, 0))
@@ -393,6 +402,32 @@ public class Player : MonoBehaviour
                 currTarget = null;
             if (enemyName.activeSelf)
                 enemyName.SetActive(false);
+        }
+    }
+
+    IEnumerator OpenInventory()
+    {
+        while (inventoryPanel.localScale.x > 0f)
+        {
+            inventoryPanel.localScale = new Vector3(inventoryPanel.localScale.x - (inventoryAnimRate * Time.deltaTime), inventoryPanel.localScale.y, inventoryPanel.localScale.z);
+            if (inventoryPanel.localScale.x <= 0f)
+            {
+                inventoryPanel.localScale = new Vector3(0f, inventoryPanel.localScale.y, inventoryPanel.localScale.z);
+            }
+            yield return null;
+        }
+    }
+
+    IEnumerator CloseInventory()
+    {
+        while (inventoryPanel.localScale.x < 1f)
+        {
+            inventoryPanel.localScale = new Vector3(inventoryPanel.localScale.x + (inventoryAnimRate * Time.deltaTime), inventoryPanel.localScale.y, inventoryPanel.localScale.z);
+            if (inventoryPanel.localScale.x >= 1f)
+            {
+                inventoryPanel.localScale = new Vector3(1f, inventoryPanel.localScale.y, inventoryPanel.localScale.z);
+            }
+            yield return null;
         }
     }
 
