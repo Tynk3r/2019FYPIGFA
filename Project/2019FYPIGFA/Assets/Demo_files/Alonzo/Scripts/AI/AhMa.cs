@@ -24,7 +24,7 @@ public class AhMa : AIManager
         base.Start();
         enemyType = ENEMY_TYPE.AHMA;
         ChangeSpeed(baseMoveSpeed, acceleration);
-        ChangeState(STATES.ENRAGED); //TODO : REMOVE
+        ChangeState(STATES.HOSTILE); //TODO : REMOVE
 
         var rb = GetComponent<Rigidbody>();
         rb.isKinematic = true;
@@ -34,7 +34,7 @@ public class AhMa : AIManager
     // Update is called once per frame
     override public void Update()
     {
-        base.Update();
+        //base.Update();
         UpdateStates();
         if (health <= 0f)
             Die();
@@ -87,8 +87,12 @@ public class AhMa : AIManager
     public override bool TakeDamage(float _damage)
     {
         Debug.Log("Took damage in AhMa.cs");
-        Die();
-        return (health -= _damage) <= 0f;
+        if ((health -= _damage) <= 0f)
+        {
+            Die();
+            return true;
+        }
+        return false;
     }
 
     private void OnCollisionEnter(Collision collision)
