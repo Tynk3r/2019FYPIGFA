@@ -5,7 +5,9 @@ using UnityEngine;
 public class GameController : MonoBehaviour
 {
     public int numberOfObjectives;
+    public int numberOfWeapons;
     public List<SpawnPoint> spawnPoints = new List<SpawnPoint>();
+    public List<ItemTemplate> weaponsToSpawn = new List<ItemTemplate>();
 
     // Start is called before the first frame update
     void Start()
@@ -22,7 +24,7 @@ public class GameController : MonoBehaviour
     public void InitPoints()
     {
         // Find all spawn points and stop function if not enough spawn points
-        int totalPointsUsed = numberOfObjectives /*+ whatever*/;
+        int totalPointsUsed = numberOfObjectives + numberOfWeapons/*+ whatever*/;
         foreach (SpawnPoint s in FindObjectsOfType<SpawnPoint>())
             spawnPoints.Add(s);
         if (spawnPoints.Count < 1 || spawnPoints.Count < totalPointsUsed)
@@ -32,7 +34,6 @@ public class GameController : MonoBehaviour
         }
 
         // Spawn objectives
-        RandomGenerator generator = new RandomGenerator();
         float objectivesSpawned = 0;
         while (objectivesSpawned < numberOfObjectives)
         {
@@ -44,6 +45,8 @@ public class GameController : MonoBehaviour
                 objectivesSpawned++;
             }
         }
+
+        // Spawn
     }
 
     public void PrintShoppingList()
