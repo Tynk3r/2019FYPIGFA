@@ -1,31 +1,49 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class GameController : MonoBehaviour
 {
-    // Objectives
-    public int numberOfObjectives;
+    [Header("Main")]
+    [ReadOnly] public bool finishedLevel = false;
+    public List<SpawnPoint> spawnPoints = new List<SpawnPoint>();
 
-    // Weapons
+    [Header("Shopping List")]
+    public int numberOfObjectives;
+    public TextMeshProUGUI shoppingList;
+
+    [Header("Weapons")]
     public int numberOfWeapons;
     public List<ItemTemplate> weaponsToSpawn = new List<ItemTemplate>();
-
-    // Main
-    [HideInInspector]
-    public bool finishedLevel = false;
-    public List<SpawnPoint> spawnPoints = new List<SpawnPoint>();
 
     // Start is called before the first frame update
     void Start()
     {
         InitPoints();
+        UpdateShoppingList();
     }
 
     // Update is called once per frame
     void Update()
     {
 
+    }
+
+    public void UpdateShoppingList()
+    {
+        string s = "";
+        foreach (SpawnPoint pt in FindObjectsOfType<SpawnPoint>())
+        {
+            if (pt.GetPointType() == SpawnPoint.POINT_TYPE.OBJECTIVE)
+                s += ("- " + pt.GetPointName() + "\n");
+        }
+        if (s == "")
+        {
+            s = "You've completed your shopping list for this level! Head to the stairs to get the next level.";
+            finishedLevel = true;
+        }
+        shoppingList.text = s;
     }
 
     public void InitPoints()

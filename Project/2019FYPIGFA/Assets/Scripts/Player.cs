@@ -29,6 +29,7 @@ public class Player : MonoBehaviour
     public GameObject enemyHealthBar;
     public Vector2 enemyHealthBarPosition;
     private Enemy currTarget = null;
+    public GameObject shoppingList;
 
     [Header("Movement")]
     public float walkSpeed = 5.0f;
@@ -89,6 +90,7 @@ public class Player : MonoBehaviour
         characterController = GetComponent<CharacterController>();
         smoothWeaponLandingDistanceMultiplier = weaponLandingDistanceMultiplier;
         inventoryPanel.gameObject.SetActive(false);
+        shoppingList.SetActive(false);
 
         // Misc QOL Stuff
         Cursor.lockState = CursorLockMode.Locked;
@@ -169,6 +171,7 @@ public class Player : MonoBehaviour
                 if (Input.GetButtonDown("Pick Up") && spawnPoint.GetPointType() == SpawnPoint.POINT_TYPE.OBJECTIVE)
                 {
                     string objective = spawnPoint.OnPickedUp();
+                    gameController.UpdateShoppingList();
                     Debug.Log(objective + " was picked up.");
                 }
             }
@@ -352,14 +355,14 @@ public class Player : MonoBehaviour
         // Inventory
         if (Input.GetKeyDown(KeyCode.U))
         {
-            weaponInventory.PrintAllItems();
             inventoryPanel.gameObject.SetActive(!inventoryPanel.gameObject.activeSelf);
         }
 
         // Check Objectives
         if (Input.GetKeyDown(KeyCode.O))
         {
-            gameController.PrintShoppingList();
+            gameController.UpdateShoppingList();
+            shoppingList.SetActive(!shoppingList.activeSelf);
         }
 
         // Stamina
