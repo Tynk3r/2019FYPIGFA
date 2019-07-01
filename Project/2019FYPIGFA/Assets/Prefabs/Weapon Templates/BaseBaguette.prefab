@@ -55,3 +55,4 @@ MonoBehaviour:
     material: {fileID: 2100000, guid: 9afdac12ce6f0c043b442ae9b2298808, type: 2}
     heldPosition: {x: 0.38, y: -0.26, z: 0.14}
     heldRotation: {x: 19, y: 51, z: -16}
+    impactEffect: {fileID: 0}

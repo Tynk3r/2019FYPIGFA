@@ -7,13 +7,18 @@ public class ItemData
     public enum WEAPON_TYPE
     {
         NONE,
-        CLOSE_RANGE,
-        CONDIMENT_MUSTARD,
+        RAYCAST,
         PROJECTILE,
     }
-
+    
     public WEAPON_TYPE weaponType;
-    public float weaponDamage;
+    public string type;
+    public Mesh mesh;
+    public Material material;
+    [Tooltip("Determines orientation when held by player.")]
+    public Vector3 heldPosition;
+    [Tooltip("Determines orientation when held by player.")]
+    public Vector3 heldRotation;
     [Tooltip("Attacks Per Second")]
     public float attackRate;
     [Tooltip("Expressed as a Percentage")]
@@ -21,13 +26,17 @@ public class ItemData
     public float durability;
     [Tooltip("Durability Damage Done Per Attack (in %)")]
     public float durabilityDecay;
+
+    [DrawIf("weaponType", WEAPON_TYPE.RAYCAST)]
+    public float weaponDamage;
+    [DrawIf("weaponType", WEAPON_TYPE.RAYCAST)]
     public float attackRange;
-    public string type;
-    public Mesh mesh;
-    public Material material;
-    public Vector3 heldPosition;
-    public Vector3 heldRotation;
+    [DrawIf("weaponType", WEAPON_TYPE.RAYCAST)]
     public GameObject impactEffect;
+
+    [DrawIf("weaponType", WEAPON_TYPE.PROJECTILE)]
+    public GameObject projectile;
+
 
     public ItemData Clone()
     {

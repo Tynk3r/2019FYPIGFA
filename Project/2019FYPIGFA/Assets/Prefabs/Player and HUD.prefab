@@ -1057,6 +1057,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   numberOfObjectives: 0
+  numberOfWeapons: 0
+  weaponsToSpawn: []
+  finishedLevel: 0
   spawnPoints: []
 --- !u!1 &4802596471935315089
 GameObject:
@@ -1551,17 +1554,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemData:
     weaponType: 0
-    weaponDamage: 0
-    attackRate: 0
-    durability: 0
-    durabilityDecay: 0
-    attackRange: 0
     type: 
     mesh: {fileID: 0}
     material: {fileID: 0}
     heldPosition: {x: 0, y: 0, z: 0}
     heldRotation: {x: 0, y: 0, z: 0}
+    attackRate: 0
+    durability: 0
+    durabilityDecay: 0
+    weaponDamage: 0
+    attackRange: 0
     impactEffect: {fileID: 0}
+    projectile: {fileID: 0}
 --- !u!1 &4802596472195653773
 GameObject:
   m_ObjectHideFlags: 0

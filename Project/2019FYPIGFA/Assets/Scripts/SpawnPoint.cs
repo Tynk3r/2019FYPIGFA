@@ -6,6 +6,7 @@ public class SpawnPoint : MonoBehaviour
     public enum POINT_TYPE
     {
         OBJECTIVE,
+        WEAPON,
         EMPTY,
     }
 
@@ -28,6 +29,13 @@ public class SpawnPoint : MonoBehaviour
     {
         pointType = POINT_TYPE.OBJECTIVE;
         pointName = objective.GetItemType().ToString();
+    }
+
+    public void SetPointTo(ItemData itemData)
+    {
+        pointType = POINT_TYPE.WEAPON;
+        pointName = itemData.type;
+        gameObject.AddComponent<Interactable>().Initialize(itemData);
     }
 
     public POINT_TYPE GetPointType()

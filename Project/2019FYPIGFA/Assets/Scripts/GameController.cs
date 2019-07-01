@@ -4,10 +4,17 @@ using UnityEngine;
 
 public class GameController : MonoBehaviour
 {
+    // Objectives
     public int numberOfObjectives;
+
+    // Weapons
     public int numberOfWeapons;
-    public List<SpawnPoint> spawnPoints = new List<SpawnPoint>();
     public List<ItemTemplate> weaponsToSpawn = new List<ItemTemplate>();
+
+    // Main
+    [HideInInspector]
+    public bool finishedLevel = false;
+    public List<SpawnPoint> spawnPoints = new List<SpawnPoint>();
 
     // Start is called before the first frame update
     void Start()
@@ -32,8 +39,12 @@ public class GameController : MonoBehaviour
             Debug.LogError("Not Enough Spawn Points in Scene.");
             return;
         }
+        else if (weaponsToSpawn.Count < 1 && numberOfWeapons > 0)
+        {
+            Debug.LogError("You haven't put in any ItemTemplates to spawn. Weapons will not be spawned.");
+        }
 
-        // Spawn objectives
+        // Spawn Objectives
         float objectivesSpawned = 0;
         while (objectivesSpawned < numberOfObjectives)
         {
@@ -46,7 +57,22 @@ public class GameController : MonoBehaviour
             }
         }
 
-        // Spawn
+        // Spawn Weapons
+        float weaponsSpawned = 0;
+        if (!(weaponsToSpawn.Count < 1 && numberOfWeapons > 0))
+        {
+            while (weaponsSpawned < numberOfWeapons)
+            {
+                int rand = Random.Range(0, spawnPoints.Count);
+                int rand2 = Random.Range(0, weaponsToSpawn.Count);
+                SpawnPoint weapon = spawnPoints[rand];
+                if (weapon.GetPointType() == SpawnPoint.POINT_TYPE.EMPTY)
+                {
+                    weapon.SetPointTo(weaponsToSpawn[rand2].itemData);
+                    weaponsSpawned++;
+                }
+            }
+        }
     }
 
     public void PrintShoppingList()

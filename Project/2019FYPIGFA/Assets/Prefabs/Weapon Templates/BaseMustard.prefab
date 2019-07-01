@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemData:
-    weaponType: 2
+    weaponType: 1
     weaponDamage: 10
     attackRate: 10
     durability: 100
@@ -55,3 +55,4 @@ MonoBehaviour:
     material: {fileID: 2100000, guid: 7f70be5cdc08b974d883826b3d1f27cd, type: 2}
     heldPosition: {x: 0.28, y: -0.22, z: 0.41}
     heldRotation: {x: -60.9, y: -194.1, z: -7.4}
+    impactEffect: {fileID: 0}

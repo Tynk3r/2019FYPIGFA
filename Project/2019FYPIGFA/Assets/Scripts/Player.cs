@@ -6,7 +6,6 @@ using TMPro;
 [RequireComponent(typeof(CharacterController))]
 public class Player : MonoBehaviour
 {
-
     private CharacterController characterController;
     public GameController gameController;
     public string[] collectedObjectives;
@@ -395,7 +394,7 @@ public class Player : MonoBehaviour
         if (enemyName.GetComponent<RectTransform>().localPosition != new Vector3(enemyHealthBarPosition.x, enemyHealthBarPosition.y, 0))
             enemyName.GetComponent<RectTransform>().localPosition = new Vector3(enemyHealthBarPosition.x, enemyHealthBarPosition.y, 0);
         float range = 100f; // Default
-        if (currentWeapon && currentWeapon.itemData != null && currentWeapon.itemData.weaponType == ItemData.WEAPON_TYPE.CLOSE_RANGE)
+        if (currentWeapon && currentWeapon.itemData != null && currentWeapon.itemData.weaponType == ItemData.WEAPON_TYPE.RAYCAST)
             range = currentWeapon.itemData.attackRange;
         if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out RaycastHit hit, range) && hit.collider.GetComponent<Enemy>())
         {
