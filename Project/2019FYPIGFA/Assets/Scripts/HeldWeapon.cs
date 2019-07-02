@@ -62,29 +62,38 @@ public class HeldWeapon : MonoBehaviour
     public bool Fire()
     {
         RaycastHit hit;
-        // attackrate = times per second can attack
-        // attacktimer = when zero, can attack
-        // attack timer set to (1 / attackrate) when attack
-        if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out hit, itemData.attackRange))
+        switch (itemData.weaponType)
         {
-            if (attackTimer > 0f)
-                return false;
+            case ItemData.WEAPON_TYPE.RAYCAST:
+                // attackrate = times per second can attack
+                // attacktimer = when zero, can attack
+                // attack timer set to (1 / attackrate) when attack
+                if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out hit, itemData.attackRange))
+                {
+                    if (attackTimer > 0f)
+                        return false;
 
-            if (hit.collider.GetComponent<Enemy>() != null)
-            {
-                Enemy enemy = hit.collider.GetComponent<Enemy>();
-                enemy.health = Mathf.Clamp(enemy.health - itemData.weaponDamage, 0, enemy.maxHealth);
-                attackTimer = 1 / itemData.attackRate;
-                itemData.durability = Mathf.Clamp(itemData.durability - itemData.durabilityDecay, 0, 100);
-                Debug.Log("Hit " + enemy.enemyType + " for " + itemData.weaponDamage + " damage with " + itemData.type + ". Durability Left: " + itemData.durability + "%");
-            }
+                    if (hit.collider.GetComponent<Enemy>() != null)
+                    {
+                        Enemy enemy = hit.collider.GetComponent<Enemy>();
+                        enemy.health = Mathf.Clamp(enemy.health - itemData.weaponDamage, 0, enemy.maxHealth);
+                        attackTimer = 1 / itemData.attackRate;
+                        itemData.durability = Mathf.Clamp(itemData.durability - itemData.durabilityDecay, 0, 100);
+                        Debug.Log("Hit " + enemy.enemyType + " for " + itemData.weaponDamage + " damage with " + itemData.type + ". Durability Left: " + itemData.durability + "%");
+                    }
 
-            if (itemData.impactEffect)
-            {
-                GameObject impackEfek = Instantiate(itemData.impactEffect, hit.point, Quaternion.LookRotation((transform.position - hit.point).normalized), hit.transform);
-                Destroy(impackEfek, 2f);
-            }
+                    if (itemData.impactEffect)
+                    {
+                        GameObject impackEfek = Instantiate(itemData.impactEffect, hit.point, Quaternion.LookRotation((transform.position - hit.point).normalized), hit.transform);
+                        Destroy(impackEfek, 2f);
+                    }
+                }
+                break;
+            default:
+                Debug.LogError("Assign weapon type before trying to attack.");
+                break;
         }
+
 
         return true;
     }

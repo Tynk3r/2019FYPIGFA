@@ -7,6 +7,7 @@ using UnityEngine.Events;
 [RequireComponent(typeof(MeshFilter))]
 [RequireComponent(typeof(MeshRenderer))]
 [RequireComponent(typeof(MeshCollider))]
+[ExecuteInEditMode]
 public class Interactable : MonoBehaviour
 {
     [SerializeField]
@@ -14,7 +15,7 @@ public class Interactable : MonoBehaviour
     [HideInInspector]
     public ItemData itemData = null;
     public bool canPickUp = true;
-
+    
     public void Initialize(ItemData itemdata)
     {
         itemData = itemdata;

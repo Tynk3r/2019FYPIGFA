@@ -6,6 +6,9 @@ using TMPro;
 [RequireComponent(typeof(CharacterController))]
 public class Player : MonoBehaviour
 {
+    private CharacterController characterController;
+    public GameController gameController;
+    public string[] collectedObjectives;
 
     [Header("Stats")]
     public float maxHealth = 10f;
@@ -26,6 +29,7 @@ public class Player : MonoBehaviour
     public GameObject enemyHealthBar;
     public Vector2 enemyHealthBarPosition;
     private Enemy currTarget = null;
+    public GameObject shoppingList;
 
     [Header("Movement")]
     public float walkSpeed = 5.0f;
@@ -75,8 +79,7 @@ public class Player : MonoBehaviour
     [Header("Inventory")]
     public Inventory weaponInventory;
     public HeldWeapon currentWeapon;
-
-    private CharacterController characterController;
+    public RectTransform inventoryPanel;
 
     void Start()
     {
@@ -86,6 +89,8 @@ public class Player : MonoBehaviour
         maxFOV = Camera.main.fieldOfView * Mathf.Clamp(1f + ((sprintSpeedModifier - 1f) / 2.5f), 1f, 2f);
         characterController = GetComponent<CharacterController>();
         smoothWeaponLandingDistanceMultiplier = weaponLandingDistanceMultiplier;
+        inventoryPanel.gameObject.SetActive(false);
+        shoppingList.SetActive(false);
 
         // Misc QOL Stuff
         Cursor.lockState = CursorLockMode.Locked;
@@ -158,6 +163,16 @@ public class Player : MonoBehaviour
                         Debug.Log("No Space Left in Inventory");
                     else
                         interactable.GetComponent<Interactable>().OnPickedUp(this.gameObject);
+                }
+            }
+            else if (hit.collider.GetComponent<SpawnPoint>() != null)
+            {
+                SpawnPoint spawnPoint = hit.collider.GetComponent<SpawnPoint>();
+                if (Input.GetButtonDown("Pick Up") && spawnPoint.GetPointType() == SpawnPoint.POINT_TYPE.OBJECTIVE)
+                {
+                    string objective = spawnPoint.OnPickedUp();
+                    gameController.UpdateShoppingList();
+                    Debug.Log(objective + " was picked up.");
                 }
             }
         }
@@ -339,7 +354,16 @@ public class Player : MonoBehaviour
     {
         // Inventory
         if (Input.GetKeyDown(KeyCode.U))
-            weaponInventory.PrintAllItems(currentWeapon.itemData);
+        {
+            inventoryPanel.gameObject.SetActive(!inventoryPanel.gameObject.activeSelf);
+        }
+
+        // Check Objectives
+        if (Input.GetKeyDown(KeyCode.O))
+        {
+            gameController.UpdateShoppingList();
+            shoppingList.SetActive(!shoppingList.activeSelf);
+        }
 
         // Stamina
         if (staminaBarOutline.GetComponent<RectTransform>().localPosition != new Vector3(staminaBarPosition.x, staminaBarPosition.y, 0))
@@ -373,7 +397,7 @@ public class Player : MonoBehaviour
         if (enemyName.GetComponent<RectTransform>().localPosition != new Vector3(enemyHealthBarPosition.x, enemyHealthBarPosition.y, 0))
             enemyName.GetComponent<RectTransform>().localPosition = new Vector3(enemyHealthBarPosition.x, enemyHealthBarPosition.y, 0);
         float range = 100f; // Default
-        if (currentWeapon && currentWeapon.itemData != null && currentWeapon.itemData.weaponType == ItemData.WEAPON_TYPE.CLOSE_RANGE)
+        if (currentWeapon && currentWeapon.itemData != null && currentWeapon.itemData.weaponType == ItemData.WEAPON_TYPE.RAYCAST)
             range = currentWeapon.itemData.attackRange;
         if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out RaycastHit hit, range) && hit.collider.GetComponent<Enemy>())
         {

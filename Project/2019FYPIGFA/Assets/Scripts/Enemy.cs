@@ -24,7 +24,7 @@ public class Enemy : MonoBehaviour
     public virtual bool TakeDamage(float _damage)
     {
         float trueDamage = Mathf.Clamp(_damage, 0, health);
-        Debug.Log(enemyType + " took " + trueDamage + " damage.");
+        //Debug.Log(enemyType + " took " + trueDamage + " damage.");
         return (health -= trueDamage) <= 0f;
     }
 
