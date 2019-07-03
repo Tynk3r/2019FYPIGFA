@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 [RequireComponent(typeof(Collider))]
 [RequireComponent(typeof(Rigidbody))]
@@ -12,6 +13,7 @@ public class ClothingRackKids : AIManager
         ORIENTING,      // FOUND TARGET, ROTATING TOWARDS
         SPEEDINGUP,     // ACCELERATING TOWARDS TARGET
         REORIENT,       // HEADING TOWARD TARGET, WILL TRY AND RAM BY ROTATING TOWARDS
+        HIT,            // HIT AN OBJECT 
         SLOWINGDOWN,    // OVERSHOT, WILL TRY TO DECELERATE
         DEATH,          // HEALTH IS DEPLETED, FALL OVER
     }
@@ -21,7 +23,7 @@ public class ClothingRackKids : AIManager
     private Quaternion _lookRotation = Quaternion.identity;
     private Vector3 _direction = Vector3.zero;
     private Rigidbody rb = null;
-    public float impactForce = 30f;
+
 
     public float rotationSpeed = 0.5f;
     public float reorientSpeed = 0.1f;
@@ -29,6 +31,7 @@ public class ClothingRackKids : AIManager
     public float topSpeed = 50f;
     private float moveSpeed = 0f;
 
+    public float sightDistance = 10f;
     public float pushForce = 10f;
     public float pushRate = 1f;
     private float pushTimer = 0f;
@@ -36,6 +39,13 @@ public class ClothingRackKids : AIManager
     private float slowDownSpeed = 0f;
     private float slowDownTimer = 0f;
     public float slowDownDelta = 1f;
+
+    public float collideDamageMultiplier = 10f;
+    public float damageToPlayer = 10f;
+
+    public float impactForce = 30f;
+    public float damageThreshold = 10f;
+    private Vector3 bounceDirection = Vector3.zero;
 
     private float prevFrameDist = 0f;
     private float currDist = 0f;
@@ -50,7 +60,8 @@ public class ClothingRackKids : AIManager
         ChangeSpeed(moveSpeed, 0f);
 
         rb = GetComponent<Rigidbody>();
-        rb.isKinematic = true;
+        rb.freezeRotation = true;
+        rb.constraints = RigidbodyConstraints.FreezeAll;
         rb.detectCollisions = true;
     }
 
@@ -61,7 +72,38 @@ public class ClothingRackKids : AIManager
 
         switch (currentState)
         {
+            case STATES.IDLE:
+                // Temp see if player is within view
+                prevFrameDist = currDist;
+                currDist = (target.position - transform.position).magnitude;
+                if (currDist <= sightDistance)
+                {
+                    _direction = (target.position - transform.position).normalized;
+                    Physics.Raycast(new Ray(transform.position, _direction), out RaycastHit hit, sightDistance);
+                    if (hit.transform == target.transform)
+                    {
+                        currentState = STATES.ORIENTING;
+                        break;
+                    }
+                }
+                break;
             case STATES.ORIENTING:
+                if (currDist <= sightDistance)
+                {
+                    _direction = (target.position - transform.position).normalized;
+                    Physics.Raycast(new Ray(transform.position, _direction), out RaycastHit hit, sightDistance);
+                    if (hit.transform != target.transform)
+                    {
+                        currentState = STATES.IDLE;
+                        break;
+                    }
+                }
+                else
+                {
+                    currentState = STATES.IDLE;
+                    break;
+                }
+
                 // Rotate towrds target
                 _direction = Vector3.ProjectOnPlane((target.position - transform.position).normalized, new Vector3(0, 1, 0)).normalized;
                 _lookRotation = Quaternion.LookRotation(_direction);
@@ -93,9 +135,9 @@ public class ClothingRackKids : AIManager
                 if (moveSpeed >= topSpeed)
                 {
                     //Debug.Log("Reached Top Speed");
-                    currentState = STATES.REORIENT;
                     prevFrameDist = currDist;
                     currDist = (target.position - transform.position).magnitude;
+                    currentState = STATES.REORIENT;
                     break;
                 }
 
@@ -122,6 +164,29 @@ public class ClothingRackKids : AIManager
                 //Debug.Log(currState + ", " + (currDist - prevFrameDist));
                 if (currDist - prevFrameDist > 0.1f)
                     currentState = STATES.SLOWINGDOWN;
+                break;
+            case STATES.HIT:
+                // Set speed coming into slowdown state
+                if (slowDownSpeed == 0f)
+                    slowDownSpeed = moveSpeed * 0.25f;
+
+                // Applies speed to object
+                SimpleMove(bounceDirection, moveSpeed);
+
+                // Decrease speed linearly (simulate kids putting foot on ground to stop rack)
+                slowDownTimer = Mathf.Clamp(slowDownTimer + (Time.deltaTime * slowDownDelta), 0, 1);
+                moveSpeed = Mathf.Lerp(slowDownSpeed, 0f, slowDownTimer);
+
+                // TODO: SPARK PARTICLES AT WHEELS
+
+                // Check if need to change state
+                if (moveSpeed <= 0f)
+                {
+                    slowDownSpeed = 0f;
+                    slowDownTimer = 0f;
+                    currentState = STATES.ORIENTING;
+                    break;
+                }
                 break;
             case STATES.SLOWINGDOWN:
                 // Set speed coming into slowdown state
@@ -150,35 +215,69 @@ public class ClothingRackKids : AIManager
                 break;
         }
 
-        if (health <= 0f)
-            Die();
+        if (currentState != STATES.DEATH)
+        {
+            agent.FindClosestEdge(out NavMeshHit hit);
+            if ((hit.position - agent.transform.position).magnitude <= agent.radius)
+                OnHit(hit.normal);
+
+            if (health <= 0f)
+                Die();
+
+        }
     }
 
     public override void Die()
     {
         base.Die();
         currentState = STATES.DEATH;
-        rb.isKinematic = false;
+        rb.constraints = RigidbodyConstraints.None;
+        rb.velocity = transform.forward * (moveSpeed*0.5f) + transform.right * moveSpeed;
+        if (rb.velocity.magnitude <= 0f)
+            rb.velocity = transform.forward * 1.25f + transform.right * 2.5f;
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        //Debug.Log(gameObject + " Collided with " + collision.gameObject);
-        RaycastHit hit;
+        OnHit(collision);
+    }
+
+
+    private void OnHit(Collision collision = null)
+    {
+        Debug.Log(gameObject + " collided with " + collision.gameObject);
         // Make sure not colliding with ground
-        if (Physics.Raycast(new Ray(transform.position, -transform.up), out hit, Mathf.Infinity) && currentState != STATES.DEATH)
+        if (Physics.Raycast(new Ray(transform.position, -transform.up), out RaycastHit hit, Mathf.Infinity) && currentState != STATES.DEATH)
         {
-            //Debug.Log("Grounded to " + hit.collider.gameObject);
             if (collision.gameObject != hit.collider.gameObject)
             {
-                //Debug.Log(gameObject + " collided with " + collision.gameObject);
                 if (collision.rigidbody != null)
                 {
                     collision.rigidbody.AddForce(-collision.GetContact(0).normal * impactForce);
                 }
-                float damage = (collision.collider.bounds.size.magnitude - GetComponent<Collider>().bounds.size.magnitude) * 10;
+
+                float damage = (collision.collider.bounds.size.magnitude - GetComponent<Collider>().bounds.size.magnitude) * collideDamageMultiplier;
                 TakeDamage(damage);
+                if (collision.gameObject.transform == target && moveSpeed > 0)
+                {
+                    target.GetComponent<Player>().TakeDamage(damageToPlayer);
+                }
+                if (collision.collider.bounds.size.magnitude - GetComponent<Collider>().bounds.size.magnitude >= damageThreshold)
+                {
+                    bounceDirection = hit.normal;
+                    currentState = STATES.HIT;
+                }
             }
+        }
+    }
+
+    private void OnHit(Vector3 normal)
+    {
+        if (currentState != STATES.DEATH)
+        {
+            TakeDamage(10);
+            bounceDirection = normal;
+            currentState = STATES.HIT;
         }
     }
 }
