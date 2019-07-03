@@ -2,6 +2,7 @@
 using System.Collections;
 using System;
 using TMPro;
+using UnityEditor;
 
 [RequireComponent(typeof(CharacterController))]
 public class Player : MonoBehaviour
@@ -11,8 +12,8 @@ public class Player : MonoBehaviour
     public string[] collectedObjectives;
 
     [Header("Stats")]
-    public float maxHealth = 10f;
-    public float maxStamina = 1f;
+    public float maxHealth = 100f;
+    public float maxStamina = 100f;
     public float staminaRegenMultiplier = 1f;
     private float stamRegenTimer = 0f;
     private bool stamRegenTimerDone = true;
@@ -24,6 +25,9 @@ public class Player : MonoBehaviour
     public GameObject staminaBarOutline;
     public GameObject staminaBar;
     public Vector2 staminaBarPosition;
+    public GameObject healthBarOutline;
+    public GameObject healthBar;
+    public Vector2 healthBarPosition;
     public GameObject enemyName;
     public GameObject enemyHealthBarOutline;
     public GameObject enemyHealthBar;
@@ -393,6 +397,14 @@ public class Player : MonoBehaviour
             stamina = Mathf.Min(stamina + (Time.deltaTime * 0.5f * staminaRegenMultiplier), maxStamina);
         staminaBar.GetComponent<RectTransform>().localScale = new Vector3(stamina / maxStamina, staminaBar.transform.localScale.y, staminaBar.transform.localScale.z);
 
+        // Health
+        if (healthBarOutline.GetComponent<RectTransform>().localPosition != new Vector3(healthBarPosition.x, healthBarPosition.y, 0))
+            healthBarOutline.GetComponent<RectTransform>().localPosition = new Vector3(healthBarPosition.x, healthBarPosition.y, 0);
+        if (healthBar.GetComponent<RectTransform>().localScale != new Vector3(health / maxHealth, healthBar.transform.localScale.y, healthBar.transform.localScale.z))
+            healthBar.GetComponent<RectTransform>().localScale = new Vector3(health / maxHealth, healthBar.transform.localScale.y, healthBar.transform.localScale.z);
+        if (health == 0)
+            EditorApplication.isPlaying = false;
+
         // Target Info
         if (enemyName.GetComponent<RectTransform>().localPosition != new Vector3(enemyHealthBarPosition.x, enemyHealthBarPosition.y, 0))
             enemyName.GetComponent<RectTransform>().localPosition = new Vector3(enemyHealthBarPosition.x, enemyHealthBarPosition.y, 0);
@@ -439,6 +451,19 @@ public class Player : MonoBehaviour
     public float GetStam()
     {
         return stamina / maxStamina;
+    }
+
+    /// <summary>
+    /// Apply damage to the player.
+    /// </summary>
+    /// <param name="_damage"></param>
+    /// <returns>True if the player took damage.</returns>
+    public bool TakeDamage(float _damage)
+    {
+        float trueDamage = Mathf.Clamp(_damage, 0, health);
+        Debug.Log("Player took " + trueDamage + " damage.");
+        health -= trueDamage;
+        return trueDamage <= 0f;
     }
 
 

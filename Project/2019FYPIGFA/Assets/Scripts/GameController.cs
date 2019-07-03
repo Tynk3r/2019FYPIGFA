@@ -91,6 +91,13 @@ public class GameController : MonoBehaviour
                 }
             }
         }
+
+        // Clear Unused Spawn Points
+        foreach (SpawnPoint s in FindObjectsOfType<SpawnPoint>())
+        {
+            if (s.GetPointType() == SpawnPoint.POINT_TYPE.EMPTY)
+                s.gameObject.SetActive(false);
+        }
     }
 
     public void PrintShoppingList()
