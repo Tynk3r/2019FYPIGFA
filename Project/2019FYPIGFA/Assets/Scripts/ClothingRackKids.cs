@@ -78,7 +78,7 @@ public class ClothingRackKids : AIManager
                 currDist = (target.position - transform.position).magnitude;
                 if (currDist <= sightDistance)
                 {
-                    _direction = Vector3.ProjectOnPlane((target.position - transform.position).normalized, new Vector3(0, 1, 0)).normalized;
+                    _direction = (target.position - transform.position).normalized;
                     Physics.Raycast(new Ray(transform.position, _direction), out RaycastHit hit, sightDistance);
                     if (hit.transform == target.transform)
                     {
@@ -90,7 +90,7 @@ public class ClothingRackKids : AIManager
             case STATES.ORIENTING:
                 if (currDist <= sightDistance)
                 {
-                    _direction = Vector3.ProjectOnPlane((target.position - transform.position).normalized, new Vector3(0, 1, 0)).normalized;
+                    _direction = (target.position - transform.position).normalized;
                     Physics.Raycast(new Ray(transform.position, _direction), out RaycastHit hit, sightDistance);
                     if (hit.transform != target.transform)
                     {
