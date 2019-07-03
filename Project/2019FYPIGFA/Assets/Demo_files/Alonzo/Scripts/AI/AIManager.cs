@@ -6,7 +6,8 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NavMeshAgent))]
 public class AIManager : Enemy
 {
-    NavMeshAgent agent;
+    [HideInInspector]
+    public NavMeshAgent agent;
     
     // Start is called before the first frame update
     public virtual void Start()
@@ -38,6 +39,14 @@ public class AIManager : Enemy
     public void SimpleMove(Vector3 direction, float speed)
     {
         agent.Move(direction * speed * Time.deltaTime);
+    }
+
+    public bool IsAtEdge()
+    {
+        agent.FindClosestEdge(out NavMeshHit hit);
+        if ((hit.position - agent.transform.position).magnitude < 0.1f)
+            return true;
+        return false;
     }
 
 }
