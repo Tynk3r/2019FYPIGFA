@@ -51,7 +51,8 @@ public class SpawnPoint : MonoBehaviour
     public string OnPickedUp()
     {
         string temp = pointName;
-        DestroyImmediate(gameObject);
+        Destroy(gameObject);
         return temp;
     }
+    
 }

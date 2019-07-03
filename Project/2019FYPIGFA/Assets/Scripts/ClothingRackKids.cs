@@ -232,7 +232,7 @@ public class ClothingRackKids : AIManager
         base.Die();
         currentState = STATES.DEATH;
         rb.constraints = RigidbodyConstraints.None;
-        rb.velocity = transform.forward * (moveSpeed*0.5f) + transform.right * moveSpeed;
+        rb.velocity = transform.forward * (moveSpeed*0.5f) + transform.right * 2.5f;
         if (rb.velocity.magnitude <= 0f)
             rb.velocity = transform.forward * 1.25f + transform.right * 2.5f;
     }
@@ -245,7 +245,6 @@ public class ClothingRackKids : AIManager
 
     private void OnHit(Collision collision = null)
     {
-        Debug.Log(gameObject + " collided with " + collision.gameObject);
         // Make sure not colliding with ground
         if (Physics.Raycast(new Ray(transform.position, -transform.up), out RaycastHit hit, Mathf.Infinity) && currentState != STATES.DEATH)
         {

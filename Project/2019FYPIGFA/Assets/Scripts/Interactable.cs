@@ -19,7 +19,7 @@ public class Interactable : MonoBehaviour
     public void Initialize(ItemData itemdata)
     {
         itemData = itemdata;
-        Debug.Log("Initialize");
+        //Debug.Log("Initialize");
     }
 
     // Start is called before the first frame update

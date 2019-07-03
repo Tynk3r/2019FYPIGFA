@@ -106,7 +106,7 @@ public class Player : MonoBehaviour
 
     void Update()
     {
-        Debug.Log("y acceleration is " + moveDirection);
+        //Debug.Log("y acceleration is " + moveDirection);
         UpdateMove();
         if (hasExternalForce)
             UpdateExternalForce();
@@ -184,16 +184,6 @@ public class Player : MonoBehaviour
                         Debug.Log("No Space Left in Inventory");
                     else
                         interactable.GetComponent<Interactable>().OnPickedUp(this.gameObject);
-                }
-            }
-            else if (hit.collider.GetComponent<SpawnPoint>() != null)
-            {
-                SpawnPoint spawnPoint = hit.collider.GetComponent<SpawnPoint>();
-                if (Input.GetButtonDown("Pick Up") && spawnPoint.GetPointType() == SpawnPoint.POINT_TYPE.OBJECTIVE)
-                {
-                    string objective = spawnPoint.OnPickedUp();
-                    gameController.UpdateShoppingList();
-                    Debug.Log(objective + " was picked up.");
                 }
             }
         }
@@ -482,8 +472,17 @@ public class Player : MonoBehaviour
         return stamina / maxStamina;
     }
 
+    IEnumerator PickUpObjective(ControllerColliderHit hit)
+    {
+        string objective = hit.collider.GetComponent<SpawnPoint>().OnPickedUp();
+        yield return 0;
+        gameController.UpdateShoppingList();
+    }
+
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
+        if (hit.collider.GetComponent<SpawnPoint>() != null && hit.collider.GetComponent<SpawnPoint>().GetPointType() == SpawnPoint.POINT_TYPE.OBJECTIVE)
+            StartCoroutine(PickUpObjective(hit));
         Rigidbody body = hit.collider.attachedRigidbody;
         float magnitude = externalForce.magnitude;
         // No rigidbody
@@ -513,6 +512,7 @@ public class Player : MonoBehaviour
     {
         return ref characterController;
     }
+
     /// <summary>
     /// Apply damage to the player.
     /// </summary>
