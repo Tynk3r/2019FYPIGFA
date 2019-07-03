@@ -281,6 +281,7 @@ public class ClothingRackKids : AIManager
                 if (collision.collider.bounds.size.magnitude - GetComponent<Collider>().bounds.size.magnitude >= damageThreshold)
                 {
                     bounceDirection = hit.normal;
+                    moveSpeed *= 0.25f;
                     currentState = STATES.HIT;
                 }
             }

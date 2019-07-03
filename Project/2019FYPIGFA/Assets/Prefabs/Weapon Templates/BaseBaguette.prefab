@@ -53,8 +53,8 @@ MonoBehaviour:
     heldRotation: {x: 19, y: 51, z: -16}
     attackRate: 5
     durability: 100
-    durabilityDecay: 1
-    weaponDamage: 10
+    durabilityDecay: 4
+    weaponDamage: 50
     attackRange: 5
     impactEffect: {fileID: 0}
     projectile: {fileID: 0}
