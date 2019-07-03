@@ -20,10 +20,11 @@ public class ClothingRackKids : AIManager
 
     public STATES currentState = STATES.ORIENTING;
     public Transform target = null;
+    [ReadOnly]
+    public Vector3 lastKnownPosition = Vector3.zero;
     private Quaternion _lookRotation = Quaternion.identity;
     private Vector3 _direction = Vector3.zero;
     private Rigidbody rb = null;
-
 
     public float rotationSpeed = 0.5f;
     public float reorientSpeed = 0.1f;
@@ -57,7 +58,7 @@ public class ClothingRackKids : AIManager
             target = GameObject.FindGameObjectWithTag("Player").transform;
         base.Start();
         enemyType = ENEMY_TYPE.CLOTHING_RACK_KIDS;
-        ChangeSpeed(moveSpeed, 0f);
+        ChangeSpeed(1f, 1f);
 
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
@@ -82,9 +83,19 @@ public class ClothingRackKids : AIManager
                     Physics.Raycast(new Ray(transform.position, _direction), out RaycastHit hit, sightDistance);
                     if (hit.transform == target.transform)
                     {
+                        if (agent.hasPath)
+                            agent.ResetPath();
+                        if (lastKnownPosition != Vector3.zero)
+                            lastKnownPosition = Vector3.zero;
                         currentState = STATES.ORIENTING;
                         break;
                     }
+                }
+                if (lastKnownPosition != Vector3.zero && !agent.hasPath)
+                {
+                    Debug.Log("Set Agent Dest to " + lastKnownPosition);
+                    MoveToPosition(lastKnownPosition);
+
                 }
                 break;
             case STATES.ORIENTING:
@@ -94,12 +105,18 @@ public class ClothingRackKids : AIManager
                     Physics.Raycast(new Ray(transform.position, _direction), out RaycastHit hit, sightDistance);
                     if (hit.transform != target.transform)
                     {
+                        if (agent.hasPath)
+                            agent.ResetPath();
+                        lastKnownPosition = target.position;
                         currentState = STATES.IDLE;
                         break;
                     }
                 }
                 else
                 {
+                        if (agent.hasPath)
+                            agent.ResetPath();
+                    lastKnownPosition = target.position;
                     currentState = STATES.IDLE;
                     break;
                 }
