@@ -10,7 +10,12 @@ public class ItemData
         RAYCAST,
         PROJECTILE,
     }
-    
+    public enum SKILL_TYPE
+    {
+        LUNGE
+    }
+
+    public SKILL_TYPE skillType;
     public WEAPON_TYPE weaponType;
     public string type;
     public Mesh mesh;
@@ -42,6 +47,7 @@ public class ItemData
     {
         ItemData clone = new ItemData
         {
+            skillType = this.skillType,
             weaponType = this.weaponType,
             weaponDamage = this.weaponDamage,
             attackRate = this.attackRate,

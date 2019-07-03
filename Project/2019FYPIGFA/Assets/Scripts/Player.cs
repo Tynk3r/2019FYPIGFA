@@ -9,6 +9,8 @@ public class Player : MonoBehaviour
     private CharacterController characterController;
     public GameController gameController;
     public string[] collectedObjectives;
+    private Vector3 externalForce;
+    private bool hasExternalForce;
 
     [Header("Stats")]
     public float maxHealth = 10f;
@@ -91,7 +93,8 @@ public class Player : MonoBehaviour
         smoothWeaponLandingDistanceMultiplier = weaponLandingDistanceMultiplier;
         inventoryPanel.gameObject.SetActive(false);
         shoppingList.SetActive(false);
-
+        externalForce = new Vector3(0f, 0f, 0f);
+        hasExternalForce = false;
         // Misc QOL Stuff
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -99,7 +102,10 @@ public class Player : MonoBehaviour
 
     void Update()
     {
+        Debug.Log("y acceleration is " + moveDirection);
         UpdateMove();
+        if (hasExternalForce)
+            UpdateExternalForce();
         UpdateWeapon();
         UpdateLook();
         UpdateInventory();
@@ -122,6 +128,17 @@ public class Player : MonoBehaviour
                 }
                 if (currTarget != null)
                     enemyHealthBar.GetComponent<RectTransform>().localScale = new Vector3(currTarget.health / currTarget.maxHealth, enemyHealthBar.transform.localScale.y, enemyHealthBar.transform.localScale.z);
+            }
+            if (Input.GetButtonDown("Fire2"))
+            {
+                if (currentWeapon.Skill())
+                {
+                    // Skill used
+                }
+                else
+                {
+                    // Skill cooldown
+                }
             }
             if (currentWeapon.itemData.durability <= 0)
             {
@@ -303,6 +320,18 @@ public class Player : MonoBehaviour
         viewBobObject.transform.localRotation = Quaternion.Euler(0, 0, cameraSwayAngle);
     }
 
+    void UpdateExternalForce()
+    {
+        if (externalForce.sqrMagnitude < 30f)
+        {
+            externalForce = Vector3.zero;
+            hasExternalForce = false;
+            return;
+        }
+        characterController.Move(externalForce * Time.deltaTime);
+        externalForce = Vector3.Lerp(externalForce, Vector3.zero, 1 * Time.deltaTime); // TODO: check decay on externalForce
+    }
+
     IEnumerator LandingSink(float landingVelocity)
     {
         float displacement = 0f;
@@ -441,5 +470,42 @@ public class Player : MonoBehaviour
         return stamina / maxStamina;
     }
 
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        Rigidbody body = hit.collider.attachedRigidbody;
+        float magnitude = externalForce.magnitude;
+        // No rigidbody
+        if (null == body || body.isKinematic)
+        {
+            if (1f == Mathf.Abs(hit.normal.x) || 1f == Mathf.Abs(hit.normal.z))
+            {
+                externalForce *= 0.7f;
+                externalForce += magnitude * 0.1f * hit.normal;
+            }
+            return;
+        }
+        // We don't want to push objects below us
+        if (hit.moveDirection.y < -0.3f)
+            return;
+        Vector3 pushDir = new Vector3(hit.moveDirection.x, hit.moveDirection.y, hit.moveDirection.z);
+        //Debug.Log("The magnitude is " + Vector3.Project(externalForce, pushDir).magnitude );
+        Vector3 proj = Vector3.Project(externalForce, pushDir) / hit.rigidbody.mass;
+        if (hasExternalForce)
+            body.velocity += proj;
+        else
+            body.velocity += pushDir * 2f / hit.rigidbody.mass;
+        externalForce *= -0.1f; //* magnitude * 0.7f;
+    }
 
+    ref CharacterController GetCharacterController()
+    {
+        return ref characterController;
+    }
+
+    public void AddExternalForce(Vector3 _force)
+    {
+        externalForce += _force;
+        if (externalForce.sqrMagnitude > 0.2f)
+            hasExternalForce = true;
+    }
 }

@@ -8,8 +8,9 @@ public class HeldWeapon : MonoBehaviour
 {
     [HideInInspector]
     public ItemData itemData;
+    public Player player;
     private float attackTimer = 0f;
-
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -18,6 +19,7 @@ public class HeldWeapon : MonoBehaviour
         GetComponent<MeshRenderer>().material = itemData.material;
         transform.localPosition = itemData.heldPosition;
         transform.localRotation = Quaternion.Euler(itemData.heldRotation);
+        player = GameObject.FindGameObjectsWithTag("Player")[0].GetComponent<Player>();
     }
 
     // Update is called once per frame
@@ -94,6 +96,20 @@ public class HeldWeapon : MonoBehaviour
                 break;
         }
 
+
+        return true;
+    }
+    public bool Skill()
+    {
+        switch (itemData.skillType)
+        {
+            case ItemData.SKILL_TYPE.LUNGE:
+                player.AddExternalForce(Camera.main.transform.forward * 100f);
+                break;
+            default:
+                Debug.LogError("This skill is unheard of!");
+                break;
+        }
 
         return true;
     }
