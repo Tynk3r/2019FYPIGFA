@@ -216,13 +216,13 @@ MonoBehaviour:
   lastKnownPosition: {x: 0, y: 0, z: 0}
   rotationSpeed: 1
   reorientSpeed: 0.1
-  topSpeed: 25
-  sightDistance: 20
-  pushForce: 10
+  topSpeed: 15
+  sightDistance: 25
+  pushForce: 5
   pushRate: 2
   slowDownDelta: 1
   collideDamageMultiplier: 5
-  damageToPlayer: 25
+  damageToPlayer: 5
   impactForce: 30
   damageThreshold: 1
 --- !u!54 &6733531680966493951
