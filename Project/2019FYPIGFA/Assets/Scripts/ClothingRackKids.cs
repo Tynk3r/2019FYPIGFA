@@ -93,7 +93,7 @@ public class ClothingRackKids : AIManager
                 }
                 if (lastKnownPosition != Vector3.zero && !agent.hasPath)
                 {
-                    Debug.Log("Set Agent Dest to " + lastKnownPosition);
+                    //Debug.Log("Set Agent Dest to " + lastKnownPosition);
                     MoveToPosition(lastKnownPosition);
 
                 }

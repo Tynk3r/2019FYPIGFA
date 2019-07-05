@@ -1,7 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class GameController : MonoBehaviour
 {
@@ -113,4 +116,43 @@ public class GameController : MonoBehaviour
         Debug.Log(s);
     }
 
+    public SpawnPoint GetClosestPoint(Vector3 position, params SpawnPoint.POINT_TYPE[] types)
+    {
+        SpawnPoint tempPt = spawnPoints[0];
+        float distance = Mathf.Infinity;
+        foreach (SpawnPoint pt in FindObjectsOfType<SpawnPoint>())
+        {
+            if (pt
+                && types.Contains(pt.GetPointType())
+                && (position - pt.transform.position).magnitude <= distance)
+            {
+                distance = (position - pt.transform.position).magnitude;
+                tempPt = pt;
+            }
+        }
+        return tempPt;
+    }
+
+    public SpawnPoint GetClosestPoint(Vector3 position)
+    {
+        SpawnPoint tempPt = spawnPoints[0];
+        float distance = Mathf.Infinity;
+        foreach (SpawnPoint pt in FindObjectsOfType<SpawnPoint>())
+        {
+            if (pt
+                && pt.GetPointType() != SpawnPoint.POINT_TYPE.EMPTY
+                && (position - pt.transform.position).magnitude < distance)
+            {
+                distance = (position - pt.transform.position).magnitude;
+                tempPt = pt;
+            }
+        }
+        return tempPt;
+    }
+
+    public string RemovePoint(SpawnPoint spawnPoint)
+    {
+        spawnPoints.Remove(spawnPoint);
+        return spawnPoint.OnPickedUp();
+    }
 }

@@ -36,6 +36,8 @@ public class Player : MonoBehaviour
     public Vector2 enemyHealthBarPosition;
     private Enemy currTarget = null;
     public GameObject shoppingList;
+    public GameObject objectiveArrow;
+    private Transform nextObjective = null;
 
     [Header("Movement")]
     public float walkSpeed = 5.0f;
@@ -106,7 +108,6 @@ public class Player : MonoBehaviour
 
     void Update()
     {
-        //Debug.Log("y acceleration is " + moveDirection);
         UpdateMove();
         if (hasExternalForce)
             UpdateExternalForce();
@@ -388,6 +389,18 @@ public class Player : MonoBehaviour
             shoppingList.SetActive(!shoppingList.activeSelf);
         }
 
+        // Objective Arrow (MAYBE INEFFICIENT CONSIDER REDOING)
+        nextObjective = gameController.GetClosestPoint(transform.position, SpawnPoint.POINT_TYPE.OBJECTIVE).transform;
+        if (nextObjective.GetComponent<SpawnPoint>().GetPointType() == SpawnPoint.POINT_TYPE.EMPTY)
+            objectiveArrow.SetActive(false);
+        else if (nextObjective)
+        {
+            if (!objectiveArrow.activeSelf)
+                objectiveArrow.SetActive(true);
+            objectiveArrow.transform.LookAt(nextObjective, transform.up);
+            objectiveArrow.transform.Rotate(90, 90, 0);
+        }
+
         // Stamina
         if (staminaBarOutline.GetComponent<RectTransform>().localPosition != new Vector3(staminaBarPosition.x, staminaBarPosition.y, 0))
             staminaBarOutline.GetComponent<RectTransform>().localPosition = new Vector3(staminaBarPosition.x, staminaBarPosition.y, 0);
@@ -474,7 +487,7 @@ public class Player : MonoBehaviour
 
     IEnumerator PickUpObjective(ControllerColliderHit hit)
     {
-        string objective = hit.collider.GetComponent<SpawnPoint>().OnPickedUp();
+        string objective = gameController.RemovePoint(hit.collider.GetComponent<SpawnPoint>());
         yield return 0;
         gameController.UpdateShoppingList();
     }
