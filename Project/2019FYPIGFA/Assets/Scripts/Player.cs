@@ -37,6 +37,7 @@ public class Player : MonoBehaviour
     private Enemy currTarget = null;
     public GameObject shoppingList;
     public GameObject objectiveArrow;
+    public SpawnPoint.POINT_TYPE arrowLocationType;
     private Transform nextObjective = null;
 
     [Header("Movement")]
@@ -342,8 +343,9 @@ public class Player : MonoBehaviour
             Camera.main.transform.Translate(0, displacement, 0, Space.World);
             currentWeapon.transform.Translate(0, displacement * smoothWeaponLandingDistanceMultiplier, 0, Space.World);
             landingVelocity += landingSpeedMultiplier;
-            if (landingVelocity >= 0)
+            if (landingVelocity >= 0 || Camera.main.transform.position.y <= transform.position.y + (transform.localScale.y * 0.5f))
             {
+                landingVelocity = 0;
                 recoveringCo = LandingRecovery();
                 StartCoroutine(recoveringCo);
                 StopCoroutine(landingCo);
@@ -390,7 +392,7 @@ public class Player : MonoBehaviour
         }
 
         // Objective Arrow (MAYBE INEFFICIENT CONSIDER REDOING)
-        nextObjective = gameController.GetClosestPoint(transform.position, SpawnPoint.POINT_TYPE.OBJECTIVE).transform;
+        nextObjective = gameController.GetClosestPoint(transform.position, arrowLocationType).transform;
         if (nextObjective.GetComponent<SpawnPoint>().GetPointType() == SpawnPoint.POINT_TYPE.EMPTY)
             objectiveArrow.SetActive(false);
         else if (nextObjective)
