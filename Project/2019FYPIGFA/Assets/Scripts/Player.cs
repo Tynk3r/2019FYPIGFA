@@ -211,8 +211,10 @@ public class Player : MonoBehaviour
                 weaponInventory.RemoveItem(currentWeapon.itemData);
                 GameObject droppedWeapon = new GameObject("dropped" + currentWeapon.itemData.type, typeof(Interactable));
                 droppedWeapon.GetComponent<Interactable>().Initialize(currentWeapon.RemoveWeapon());
-                droppedWeapon.transform.position = transform.position;
-                //droppedWeapon.GetComponent<Rigidbody>().AddForce(transform.forward);
+                if (Physics.Raycast(new Ray(transform.position, transform.up), out RaycastHit hit, Mathf.Infinity))
+                    droppedWeapon.transform.position = new Vector3(transform.position.x, hit.transform.position.y + 1, transform.position.z);
+                else
+                    droppedWeapon.transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z);
 
                 if (currentWeapon.itemData != null)
                 {
@@ -511,9 +513,7 @@ public class Player : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         // Pick up weapons
-        if (other.GetComponent<SpawnPoint>() != null
-            && other.GetComponent<Interactable>() != null
-            && other.GetComponent<SpawnPoint>().GetPointType() == SpawnPoint.POINT_TYPE.WEAPON
+        if (other.GetComponent<Interactable>() != null
             && other.gameObject != floorWeapon
             && floorWeapon == null)
         {
