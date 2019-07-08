@@ -36,6 +36,7 @@ public class SpawnPoint : MonoBehaviour
         pointType = POINT_TYPE.WEAPON;
         pointName = itemData.type;
         gameObject.AddComponent<Interactable>().Initialize(itemData);
+        Destroy(gameObject.GetComponent<BoxCollider>());
     }
 
     public POINT_TYPE GetPointType()

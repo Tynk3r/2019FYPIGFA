@@ -55,6 +55,6 @@ MonoBehaviour:
     durability: 100
     durabilityDecay: 4
     weaponDamage: 50
-    attackRange: 5
+    attackRange: 2.5
     impactEffect: {fileID: 0}
     projectile: {fileID: 0}

@@ -47,6 +47,7 @@ public class ClothingRackKids : AIManager
     public float impactForce = 30f;
     public float damageThreshold = 10f;
     private Vector3 bounceDirection = Vector3.zero;
+    public float wallDamage = 10f;
 
     private float prevFrameDist = 0f;
     private float currDist = 0f;
@@ -91,12 +92,8 @@ public class ClothingRackKids : AIManager
                         break;
                     }
                 }
-                if (lastKnownPosition != Vector3.zero && !agent.hasPath)
-                {
-                    //Debug.Log("Set Agent Dest to " + lastKnownPosition);
+                else if (lastKnownPosition != Vector3.zero && !agent.hasPath)
                     MoveToPosition(lastKnownPosition);
-
-                }
                 break;
             case STATES.ORIENTING:
                 if (currDist <= sightDistance)
@@ -114,8 +111,8 @@ public class ClothingRackKids : AIManager
                 }
                 else
                 {
-                        if (agent.hasPath)
-                            agent.ResetPath();
+                    if (agent.hasPath)
+                        agent.ResetPath();
                     lastKnownPosition = target.position;
                     currentState = STATES.IDLE;
                     break;
@@ -249,7 +246,7 @@ public class ClothingRackKids : AIManager
         base.Die();
         currentState = STATES.DEATH;
         rb.constraints = RigidbodyConstraints.None;
-        rb.velocity = transform.forward * (moveSpeed*0.5f) + transform.right * 2.5f;
+        rb.velocity = transform.forward * (moveSpeed * 0.5f) + transform.right * 2.5f;
         if (rb.velocity.magnitude <= 0f)
             rb.velocity = transform.forward * 1.25f + transform.right * 2.5f;
     }
@@ -272,11 +269,11 @@ public class ClothingRackKids : AIManager
                     collision.rigidbody.AddForce(-collision.GetContact(0).normal * impactForce);
                 }
 
-                float damage = (collision.collider.bounds.size.magnitude - GetComponent<Collider>().bounds.size.magnitude) * collideDamageMultiplier;
+                float damage = (collision.collider.bounds.size.magnitude - GetComponent<Collider>().bounds.size.magnitude) * collideDamageMultiplier * Mathf.Max(0f, moveSpeed / topSpeed);
                 TakeDamage(damage);
                 if (collision.gameObject.transform == target && moveSpeed > 0)
                 {
-                    target.GetComponent<Player>().TakeDamage(damageToPlayer);
+                    target.GetComponent<Player>().TakeDamage(damageToPlayer * Mathf.Max(0f, moveSpeed / topSpeed));
                 }
                 if (collision.collider.bounds.size.magnitude - GetComponent<Collider>().bounds.size.magnitude >= damageThreshold)
                 {
@@ -292,7 +289,7 @@ public class ClothingRackKids : AIManager
     {
         if (currentState != STATES.DEATH)
         {
-            TakeDamage(10);
+            TakeDamage(wallDamage * Mathf.Max(0f, moveSpeed / topSpeed));
             bounceDirection = normal;
             currentState = STATES.HIT;
         }

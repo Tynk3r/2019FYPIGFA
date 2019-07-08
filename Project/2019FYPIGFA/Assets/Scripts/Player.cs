@@ -89,6 +89,8 @@ public class Player : MonoBehaviour
     public Inventory weaponInventory;
     public HeldWeapon currentWeapon;
     public RectTransform inventoryPanel;
+    private GameObject floorWeapon = null;
+    public GameObject pickupInfoText;
 
     void Start()
     {
@@ -174,7 +176,7 @@ public class Player : MonoBehaviour
     void UpdateInventory()
     {
         // Pickup Interactables
-        if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out RaycastHit hit, 100))
+        /*if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out RaycastHit hit, 100))
         {
             Debug.DrawLine(Camera.main.transform.position, hit.point);
             if (hit.collider.GetComponent<Interactable>() != null)
@@ -188,6 +190,13 @@ public class Player : MonoBehaviour
                         interactable.GetComponent<Interactable>().OnPickedUp(this.gameObject);
                 }
             }
+        }*/
+        if (Input.GetButtonDown("Pick Up") && floorWeapon != null)
+        {
+            if (weaponInventory.itemList.Count >= 3)
+                Debug.Log("No Space Left in Inventory");
+            else
+                floorWeapon.GetComponent<Interactable>().OnPickedUp(this.gameObject);
         }
 
         // Drop Weapons From Inventory as Interactables
@@ -333,12 +342,6 @@ public class Player : MonoBehaviour
         float displacement = 0f;
         while (landingVelocity < 0)
         {
-            //displacement += landingVelocity * Time.deltaTime * landingDistanceMultiplier;
-            //Camera.main.transform.localPosition = new Vector3(0, displacement, 0);
-            //landingVelocity += landingSpeedMultiplier;
-            //if (landingVelocity >= 0)
-            //    StartCoroutine(LandingRecovery());
-            //yield return null;
             displacement = landingVelocity * Time.deltaTime * landingDistanceMultiplier;
             Camera.main.transform.Translate(0, displacement, 0, Space.World);
             currentWeapon.transform.Translate(0, displacement * smoothWeaponLandingDistanceMultiplier, 0, Space.World);
@@ -391,6 +394,17 @@ public class Player : MonoBehaviour
             shoppingList.SetActive(!shoppingList.activeSelf);
         }
 
+        // Update Pickup Info
+        if (floorWeapon)
+        {
+            if(!pickupInfoText.activeSelf)
+                pickupInfoText.SetActive(true);
+            string s = "Press [E] to pick up " + floorWeapon.GetComponent<Interactable>().itemData.type;
+            pickupInfoText.GetComponent<TextMeshProUGUI>().text = s;
+        }
+        else
+            pickupInfoText.SetActive(false);
+
         // Objective Arrow (MAYBE INEFFICIENT CONSIDER REDOING)
         nextObjective = gameController.GetClosestPoint(transform.position, arrowLocationType).transform;
         if (nextObjective.GetComponent<SpawnPoint>().GetPointType() == SpawnPoint.POINT_TYPE.EMPTY)
@@ -399,7 +413,7 @@ public class Player : MonoBehaviour
         {
             if (!objectiveArrow.activeSelf)
                 objectiveArrow.SetActive(true);
-            objectiveArrow.transform.LookAt(nextObjective, transform.up);
+            objectiveArrow.transform.LookAt(new Vector3(nextObjective.transform.position.x, objectiveArrow.transform.position.y, nextObjective.transform.position.z), transform.up);
             objectiveArrow.transform.Rotate(90, 90, 0);
         }
 
@@ -494,10 +508,36 @@ public class Player : MonoBehaviour
         gameController.UpdateShoppingList();
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        // Pick up weapons
+        if (other.GetComponent<SpawnPoint>() != null
+            && other.GetComponent<Interactable>() != null
+            && other.GetComponent<SpawnPoint>().GetPointType() == SpawnPoint.POINT_TYPE.WEAPON
+            && other.gameObject != floorWeapon
+            && floorWeapon == null)
+        {
+            floorWeapon = other.gameObject;
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        // Pick up weapons
+        if (other.gameObject == floorWeapon)
+        {
+            floorWeapon = null;
+        }
+    }
+
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        if (hit.collider.GetComponent<SpawnPoint>() != null && hit.collider.GetComponent<SpawnPoint>().GetPointType() == SpawnPoint.POINT_TYPE.OBJECTIVE)
+        // Pick up Objectives on collide
+        if (hit.collider.GetComponent<SpawnPoint>() != null 
+            && hit.collider.GetComponent<SpawnPoint>().GetPointType() == SpawnPoint.POINT_TYPE.OBJECTIVE)
             StartCoroutine(PickUpObjective(hit));
+
+        // Pushing Objects
         Rigidbody body = hit.collider.attachedRigidbody;
         float magnitude = externalForce.magnitude;
         // No rigidbody

@@ -36,6 +36,8 @@ public class Interactable : MonoBehaviour
         GetComponent<MeshRenderer>().material = itemData.material;
         GetComponent<MeshCollider>().sharedMesh = itemData.mesh;
         GetComponent<MeshCollider>().convex = true;
+        GetComponent<MeshCollider>().isTrigger = true;
+        GetComponent<Rigidbody>().isKinematic = true;
     }
 
     // Update is called once per frame
