@@ -159,7 +159,7 @@ MonoBehaviour:
   pushRate: 2
   slowDownDelta: 1
   collideDamageMultiplier: 1
-  damageToPlayer: 25
+  damageToPlayer: 10
   impactForce: 30
   damageThreshold: 1
   bounceSpeedMultiplier: 0.25

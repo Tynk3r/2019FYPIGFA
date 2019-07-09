@@ -13,6 +13,9 @@ public class Minimap : MonoBehaviour
     [Header("Enemies")]
     public GameObject enemyArrow;
 
+    [Header("Spawn Points")]
+    public GameObject objectiveRepresentation;
+
     private void Start()
     {
         // Display Walls in Minimap
@@ -41,6 +44,47 @@ public class Minimap : MonoBehaviour
         foreach (GameObject realObject in enemies)
         {
             GameObject arrowObject = Instantiate(enemyArrow, realObject.transform);
+            arrowObject.layer = 9;
+        }
+
+        // Display Spawn Points in Minimap
+        var spawnPoints = FindObjectsOfType<SpawnPoint>();
+        foreach (SpawnPoint realObject in spawnPoints)
+        {
+            switch(realObject.GetPointType())
+            {
+                case SpawnPoint.POINT_TYPE.OBJECTIVE:
+                    GameObject objectiveRep = Instantiate(objectiveRepresentation, realObject.transform);
+                    objectiveRep.layer = 9;
+                    break;
+                case SpawnPoint.POINT_TYPE.WEAPON:
+                    GameObject weaponRep = Instantiate(realObject.gameObject, realObject.transform);
+
+                    bool componentsRemoved = false;
+                    while(!componentsRemoved)
+                    {
+                        foreach (Component c in weaponRep.GetComponents(typeof(Component)))
+                        {
+                            if (c.GetType() == typeof(Transform)
+                                || c.GetType() == typeof(MeshRenderer)
+                                || c.GetType() == typeof(MeshFilter))
+                            {
+                                componentsRemoved = true;
+                            }
+                            else
+                            {
+                                DestroyImmediate(c);
+                                componentsRemoved = false;
+                            }
+                        }
+                    }
+                    weaponRep.layer = 9;
+                    weaponRep.transform.localPosition = Vector3.zero;
+                    
+                    break;
+                default:
+                    break;
+            }
         }
     }
 

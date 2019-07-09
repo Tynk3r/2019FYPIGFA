@@ -39,6 +39,7 @@ public class Player : MonoBehaviour
     public GameObject objectiveArrow;
     public SpawnPoint.POINT_TYPE arrowLocationType;
     private Transform nextObjective = null;
+    public Transform objectiveFloater;
     public Camera minimapCamera;
     [Range(10f, 1f)]
     public float minimapZoom = 6f;
@@ -386,7 +387,7 @@ public class Player : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.U))
         {
             inventoryPanel.gameObject.SetActive(!inventoryPanel.gameObject.activeSelf);
-            if(inventoryPanel.gameObject.activeSelf)
+            if (inventoryPanel.gameObject.activeSelf)
                 shoppingList.SetActive(false);
         }
 
@@ -402,7 +403,7 @@ public class Player : MonoBehaviour
         // Update Pickup Info
         if (floorWeapon)
         {
-            if(!pickupInfoText.activeSelf)
+            if (!pickupInfoText.activeSelf)
                 pickupInfoText.SetActive(true);
             string s = "Press [E] to pick up " + floorWeapon.GetComponent<Interactable>().itemData.type;
             pickupInfoText.GetComponent<TextMeshProUGUI>().text = s;
@@ -411,9 +412,21 @@ public class Player : MonoBehaviour
             pickupInfoText.SetActive(false);
 
         // Objective Arrow (MAYBE INEFFICIENT CONSIDER REDOING)
-        nextObjective = gameController.GetClosestPoint(transform.position, arrowLocationType).transform;
-        if (nextObjective.GetComponent<SpawnPoint>().GetPointType() == SpawnPoint.POINT_TYPE.EMPTY)
-            objectiveArrow.SetActive(false);
+        if(nextObjective != gameController.GetClosestPoint(transform.position, arrowLocationType).transform)
+        {
+            nextObjective = gameController.GetClosestPoint(transform.position, arrowLocationType).transform;
+            if (nextObjective.GetComponent<SpawnPoint>().GetPointType() == SpawnPoint.POINT_TYPE.EMPTY)
+            {
+                objectiveArrow.SetActive(false);
+                objectiveFloater.gameObject.SetActive(false);
+            }
+            else if (nextObjective)
+            {
+                if (!objectiveFloater.gameObject.activeSelf)
+                    objectiveFloater.gameObject.SetActive(true);
+                objectiveFloater.position = nextObjective.position + new Vector3(0f, 1.25f * nextObjective.localScale.y, 0f);
+            }
+        }
         else if (nextObjective)
         {
             if (!objectiveArrow.activeSelf)
@@ -545,7 +558,7 @@ public class Player : MonoBehaviour
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
         // Pick up Objectives on collide
-        if (hit.collider.GetComponent<SpawnPoint>() != null 
+        if (hit.collider.GetComponent<SpawnPoint>() != null
             && hit.collider.GetComponent<SpawnPoint>().GetPointType() == SpawnPoint.POINT_TYPE.OBJECTIVE)
             StartCoroutine(PickUpObjective(hit));
 
