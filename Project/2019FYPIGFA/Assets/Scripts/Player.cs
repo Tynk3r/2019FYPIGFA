@@ -362,12 +362,8 @@ public class Player : MonoBehaviour
     IEnumerator LandingRecovery()
     {
         float displacement = Camera.main.transform.localPosition.y;
-        //float recoverTimer = 0;
         while (Camera.main.transform.localPosition.y < 0)
         {
-            //recoverTimer += Time.deltaTime * recoverSpeed;
-            //Camera.main.transform.localPosition = new Vector3(0, Mathf.Lerp(displacement, 0, recoverTimer), 0);
-            //yield return null;
             Camera.main.transform.Translate(0, recoverSpeed, 0, Space.World);
             currentWeapon.transform.Translate(0, recoverSpeed * smoothWeaponLandingDistanceMultiplier, 0, Space.World);
             yield return null;
@@ -387,6 +383,8 @@ public class Player : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.U))
         {
             inventoryPanel.gameObject.SetActive(!inventoryPanel.gameObject.activeSelf);
+            if(inventoryPanel.gameObject.activeSelf)
+                shoppingList.SetActive(false);
         }
 
         // Check Objectives
@@ -394,6 +392,8 @@ public class Player : MonoBehaviour
         {
             gameController.UpdateShoppingList();
             shoppingList.SetActive(!shoppingList.activeSelf);
+            if (shoppingList.gameObject.activeSelf)
+                inventoryPanel.gameObject.SetActive(false);
         }
 
         // Update Pickup Info
@@ -465,13 +465,14 @@ public class Player : MonoBehaviour
         {
             Enemy enemy = hit.collider.GetComponent<Enemy>();
             if (currTarget != enemy)
-            {
                 currTarget = enemy;
-                if (!enemyName.activeSelf)
-                    enemyName.SetActive(true);
+            if (!enemyName.activeSelf)
+                enemyName.SetActive(true);
+            if (enemyName.GetComponent<TextMeshProUGUI>().text != Enum.GetName(typeof(Enemy.ENEMY_TYPE), enemy.enemyType))
                 enemyName.GetComponent<TextMeshProUGUI>().SetText(Enum.GetName(typeof(Enemy.ENEMY_TYPE), enemy.enemyType));
-                enemyHealthBar.GetComponent<RectTransform>().localScale = new Vector3(enemy.health / enemy.maxHealth, enemyHealthBar.transform.localScale.y, enemyHealthBar.transform.localScale.z);
-            }
+            Vector3 vector3 = new Vector3(enemy.health / enemy.maxHealth, enemyHealthBar.transform.localScale.y, enemyHealthBar.transform.localScale.z);
+            if (enemyHealthBar.GetComponent<RectTransform>().localScale != vector3)
+                enemyHealthBar.GetComponent<RectTransform>().localScale = vector3;
         }
         else
         {
