@@ -6,11 +6,16 @@ using UnityEngine;
 public class Minimap : MonoBehaviour
 {
     public Transform player;
+
+    [Header("Walls")]
     public Mesh cube;
+
+    [Header("Enemies")]
+    public GameObject enemyArrow;
 
     private void Start()
     {
-        // Display walls in Minimap
+        // Display Walls in Minimap
         var walls = GameObject.FindGameObjectsWithTag("Walls");
         foreach (GameObject realObject in walls)
         {
@@ -29,6 +34,13 @@ public class Minimap : MonoBehaviour
                 Debug.Log(realObject + " does not have a collider the game can parse as a wall. Collider Type: " + realObject.GetComponent<Collider>().GetType());
                 Destroy(wallObject);
             }
+        }
+
+        // Display Enemies in Minimap
+        var enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        foreach (GameObject realObject in enemies)
+        {
+            GameObject arrowObject = Instantiate(enemyArrow, realObject.transform);
         }
     }
 

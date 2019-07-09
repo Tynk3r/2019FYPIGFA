@@ -13,11 +13,11 @@ GameObject:
   - component: {fileID: 6733531680966493948}
   - component: {fileID: 6733531680966493946}
   - component: {fileID: 6733531680966493951}
-  - component: {fileID: 572211992592022880}
-  - component: {fileID: 1443556053139414339}
+  - component: {fileID: 7452288738317434169}
+  - component: {fileID: 7849546943452751676}
   m_Layer: 0
   m_Name: ClothingRackKids
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -90,7 +90,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 6733531680966493944}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.85
+  m_Radius: 0.5
   m_Speed: 1
   m_Acceleration: 0
   avoidancePriority: 50
@@ -119,7 +119,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 14
   m_CollisionDetection: 0
---- !u!65 &572211992592022880
+--- !u!65 &7452288738317434169
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -130,9 +130,9 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.6569526, y: 1.5987952, z: 1.8961697}
-  m_Center: {x: -0.000000029802322, y: 0, z: 0}
---- !u!114 &1443556053139414339
+  m_Size: {x: 1.8961694, y: 1.5987952, z: 0.6569524}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7849546943452751676
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
