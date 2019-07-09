@@ -4,9 +4,8 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - Stam Bar
-  - Helf Bar
-  - Stam Bar Outline
+  - Walls
+  - Enemy
   layers:
   - Default
   - TransparentFX
@@ -17,7 +16,7 @@ TagManager:
   - 
   - 
   - PostProcessing
-  - 
+  - Minimap
   - 
   - 
   - 

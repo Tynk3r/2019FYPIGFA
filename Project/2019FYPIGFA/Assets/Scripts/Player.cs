@@ -39,6 +39,9 @@ public class Player : MonoBehaviour
     public GameObject objectiveArrow;
     public SpawnPoint.POINT_TYPE arrowLocationType;
     private Transform nextObjective = null;
+    public Camera minimapCamera;
+    [Range(10f, 1f)]
+    public float minimapZoom = 6f;
 
     [Header("Movement")]
     public float walkSpeed = 5.0f;
@@ -418,6 +421,14 @@ public class Player : MonoBehaviour
             objectiveArrow.transform.LookAt(new Vector3(nextObjective.transform.position.x, objectiveArrow.transform.position.y, nextObjective.transform.position.z), transform.up);
             objectiveArrow.transform.Rotate(90, 90, 0);
         }
+
+        // Minimap
+        if (Input.GetButtonDown("MinimapZoomIn"))
+            minimapZoom = Mathf.Clamp(minimapZoom + 1, 1f, 10f);
+        else if (Input.GetButtonDown("MinimapZoomOut"))
+            minimapZoom = Mathf.Clamp(minimapZoom - 1, 1f, 10f);
+        if (minimapCamera.orthographicSize != minimapZoom)
+            minimapCamera.orthographicSize = minimapZoom;
 
         // Stamina
         if (staminaBarOutline.GetComponent<RectTransform>().localPosition != new Vector3(staminaBarPosition.x, staminaBarPosition.y, 0))

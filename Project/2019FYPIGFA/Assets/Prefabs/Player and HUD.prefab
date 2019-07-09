@@ -559,6 +559,8 @@ MonoBehaviour:
   shoppingList: {fileID: 6213084866432960488}
   objectiveArrow: {fileID: 7891749104356227642}
   arrowLocationType: 0
+  minimapCamera: {fileID: 6327069674072907749}
+  minimapZoom: 6
   walkSpeed: 4
   sprintSpeedModifier: 1.5
   strafeSpeedModifier: 0.9
