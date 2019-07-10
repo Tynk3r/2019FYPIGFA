@@ -2,12 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RoomPropGenerator
+public static class BSP
 {
-    public void GenerateRooms(MapGenerator.Prop[] _props, Vector2 _roomSize, Vector2 _roomPosition)
-    {
-        // Use bsp to get rooms divided
-    }
     public class Leaf
     {
         public Vector2 pos;
@@ -22,7 +18,7 @@ public class RoomPropGenerator
         }
         public bool Split(ref List<Leaf> _leaves)
         {
-
+            
             return false;
         }
         /// <summary>
@@ -58,8 +54,8 @@ public class RoomPropGenerator
             // if the size is big enough, add leaves and call this function on them
             if (size.x > _minWidth * 2f)
             {
-                Leaf leftChild = new Leaf(new Vector2(pos.x - size.x * 0.25f, pos.y), new Vector2(size.x * 0.5f, size.y));
-                Leaf rightChild = new Leaf(new Vector2(pos.x + size.x * 0.25f, pos.y), new Vector2(size.x * 0.5f, size.y));
+                Leaf leftChild = new Leaf(new Vector2(pos.x - size.x * 0.75f, pos.y), new Vector2(size.x * 0.5f, size.y));
+                Leaf rightChild = new Leaf(new Vector2(pos.x + size.x * 0.75f, pos.y), new Vector2(size.x * 0.5f, size.y));
                 leftChild.SplitRecursively(_minWidth, ref _leaves);
                 rightChild.SplitRecursively(_minWidth, ref _leaves);
                 return;
@@ -70,7 +66,7 @@ public class RoomPropGenerator
         public Leaf[] SplitLeafMirrored(float _line, bool _horizontal)
         {
             var children = new Leaf[2];
-            if (_horizontal)    // |-|
+            if (_horizontal)    // |=|
             {
                 float lowestY = pos.y - size.y * 0.5f;
                 float lineHeight = _line - lowestY;
@@ -81,7 +77,7 @@ public class RoomPropGenerator
                                          new Leaf(new Vector2(pos.x, _line + remainderHeight * 0.5f), new Vector2(size.x, remainderHeight)),
                                          new Leaf(new Vector2(pos.x, _line + remainderHeight + lineHeight * 0.5f), new Vector2(size.x, lineHeight))};
             }
-            else                // |||
+            else                // ||||
             {
                 float lowestX = pos.x - size.x * 0.5f;
                 float lineWidth = _line - lowestX;
@@ -106,67 +102,51 @@ public class RoomPropGenerator
 
         }
     }
-    public GameObject GenerateLayout(Vector2 _pos, Vector2 _size, ref MapGenerator.Prop[] _propList)
+    // TODO: DELETE THIS
+    public static GameObject GenerateLayout(Vector2 _pos, Vector2 _size, ref List<MapGenerator.Prop> _propList)
     {
         // NOTE: OBJECTS FACE -Z direction
+        var leaves = new List<Leaf>();
 
         Leaf parent = new Leaf(_pos, _size); // Create the first root leaf
         float backDepth = _size.y * 0.75f; // This will be at where the back unit starts
         Leaf[] leavesH1 = parent.SplitLeaf(backDepth, true); // Split horizontally to get back side
         // TODO: determine shelf information here
-        float sideWidth = leavesH1[0].size.x * 0.1f;
-        Leaf[] leavesV1 = leavesH1[0].SplitLeafMirrored(leavesH1[0].pos.x - leavesH1[0].size.x * 0.3f, false);// Split vertically to get left and right side
+        float sideWidth = leavesH1[0].size.x * 0.2f;
+        Leaf[] leavesV1 = leaves[0].SplitLeafMirrored(leavesH1[0].size.x * 0.2f, false);// Split vertically to get left and right side
 
         // First find the size of the centre leaf
-        MapGenerator.Prop prop = _propList[Random.Range(0, _propList.Length)];
+        MapGenerator.Prop prop = _propList[Random.Range(0, _propList.Count)];
         // split horizontally in the centre leaf to get the shelf leaves
         List<Leaf> shelfLeaves = SplitShelfLeaves(leavesV1[1]);
 
         GameObject propObjects = new GameObject();
         // Spawn shelves into each shelfLeaf
-        int count = 0;
-        foreach (Leaf leaf in shelfLeaves)
+        foreach(Leaf leaf in shelfLeaves)
         {
-            count++;
             GameObject newShelf = Object.Instantiate(prop.prefab);
-            newShelf.transform.position = new Vector3(leaf.pos.x, (prop.maxBounds.y + prop.minBounds.y) * 0.5f, leaf.pos.y);
-            newShelf.transform.Rotate(0f, 90f, 0f);
+            newShelf.transform.position = new Vector3(leaf.pos.x, prop.minBounds.y, leaf.pos.y);
             newShelf.transform.parent = propObjects.transform;
-            //newShelf.GetComponent<Rigidbody>().isKinematic = false;
         }
-        Debug.Log("Amount of shelves generated: " + count);
         return propObjects;
     }
-
-    List<Leaf> SplitShelfLeaves(Leaf _shelfLeaf)
+    
+    static List<Leaf> SplitShelfLeaves(Leaf _shelfLeaf)
     {
-        const float MIN_WIDTH = 1f;
+        const float MIN_WIDTH = 4f; 
         List<Leaf> shelfLeaves = new List<Leaf>();
         _shelfLeaf.SplitRecursively(MIN_WIDTH, ref shelfLeaves);
         return shelfLeaves;
     }
 
     // Complete when more props are made
-    List<MapGenerator.Prop> GetFittingProp(Vector2 _leafSize, in List<MapGenerator.Prop> _propList)
+    static List<MapGenerator.Prop> GetFittingProp(Vector2 _leafSize, in List<MapGenerator.Prop> _propList)
     {
         MapGenerator.Prop prop = _propList[Random.Range(0, _propList.Count)];
         //float width = -prop.minBounds.x + prop.maxBounds.x;
         float depth = -prop.minBounds.z + prop.maxBounds.z;
-
+        
 
         return null;
     }
-    //// TODO: YEEEEEET
-    //public List<Leaf> GenerateLayout(Vector2 _pos, Vector2 _size, Vector2 _minBlockSize)
-    //{
-    //    var leaves = new List<Leaf>();
-
-    //    Leaf parent = new Leaf(_pos, _size); // Create the first root leaf
-    //    Leaf[] leavesH1 = parent.SplitLeaf(_size.y * 0.75f, true); // Split horizontally to get back side
-    //    // TODO: determine shelf information here
-    //    Leaf[] leavesV1 = leaves[0].SplitLeafMirrored(leaves[0].size.x * 0.2f, false);// Split vertically to get left and right side
-    //    return null;
-    //    // Chance to split horizontally to get interior shelf
-    //    // Chance to split several times for bigger size
-    //}
 }

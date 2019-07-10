@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 using System.Collections;
 using System;
 using TMPro;
@@ -22,6 +23,7 @@ public class Player : MonoBehaviour
     private float staminaDecayMultiplier = 1f;
     private float health, stamina;
     private bool staminaRecovering;
+    private List<Buffable.Buff> buffList;
 
     [Header("UI")]
     public GameObject staminaBarOutline;
@@ -107,6 +109,7 @@ public class Player : MonoBehaviour
         // Misc QOL Stuff
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        buffList = new List<Buffable.Buff>();
     }
 
     void Update()
@@ -115,6 +118,7 @@ public class Player : MonoBehaviour
         if (hasExternalForce)
             UpdateExternalForce();
         UpdateWeapon();
+        UpdateBuffs();
         UpdateLook();
         UpdateInventory();
         UpdateUI();
@@ -122,6 +126,16 @@ public class Player : MonoBehaviour
 
     void UpdateWeapon()
     {
+        if (ItemData.BUFF_TYPE.NONE != currentWeapon.itemData.weaponBuff.buff)
+        {
+            currentWeapon.itemData.weaponBuff.duration -= Time.deltaTime;
+            if (currentWeapon.itemData.weaponBuff.duration <= 0f)
+            {
+                currentWeapon.itemData.weaponBuff.duration = 0f;
+                currentWeapon.itemData.weaponBuff.buff = ItemData.BUFF_TYPE.NONE;
+                Debug.Log("Buff ran out");
+            }
+        }
         if (currentWeapon && currentWeapon.itemData != null && currentWeapon.itemData.weaponType != ItemData.WEAPON_TYPE.NONE)
         {
             if (Input.GetButtonDown("Fire1"))
@@ -198,7 +212,29 @@ public class Player : MonoBehaviour
             else
                 floorWeapon.GetComponent<Interactable>().OnPickedUp(this.gameObject);
         }
-
+        if (Input.GetButtonDown("Use") && currentWeapon.itemData.weaponType != ItemData.WEAPON_TYPE.NONE)
+        {
+            // Ray cast to check for buff machine
+            RaycastHit hit;
+            const float useRange = 1f;
+            if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.TransformDirection(Vector3.forward), out hit, useRange))
+            {
+                BuffMachineBase machine = hit.collider.gameObject.GetComponent<BuffMachineBase>();
+                if (null != machine)
+                {
+                    Debug.Log("Found a machine to use");
+                    ItemData.WeaponBuff newBuff;
+                    if (machine.DispenseBuff(out newBuff)) // If a buff has been found
+                    {
+                        Debug.Log("Used the dispenser successfully!");
+                        //ApplyBuff(newBuff.buff, newBuff.duration);
+                        currentWeapon.ApplyBuff(newBuff);
+                    }
+                }
+                else
+                    Debug.Log("There's no machine to use");
+            }
+        }
         // Drop Weapons From Inventory as Interactables
         if (Input.GetButtonDown("Drop Weapon"))
         {
@@ -323,6 +359,75 @@ public class Player : MonoBehaviour
         transform.localRotation = Quaternion.Euler(0, rotation.y * mouseYSpeed, 0);
         yLookObject.transform.localRotation = Quaternion.Euler(rotation.x * mouseXSpeed, 0, 0);
         viewBobObject.transform.localRotation = Quaternion.Euler(0, 0, cameraSwayAngle);
+    }
+
+    void UpdateBuffs()
+    {
+        for(int i = 0; i < buffList.Count; ++i)
+        {
+            if ((buffList[i].duration - Time.deltaTime) < buffList[i].nextTickVal)
+            {
+                BuffTick(buffList[i]);
+                buffList[i].nextTickVal -= 0.5f; // Buff will run one more time past 0.0f
+            }
+            buffList[i].duration -= Time.deltaTime;
+            if (buffList[i].duration <= 0f)
+            {
+                BuffEnd(buffList[i].buff);
+                buffList.Remove(buffList[i]);
+            }
+            if (buffList[i].duration != buffList[i].duration)
+                Debug.LogError("Reference doesn't work here");
+            // TODO: function to play sound on buff expunge?
+
+        }
+    }
+
+    public void ApplyBuff(Buffable.CHAR_BUFF _buffType, float _duration = 0f)
+    {
+        // First find out if the buff has already been applied
+        for (int i = 0; i < buffList.Count; ++i)
+        {
+            if (buffList[i].buff == _buffType)
+            {
+                buffList[i].duration = _duration;  // Reset duration and return
+                return;
+            }
+        }
+        // Create and add new buff instead
+        Buffable.Buff newBuff = new Buffable.Buff();
+        newBuff.duration = _duration;
+        newBuff.buff = _buffType;
+        buffList.Add(newBuff);
+        // Initiate a starting effect for the new buff
+        switch(_buffType)
+        {
+            case Buffable.CHAR_BUFF.BUFF_SLOMO:
+                Time.timeScale = 0.5f;
+                break;
+        }
+    }
+
+    void BuffEnd(Buffable.CHAR_BUFF _buffType)
+    {
+        switch(_buffType)
+        {
+            case Buffable.CHAR_BUFF.BUFF_SLOMO:
+                Time.timeScale = 1f;
+                break;
+        }
+    }
+
+    void BuffTick(Buffable.Buff _buff)
+    {
+        switch(_buff.buff)
+        {
+            case Buffable.CHAR_BUFF.BUFF_SLOMO:
+                break;
+            default:
+                Debug.LogError("No buff found!");
+                break;
+        }
     }
 
     void UpdateExternalForce()
