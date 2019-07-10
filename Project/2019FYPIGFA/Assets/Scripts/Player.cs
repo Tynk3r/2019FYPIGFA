@@ -41,6 +41,10 @@ public class Player : MonoBehaviour
     public GameObject objectiveArrow;
     public SpawnPoint.POINT_TYPE arrowLocationType;
     private Transform nextObjective = null;
+    public Transform objectiveFloater;
+    public Camera minimapCamera;
+    [Range(10f, 1f)]
+    public float minimapZoom = 6f;
 
     [Header("Movement")]
     public float walkSpeed = 5.0f;
@@ -247,8 +251,10 @@ public class Player : MonoBehaviour
                 weaponInventory.RemoveItem(currentWeapon.itemData);
                 GameObject droppedWeapon = new GameObject("dropped" + currentWeapon.itemData.type, typeof(Interactable));
                 droppedWeapon.GetComponent<Interactable>().Initialize(currentWeapon.RemoveWeapon());
-                droppedWeapon.transform.position = transform.position;
-                //droppedWeapon.GetComponent<Rigidbody>().AddForce(transform.forward);
+                if (Physics.Raycast(new Ray(transform.position, transform.up), out RaycastHit hit, Mathf.Infinity))
+                    droppedWeapon.transform.position = new Vector3(transform.position.x, hit.transform.position.y + 1, transform.position.z);
+                else
+                    droppedWeapon.transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z);
 
                 if (currentWeapon.itemData != null)
                 {
@@ -465,12 +471,8 @@ public class Player : MonoBehaviour
     IEnumerator LandingRecovery()
     {
         float displacement = Camera.main.transform.localPosition.y;
-        //float recoverTimer = 0;
         while (Camera.main.transform.localPosition.y < 0)
         {
-            //recoverTimer += Time.deltaTime * recoverSpeed;
-            //Camera.main.transform.localPosition = new Vector3(0, Mathf.Lerp(displacement, 0, recoverTimer), 0);
-            //yield return null;
             Camera.main.transform.Translate(0, recoverSpeed, 0, Space.World);
             currentWeapon.transform.Translate(0, recoverSpeed * smoothWeaponLandingDistanceMultiplier, 0, Space.World);
             yield return null;
@@ -490,6 +492,8 @@ public class Player : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.U))
         {
             inventoryPanel.gameObject.SetActive(!inventoryPanel.gameObject.activeSelf);
+            if (inventoryPanel.gameObject.activeSelf)
+                shoppingList.SetActive(false);
         }
 
         // Check Objectives
@@ -497,12 +501,14 @@ public class Player : MonoBehaviour
         {
             gameController.UpdateShoppingList();
             shoppingList.SetActive(!shoppingList.activeSelf);
+            if (shoppingList.gameObject.activeSelf)
+                inventoryPanel.gameObject.SetActive(false);
         }
 
         // Update Pickup Info
         if (floorWeapon)
         {
-            if(!pickupInfoText.activeSelf)
+            if (!pickupInfoText.activeSelf)
                 pickupInfoText.SetActive(true);
             string s = "Press [E] to pick up " + floorWeapon.GetComponent<Interactable>().itemData.type;
             pickupInfoText.GetComponent<TextMeshProUGUI>().text = s;
@@ -511,9 +517,21 @@ public class Player : MonoBehaviour
             pickupInfoText.SetActive(false);
 
         // Objective Arrow (MAYBE INEFFICIENT CONSIDER REDOING)
-        nextObjective = gameController.GetClosestPoint(transform.position, arrowLocationType).transform;
-        if (nextObjective.GetComponent<SpawnPoint>().GetPointType() == SpawnPoint.POINT_TYPE.EMPTY)
-            objectiveArrow.SetActive(false);
+        if(nextObjective != gameController.GetClosestPoint(transform.position, arrowLocationType).transform)
+        {
+            nextObjective = gameController.GetClosestPoint(transform.position, arrowLocationType).transform;
+            if (nextObjective.GetComponent<SpawnPoint>().GetPointType() == SpawnPoint.POINT_TYPE.EMPTY)
+            {
+                objectiveArrow.SetActive(false);
+                objectiveFloater.gameObject.SetActive(false);
+            }
+            else if (nextObjective)
+            {
+                if (!objectiveFloater.gameObject.activeSelf)
+                    objectiveFloater.gameObject.SetActive(true);
+                objectiveFloater.position = nextObjective.position + new Vector3(0f, 1.25f * nextObjective.localScale.y, 0f);
+            }
+        }
         else if (nextObjective)
         {
             if (!objectiveArrow.activeSelf)
@@ -521,6 +539,14 @@ public class Player : MonoBehaviour
             objectiveArrow.transform.LookAt(new Vector3(nextObjective.transform.position.x, objectiveArrow.transform.position.y, nextObjective.transform.position.z), transform.up);
             objectiveArrow.transform.Rotate(90, 90, 0);
         }
+
+        // Minimap
+        if (Input.GetButtonDown("MinimapZoomIn"))
+            minimapZoom = Mathf.Clamp(minimapZoom + 1, 1f, 10f);
+        else if (Input.GetButtonDown("MinimapZoomOut"))
+            minimapZoom = Mathf.Clamp(minimapZoom - 1, 1f, 10f);
+        if (minimapCamera.orthographicSize != minimapZoom)
+            minimapCamera.orthographicSize = minimapZoom;
 
         // Stamina
         if (staminaBarOutline.GetComponent<RectTransform>().localPosition != new Vector3(staminaBarPosition.x, staminaBarPosition.y, 0))
@@ -568,13 +594,14 @@ public class Player : MonoBehaviour
         {
             Enemy enemy = hit.collider.GetComponent<Enemy>();
             if (currTarget != enemy)
-            {
                 currTarget = enemy;
-                if (!enemyName.activeSelf)
-                    enemyName.SetActive(true);
+            if (!enemyName.activeSelf)
+                enemyName.SetActive(true);
+            if (enemyName.GetComponent<TextMeshProUGUI>().text != Enum.GetName(typeof(Enemy.ENEMY_TYPE), enemy.enemyType))
                 enemyName.GetComponent<TextMeshProUGUI>().SetText(Enum.GetName(typeof(Enemy.ENEMY_TYPE), enemy.enemyType));
-                enemyHealthBar.GetComponent<RectTransform>().localScale = new Vector3(enemy.health / enemy.maxHealth, enemyHealthBar.transform.localScale.y, enemyHealthBar.transform.localScale.z);
-            }
+            Vector3 vector3 = new Vector3(enemy.health / enemy.maxHealth, enemyHealthBar.transform.localScale.y, enemyHealthBar.transform.localScale.z);
+            if (enemyHealthBar.GetComponent<RectTransform>().localScale != vector3)
+                enemyHealthBar.GetComponent<RectTransform>().localScale = vector3;
         }
         else
         {
@@ -616,9 +643,7 @@ public class Player : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         // Pick up weapons
-        if (other.GetComponent<SpawnPoint>() != null
-            && other.GetComponent<Interactable>() != null
-            && other.GetComponent<SpawnPoint>().GetPointType() == SpawnPoint.POINT_TYPE.WEAPON
+        if (other.GetComponent<Interactable>() != null
             && other.gameObject != floorWeapon
             && floorWeapon == null)
         {
@@ -638,7 +663,7 @@ public class Player : MonoBehaviour
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
         // Pick up Objectives on collide
-        if (hit.collider.GetComponent<SpawnPoint>() != null 
+        if (hit.collider.GetComponent<SpawnPoint>() != null
             && hit.collider.GetComponent<SpawnPoint>().GetPointType() == SpawnPoint.POINT_TYPE.OBJECTIVE)
             StartCoroutine(PickUpObjective(hit));
 

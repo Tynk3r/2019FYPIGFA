@@ -47,6 +47,8 @@ public class ClothingRackKids : AIManager
     public float impactForce = 30f;
     public float damageThreshold = 10f;
     private Vector3 bounceDirection = Vector3.zero;
+    [Range(0f,1f)]
+    public float bounceSpeedMultiplier = 0.25f;
     public float wallDamage = 10f;
 
     private float prevFrameDist = 0f;
@@ -182,7 +184,7 @@ public class ClothingRackKids : AIManager
             case STATES.HIT:
                 // Set speed coming into slowdown state
                 if (slowDownSpeed == 0f)
-                    slowDownSpeed = moveSpeed * 0.25f;
+                    slowDownSpeed = moveSpeed * bounceSpeedMultiplier;
 
                 // Applies speed to object
                 SimpleMove(bounceDirection, moveSpeed);
@@ -232,8 +234,12 @@ public class ClothingRackKids : AIManager
         if (currentState != STATES.DEATH)
         {
             agent.FindClosestEdge(out NavMeshHit hit);
-            if ((hit.position - agent.transform.position).magnitude <= agent.radius)
-                OnHit(hit.normal);
+            if ((hit.position - agent.transform.position).magnitude <= agent.radius && currentState != STATES.DEATH)
+            {
+                TakeDamage(wallDamage * Mathf.Max(0f, moveSpeed / topSpeed));
+                bounceDirection = hit.normal;
+                currentState = STATES.HIT;
+            }
 
             if (health <= 0f)
                 Die();
@@ -252,12 +258,6 @@ public class ClothingRackKids : AIManager
     }
 
     private void OnCollisionEnter(Collision collision)
-    {
-        OnHit(collision);
-    }
-
-
-    private void OnHit(Collision collision = null)
     {
         // Make sure not colliding with ground
         if (Physics.Raycast(new Ray(transform.position, -transform.up), out RaycastHit hit, Mathf.Infinity) && currentState != STATES.DEATH)
@@ -282,16 +282,6 @@ public class ClothingRackKids : AIManager
                     currentState = STATES.HIT;
                 }
             }
-        }
-    }
-
-    private void OnHit(Vector3 normal)
-    {
-        if (currentState != STATES.DEATH)
-        {
-            TakeDamage(wallDamage * Mathf.Max(0f, moveSpeed / topSpeed));
-            bounceDirection = normal;
-            currentState = STATES.HIT;
         }
     }
 }
