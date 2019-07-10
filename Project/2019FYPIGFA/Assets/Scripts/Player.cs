@@ -427,7 +427,8 @@ public class Player : MonoBehaviour
                 objectiveFloater.position = nextObjective.position + new Vector3(0f, 1.25f * nextObjective.localScale.y, 0f);
             }
         }
-        else if (nextObjective)
+        else if (nextObjective 
+            && nextObjective.GetComponent<SpawnPoint>().GetPointType() != SpawnPoint.POINT_TYPE.EMPTY)
         {
             if (!objectiveArrow.activeSelf)
                 objectiveArrow.SetActive(true);
@@ -485,7 +486,7 @@ public class Player : MonoBehaviour
         float range = 100f; // Default
         if (currentWeapon && currentWeapon.itemData != null && currentWeapon.itemData.weaponType == ItemData.WEAPON_TYPE.RAYCAST)
             range = currentWeapon.itemData.attackRange;
-        if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out RaycastHit hit, range) && hit.collider.GetComponent<Enemy>())
+        if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out RaycastHit hit, range) && hit.collider.GetComponent<Enemy>() && hit.collider.GetComponent<Enemy>().alive)
         {
             Enemy enemy = hit.collider.GetComponent<Enemy>();
             if (currTarget != enemy)

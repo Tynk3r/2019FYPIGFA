@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
@@ -250,11 +251,14 @@ public class ClothingRackKids : AIManager
     public override void Die()
     {
         base.Die();
+        
         currentState = STATES.DEATH;
         rb.constraints = RigidbodyConstraints.None;
         rb.velocity = transform.forward * (moveSpeed * 0.5f) + transform.right * 2.5f;
         if (rb.velocity.magnitude <= 0f)
             rb.velocity = transform.forward * 1.25f + transform.right * 2.5f;
+
+        StartCoroutine(DeathAnimation());
     }
 
     private void OnCollisionEnter(Collision collision)
