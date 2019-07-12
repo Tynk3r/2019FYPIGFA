@@ -12,9 +12,23 @@ public class ItemData
     }
     public enum SKILL_TYPE
     {
-        LUNGE
+        NONE,
+        LUNGE,
+        MAYO_DRINK,
+    }
+    public enum BUFF_TYPE
+    {
+        NONE,
+        HOT_SAUCE
+    }
+    public class WeaponBuff
+    {
+        public BUFF_TYPE buff = BUFF_TYPE.NONE;
+        public float duration = 0f;
+        public float magnitude = 0f;
     }
 
+    public WeaponBuff weaponBuff = new WeaponBuff();
     public SKILL_TYPE skillType;
     public WEAPON_TYPE weaponType;
     public string type;

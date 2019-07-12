@@ -10,7 +10,7 @@ public class HeldWeapon : MonoBehaviour
     public ItemData itemData;
     public Player player;
     private float attackTimer = 0f;
-    
+    ProjectilePool projectilePoolInstance;
     // Start is called before the first frame update
     void Start()
     {
@@ -20,6 +20,9 @@ public class HeldWeapon : MonoBehaviour
         transform.localPosition = itemData.heldPosition;
         transform.localRotation = Quaternion.Euler(itemData.heldRotation);
         player = GameObject.FindGameObjectsWithTag("Player")[0].GetComponent<Player>();
+        projectilePoolInstance = ProjectilePool.g_sharedInstance;
+        if (null == projectilePoolInstance)
+            Debug.LogError("The projectile pool no exist!");
     }
 
     // Update is called once per frame
@@ -75,7 +78,7 @@ public class HeldWeapon : MonoBehaviour
                     if (attackTimer > 0f)
                         return false;
 
-                    if (hit.collider.GetComponent<Enemy>() != null)
+                    if (hit.collider.GetComponent<Enemy>() != null) // TODO: APPLY DEBUFF HERE
                     {
                         Enemy enemy = hit.collider.GetComponent<Enemy>();
                         enemy.health = Mathf.Clamp(enemy.health - itemData.weaponDamage, 0, enemy.maxHealth);
@@ -105,6 +108,19 @@ public class HeldWeapon : MonoBehaviour
         {
             case ItemData.SKILL_TYPE.LUNGE:
                 player.AddExternalForce(Camera.main.transform.forward * 100f);
+                // Now add a collider in front of the main camera
+                GameObject attackCollider = projectilePoolInstance.FetchObjectInPool(0);
+                Debug.Log("Spawned object " + attackCollider);
+                Vector3 scale = new Vector3(1f, 1f, 1f);
+                attackCollider.GetComponent<I_Projectile>().Initialize();
+                attackCollider.transform.localScale = scale;
+                attackCollider.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 0.3f;
+                attackCollider.transform.rotation = Camera.main.transform.rotation;
+                attackCollider.transform.parent = Camera.main.transform;
+                break;
+            case ItemData.SKILL_TYPE.MAYO_DRINK:
+                player.ApplyBuff(Buffable.CHAR_BUFF.BUFF_SLOMO, 5f);
+                Debug.Log("Applied mayo drink");
                 break;
             default:
                 Debug.LogError("This skill is unheard of!");
@@ -112,5 +128,14 @@ public class HeldWeapon : MonoBehaviour
         }
 
         return true;
+    }
+    public void ApplyBuff(ItemData.WeaponBuff _buff)
+    {
+        if (ItemData.BUFF_TYPE.NONE != itemData.weaponBuff.buff)
+            Debug.Log("Just replaced buff of ID " + itemData.weaponBuff.buff);
+        //itemData.weaponBuff.buff = _buff;
+        //itemData.weaponBuff.duration = _duration;
+        //itemData.weaponBuff.magnitude = _magnitude;
+        itemData.weaponBuff = _buff;
     }
 }

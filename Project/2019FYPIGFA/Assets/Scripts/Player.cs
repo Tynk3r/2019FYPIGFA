@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 using System.Collections;
 using System;
 using TMPro;
@@ -126,6 +127,16 @@ public class Player : MonoBehaviour
 
     void UpdateWeapon()
     {
+        if (ItemData.BUFF_TYPE.NONE != currentWeapon.itemData.weaponBuff.buff)
+        {
+            currentWeapon.itemData.weaponBuff.duration -= Time.deltaTime;
+            if (currentWeapon.itemData.weaponBuff.duration <= 0f)
+            {
+                currentWeapon.itemData.weaponBuff.duration = 0f;
+                currentWeapon.itemData.weaponBuff.buff = ItemData.BUFF_TYPE.NONE;
+                Debug.Log("Buff ran out");
+            }
+        }
         if (currentWeapon && currentWeapon.itemData != null && currentWeapon.itemData.weaponType != ItemData.WEAPON_TYPE.NONE)
         {
             if (Input.GetButtonDown("Fire1"))
@@ -202,7 +213,6 @@ public class Player : MonoBehaviour
             else
                 floorWeapon.GetComponent<Interactable>().OnPickedUp(this.gameObject);
         }
-
         // Drop Weapons From Inventory as Interactables
         if (Input.GetButtonDown("Drop Weapon"))
         {
@@ -330,7 +340,6 @@ public class Player : MonoBehaviour
         yLookObject.transform.localRotation = Quaternion.Euler(rotation.x * mouseXSpeed, 0, 0);
         viewBobObject.transform.localRotation = Quaternion.Euler(0, 0, cameraSwayAngle);
     }
-
     void UpdateUI()
     {
         // Inventory

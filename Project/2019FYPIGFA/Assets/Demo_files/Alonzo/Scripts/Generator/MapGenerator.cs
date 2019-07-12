@@ -1,20 +1,26 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.AI;
 public class MapGenerator : MonoBehaviour
 {
-    HallwayGenerator hallwayGenerator = new HallwayGenerator();
+    public NavMeshSurface[] navSurface;
+    public Prop[] props;
+
     RoomPropGenerator roomPropGenerator = new RoomPropGenerator();
-    RoomGenerator roomGenerator = new RoomGenerator();
     public GenerationType generationType;
     public Material BSP_mat;
     public Material BSP_room;
     public Material BSP_hall;
     public int S_mapWidth, S_mapDepth;
-
-    public float S_minRoomSize = 3f;
+    
+    public Vector2 S_roomSizeLimit;
+    public Vector2 S_roomHeightLimit;
     public float S_maxLeafSize, S_minLeafSize;
+
+    public Vector2 liftSize;
+
+    private int m_levelSeed;
     #if UNITY_EDITOR
     int offsetY = 0;
     public bool autoUpdate;
@@ -34,170 +40,89 @@ public class MapGenerator : MonoBehaviour
         Rigidbody test = gameObject.GetComponent<Rigidbody>();
     }
 
-    void CullParentLeaves(List<Leaf> leaves)
+    void CalculatePropBounds()
     {
-        int i = 0;
-        while (true)
+        int index = 0;
+        while (index < props.Length)
         {
-            Leaf subject = leaves[i];
-            if (subject.leftChild != null || subject.rightChild != null)
-            {
-                leaves.Remove(subject);
-                //Debug.Log("removed one. Now count is " + leaves.Count);
-                if (i == leaves.Count)
-                    break;
-            }
-            else
-            {
-                //Debug.Log("i is " + i + "| count is " + leaves.Count + "| yes");
-                if (++i == leaves.Count)
-                    break;
-            }
+            GameObject item = Instantiate(props[index].prefab);
+            Collider col = item.GetComponent<BoxCollider>();
+            props[index].minBounds = col.bounds.min;
+            props[index].maxBounds = col.bounds.max;
+            DestroyImmediate(item);
+            ++index;
         }
     }
 
-    void CreateRooms()
-    {
-        MapTreeGenerator.MAX_LEAF_SIZE = S_maxLeafSize;
-        MapTreeGenerator.MIN_LEAF_SIZE = S_minLeafSize;
-        List<Leaf> map = MapTreeGenerator.GenerateLeaves(S_mapWidth, S_mapDepth);
-        var rooms = roomGenerator.GenerateRooms(ref map);
-        List<Hallway> hallways = hallwayGenerator.D2GenerateHallways(ref map);
-
-        //foreach (Leaf i in map)
-        //{
-        //    GameObject leaf = MeshGenerator.CreatePlane(i.width, i.height, 0f, false);
-        //    leaf.transform.Translate(new Vector3(i.x, i.level * 5, i.y));
-        //    Renderer rend = leaf.GetComponent<Renderer>();
-        //    rend.material = BSP_mat;
-        //    leaf.transform.parent = demoMap.transform;
-        //    offsetY += 1;
-        //}
-
-        foreach (Room i in rooms)
-        {
-            //GameObject room = MeshGenerator.CreatePlane(i.m_size.x, i.m_size.y, false);
-            //room.transform.Translate(new Vector3(i.m_position.x, offsetY, i.m_position.y));
-            //Renderer rend = room.GetComponent<Renderer>();
-            //rend.material = BSP_room;
-            //room.transform.parent = demoMap.transform;
-            roomPropGenerator.D1_GenerateRoomDetails(i, ref tileSet, ref wallTileSet, offsetY).transform.parent = demoMap.transform;
-            // Create the walls
-        }
-        foreach (Hallway hallway in hallways)
-        {
-            foreach (Hallway.Hall i in hallway.m_halls)
-            {
-                GameObject hall = MeshGenerator.CreatePlane(i.size.x, i.size.y, 0f, false);
-                hall.transform.Translate(new Vector3(i.position.x, offsetY, i.position.z));
-                Renderer rend = hall.GetComponent<Renderer>();
-                rend.material = BSP_hall;
-                hall.transform.parent = demoMap.transform;
-            }
-        }
-        return;
-        /*
-        var originalMap = new List<Leaf>(map);
-        List<Room> rooms;
-        // If the map generation uses polished layout
-        if (generationType > GenerationType.BSP_LAYOUT_ALL)
-            CullParentLeaves(map);
-        foreach (Leaf i in map)
-        {
-            GameObject leaf = MeshGenerator.CreatePlane(i.width, i.height, 0f, false);
-            leaf.transform.Translate(new Vector3(i.x, offsetY, i.y));
-            Renderer rend = leaf.GetComponent<Renderer>();
-            rend.material = BSP_mat;
-            leaf.transform.parent = demoMap.transform;
-            offsetY += 1;
-        }
-        // Generate rooms and hallways
-        if (generationType > GenerationType.BSP_LAYOUT_ALL)
-        {
-            rooms = roomGenerator.GenerateRooms(map);
-
-            foreach (Room i in rooms)
-            {
-                //GameObject room = MeshGenerator.CreatePlane(i.m_size.x, i.m_size.y, false);
-                //room.transform.Translate(new Vector3(i.m_position.x, offsetY, i.m_position.y));
-                //Renderer rend = room.GetComponent<Renderer>();
-                //rend.material = BSP_room;
-                //room.transform.parent = demoMap.transform;
-                roomPropGenerator.D1_GenerateRoomDetails(i, ref tileSet, ref wallTileSet, offsetY).transform.parent = demoMap.transform;
-                // Create the walls
-            }
-            offsetY += 1;
-            // Generate the hallway layout
-            List<Hallway> hallways = hallwayGenerator.D1_GenerateHallways(originalMap);
-            Debug.Log("hallway made with size of " + hallways.Count);
-            foreach (Hallway hallway in hallways)
-            {
-                foreach (Hallway.Hall i in hallway.m_halls)
-                {
-                    GameObject hall = MeshGenerator.CreatePlane(i.size.x, i.size.y, 0f, true);
-                    hall.transform.Translate(new Vector3(i.position.x, offsetY, i.position.y));
-                    Renderer rend = hall.GetComponent<Renderer>();
-                    rend.material = BSP_hall;
-                    hall.transform.parent = demoMap.transform;
-                }
-            }
-        }
-        */
-    }
-/*
-    void CreateLayoutDebug()
-    {
-        List<Leaf> map = MapTreeGenerator.GenerateLeaves(S_mapWidth, S_mapDepth);
-        var originalMap = new List<Leaf>(map);
-        List<Room> rooms;
-        // If the map generation uses polished layout
-        if (generationType > GenerationType.BSP_LAYOUT_ALL)
-            CullParentLeaves(map);
-        foreach(Leaf i in map)
-        {
-            GameObject leaf = MeshGenerator.CreatePlane(i.width, i.height, 0f, false);
-            leaf.transform.Translate(new Vector3(i.x, offsetY, i.y));
-            Renderer rend = leaf.GetComponent<Renderer>();
-            rend.material = BSP_mat;
-            leaf.transform.parent = demoMap.transform;
-            offsetY += 1;
-        }
-        // Generate rooms and hallways
-        if (generationType > GenerationType.BSP_LAYOUT_ALL)
-        {
-            rooms = roomGenerator.GenerateRooms(map);
-            
-            foreach(Room i in rooms)
-            {
-                GameObject room = MeshGenerator.CreatePlane(i.m_size.x, i.m_size.y, 0f, false);
-                room.transform.Translate(new Vector3(i._position.x, offsetY, i._position.z));
-                Renderer rend = room.GetComponent<Renderer>();
-                rend.material = BSP_room;
-                room.transform.parent = demoMap.transform;
-            }
-            offsetY += 1;
-            // Generate the hallway layout
-            List<Hallway> hallways = hallwayGenerator.D1_GenerateHallways(originalMap);
-            Debug.Log("hallway made with size of " + hallways.Count);
-            foreach(Hallway hallway in hallways)
-            {
-                foreach(Hallway.Hall i in hallway.m_halls)
-                {
-                    GameObject hall = MeshGenerator.CreatePlane(i.size.x, i.size.y, 0f, false);
-                    hall.transform.Translate(new Vector3(i.position.x, offsetY, i.position.y));
-                    Renderer rend = hall.GetComponent<Renderer>();
-                    rend.material = BSP_hall;
-                    hall.transform.parent = demoMap.transform;
-                }
-            }
-        }
-    }
-    */
     public void GenerateMap()
     {
-        offsetY = 0;
-        CreateRooms();
+
+        CalculatePropBounds();
+        if (null != demoMap)
+            DestroyImmediate(demoMap);
+        demoMap = new GameObject("MAP");
+        m_levelSeed = Random.Range(int.MinValue, int.MaxValue);
+        Random.InitState(m_levelSeed);
+
+        var roomSize = new Vector2(Random.Range(S_roomSizeLimit.x, S_roomSizeLimit.y), Random.Range(S_roomSizeLimit.x, S_roomSizeLimit.y));
+        float roomHeight = Random.Range(S_roomHeightLimit.x, S_roomHeightLimit.y);
+        Tile wall = wallTileSet[Random.Range(0, wallTileSet.Length)];
+        Tile floor = tileSet[Random.Range(0, tileSet.Length)];
+        float uvScale = 0.5f;
+        // Generate the base floor of the room
+        {
+            GameObject baseFloor = MeshGenerator.CreatePlane(roomSize.x, roomSize.y, uvScale);
+            baseFloor.transform.Translate(0f, 0f, roomSize.y * 0.5f);
+            baseFloor.transform.parent = demoMap.transform;
+            var renderer = baseFloor.GetComponent<Renderer>();
+            renderer.material = floor.material;
+        }
+        // Generate the lift entrance
+        {
+            GameObject liftDoor = MeshGenerator.CreateDoorWall(roomSize.x, roomHeight, liftSize.x, liftSize.y, roomSize.x * 0.5f, uvScale);
+            liftDoor.transform.parent = demoMap.transform;
+            var renderer = liftDoor.GetComponent<Renderer>();
+            renderer.material = wall.material;
+        }
+        // Generate the walls now that do not include the lift wall
+        {
+            GameObject leftWall = MeshGenerator.CreatePlane(roomHeight, roomSize.y, uvScale);
+            GameObject rightWall = MeshGenerator.CreatePlane(roomHeight, roomSize.y, uvScale);
+            GameObject backWall = MeshGenerator.CreatePlane(roomSize.x, roomHeight, uvScale);
+            // Translate to right position
+            leftWall.transform.Translate(roomSize.x * -0.5f, roomHeight * 0.5f, roomSize.y * 0.5f);
+            rightWall.transform.Translate(roomSize.x * 0.5f, roomHeight * 0.5f, roomSize.y * 0.5f);
+            backWall.transform.Translate(0f, roomHeight * 0.5f, roomSize.y);
+            // Rotate to correct direction
+            leftWall.transform.Rotate(new Vector3(0f, 0f, -90f));
+            rightWall.transform.Rotate(new Vector3(0f, 0f, 90f));
+            backWall.transform.Rotate(new Vector3(-90f, 0f, 0f));
+            // Texture the walls
+            Renderer renderer;
+            renderer = leftWall.GetComponent<Renderer>();
+            renderer.material = wall.material;
+            renderer = rightWall.GetComponent<Renderer>();
+            renderer.material = wall.material;
+            renderer = backWall.GetComponent<Renderer>();
+            renderer.material = wall.material;
+            // Set the walls parent
+            leftWall.transform.parent = demoMap.transform;
+            rightWall.transform.parent = demoMap.transform;
+            backWall.transform.parent = demoMap.transform;
+        }
+
+        // Make the props spawn
+        {
+            roomPropGenerator.GenerateLayout(new Vector2(0f, roomSize.y * 0.5f), roomSize, ref props)
+                .transform.parent = demoMap.transform;
+        }
+
+        foreach (NavMeshSurface surface in navSurface)
+        {
+            surface.BuildNavMesh();
+        }
         return;
+        offsetY = 0;
         GameObject plane = MeshGenerator.CreateStairs();// (10, 10, 1f, false);
         Renderer rend = plane.GetComponent<Renderer>();
         rend.material = tileSet[0].material;
@@ -240,5 +165,12 @@ public class MapGenerator : MonoBehaviour
         BSP_LAYOUT_ALL,
         BSP_LAYOUT_TOP_LAYER,
         HIDDEN
+    }
+    [System.Serializable]
+    public struct Prop
+    {
+        public GameObject prefab;
+        public Vector3 minBounds;
+        public Vector3 maxBounds;
     }
 }
