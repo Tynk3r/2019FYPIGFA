@@ -15,6 +15,8 @@ public class Enemy : MonoBehaviour
     public ENEMY_TYPE enemyType;
     public float health = 1;
     public float maxHealth;
+    [HideInInspector]
+    public bool alive = true;
 
     // Update is called once per frame
     public virtual void Update()
@@ -91,5 +93,18 @@ public class Enemy : MonoBehaviour
                 Debug.LogError("No buff found!");
                 break;
         }
+    }
+
+    public IEnumerator DeathAnimation()
+    {
+        yield return new WaitForSecondsRealtime(2f);
+        if (GetComponent<Rigidbody>() != null)
+            GetComponent<Rigidbody>().isKinematic = true;
+        while (transform.position.y > -transform.localScale.y)
+        {
+            transform.Translate(new Vector3(0f, -0.5f*Time.deltaTime, 0f), Space.World);
+            yield return null;
+        }
+        Destroy(this.gameObject);
     }
 }
