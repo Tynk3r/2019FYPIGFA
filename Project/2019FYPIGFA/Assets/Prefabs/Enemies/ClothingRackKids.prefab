@@ -147,6 +147,7 @@ MonoBehaviour:
   enemyType: 0
   health: 100
   maxHealth: 100
+  alive: 1
   agent: {fileID: 0}
   currentState: 0
   target: {fileID: 0}
@@ -155,8 +156,8 @@ MonoBehaviour:
   reorientSpeed: 0.1
   topSpeed: 25
   sightDistance: 30
-  pushForce: 10
-  pushRate: 2
+  pushForce: 5
+  pushRate: 1
   slowDownDelta: 1
   collideDamageMultiplier: 1
   damageToPlayer: 10

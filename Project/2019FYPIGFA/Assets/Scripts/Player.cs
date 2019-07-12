@@ -331,56 +331,6 @@ public class Player : MonoBehaviour
         viewBobObject.transform.localRotation = Quaternion.Euler(0, 0, cameraSwayAngle);
     }
 
-    void UpdateExternalForce()
-    {
-        if (externalForce.sqrMagnitude < 30f)
-        {
-            externalForce = Vector3.zero;
-            hasExternalForce = false;
-            return;
-        }
-        characterController.Move(externalForce * Time.deltaTime);
-        externalForce = Vector3.Lerp(externalForce, Vector3.zero, 1 * Time.deltaTime); // TODO: check decay on externalForce
-    }
-
-    IEnumerator LandingSink(float landingVelocity)
-    {
-        float displacement = 0f;
-        while (landingVelocity < 0)
-        {
-            displacement = landingVelocity * Time.deltaTime * landingDistanceMultiplier;
-            Camera.main.transform.Translate(0, displacement, 0, Space.World);
-            currentWeapon.transform.Translate(0, displacement * smoothWeaponLandingDistanceMultiplier, 0, Space.World);
-            landingVelocity += landingSpeedMultiplier;
-            if (landingVelocity >= 0 || Camera.main.transform.position.y <= transform.position.y + (transform.localScale.y * 0.5f))
-            {
-                landingVelocity = 0;
-                recoveringCo = LandingRecovery();
-                StartCoroutine(recoveringCo);
-                StopCoroutine(landingCo);
-            }
-            yield return null;
-        }
-    }
-
-    IEnumerator LandingRecovery()
-    {
-        float displacement = Camera.main.transform.localPosition.y;
-        while (Camera.main.transform.localPosition.y < 0)
-        {
-            Camera.main.transform.Translate(0, recoverSpeed, 0, Space.World);
-            currentWeapon.transform.Translate(0, recoverSpeed * smoothWeaponLandingDistanceMultiplier, 0, Space.World);
-            yield return null;
-        }
-        if (Camera.main.transform.localPosition.y >= 0)
-        {
-            Camera.main.transform.localPosition = Vector3.zero;
-            if (currentWeapon && currentWeapon.itemData != null)
-                currentWeapon.transform.localPosition = currentWeapon.itemData.heldPosition;
-            StopCoroutine(recoveringCo);
-        }
-    }
-
     void UpdateUI()
     {
         // Inventory
@@ -508,6 +458,56 @@ public class Player : MonoBehaviour
         }
     }
 
+    void UpdateExternalForce()
+    {
+        if (externalForce.sqrMagnitude < 30f)
+        {
+            externalForce = Vector3.zero;
+            hasExternalForce = false;
+            return;
+        }
+        characterController.Move(externalForce * Time.deltaTime);
+        externalForce = Vector3.Lerp(externalForce, Vector3.zero, 1 * Time.deltaTime); // TODO: check decay on externalForce
+    }
+
+    IEnumerator LandingSink(float landingVelocity)
+    {
+        float displacement = 0f;
+        while (landingVelocity < 0)
+        {
+            displacement = landingVelocity * Time.deltaTime * landingDistanceMultiplier;
+            Camera.main.transform.Translate(0, displacement, 0, Space.World);
+            currentWeapon.transform.Translate(0, displacement * smoothWeaponLandingDistanceMultiplier, 0, Space.World);
+            landingVelocity += landingSpeedMultiplier;
+            if (landingVelocity >= 0 || Camera.main.transform.position.y <= transform.position.y + (transform.localScale.y * 0.5f))
+            {
+                landingVelocity = 0;
+                recoveringCo = LandingRecovery();
+                StartCoroutine(recoveringCo);
+                StopCoroutine(landingCo);
+            }
+            yield return null;
+        }
+    }
+
+    IEnumerator LandingRecovery()
+    {
+        float displacement = Camera.main.transform.localPosition.y;
+        while (Camera.main.transform.localPosition.y < 0)
+        {
+            Camera.main.transform.Translate(0, recoverSpeed, 0, Space.World);
+            currentWeapon.transform.Translate(0, recoverSpeed * smoothWeaponLandingDistanceMultiplier, 0, Space.World);
+            yield return null;
+        }
+        if (Camera.main.transform.localPosition.y >= 0)
+        {
+            Camera.main.transform.localPosition = Vector3.zero;
+            if (currentWeapon && currentWeapon.itemData != null)
+                currentWeapon.transform.localPosition = currentWeapon.itemData.heldPosition;
+            StopCoroutine(recoveringCo);
+        }
+    }
+
     /// <summary>
     /// Returns the percentage of health out of the max health of the player.
     /// </summary>
@@ -606,8 +606,7 @@ public class Player : MonoBehaviour
         health -= trueDamage;
         return trueDamage <= 0f;
     }
-
-
+    
     public void AddExternalForce(Vector3 _force)
     {
         externalForce += _force;
