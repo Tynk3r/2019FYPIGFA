@@ -127,16 +127,6 @@ public class Player : MonoBehaviour
 
     void UpdateWeapon()
     {
-        if (ItemData.BUFF_TYPE.NONE != currentWeapon.itemData.weaponBuff.buff)
-        {
-            currentWeapon.itemData.weaponBuff.duration -= Time.deltaTime;
-            if (currentWeapon.itemData.weaponBuff.duration <= 0f)
-            {
-                currentWeapon.itemData.weaponBuff.duration = 0f;
-                currentWeapon.itemData.weaponBuff.buff = ItemData.BUFF_TYPE.NONE;
-                Debug.Log("Buff ran out");
-            }
-        }
         if (currentWeapon && currentWeapon.itemData != null && currentWeapon.itemData.weaponType != ItemData.WEAPON_TYPE.NONE)
         {
             if (Input.GetButtonDown("Fire1"))
@@ -181,6 +171,16 @@ public class Player : MonoBehaviour
                     if (weaponInventory.itemList.IndexOf(currentWeapon.itemData) == weaponInventory.itemList.Count - 1)
                         nextWeaponIndex = 0;
                     currentWeapon.ChangeWeapon(weaponInventory.itemList[nextWeaponIndex]);
+                }
+            }
+            if (ItemData.BUFF_TYPE.NONE != currentWeapon.itemData.weaponBuff.buff)
+            {
+                currentWeapon.itemData.weaponBuff.duration -= Time.deltaTime;
+                if (currentWeapon.itemData.weaponBuff.duration <= 0f)
+                {
+                    currentWeapon.itemData.weaponBuff.duration = 0f;
+                    currentWeapon.itemData.weaponBuff.buff = ItemData.BUFF_TYPE.NONE;
+                    Debug.Log("Buff ran out");
                 }
             }
         }
