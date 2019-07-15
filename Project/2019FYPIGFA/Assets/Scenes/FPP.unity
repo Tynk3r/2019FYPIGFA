@@ -15007,11 +15007,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player and HUD
       objectReference: {fileID: 0}
-    - target: {fileID: 6213084867027212608, guid: 029862c00d6c5d0469c8c4c29b0a9dc4,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 6213084867027212611, guid: 029862c00d6c5d0469c8c4c29b0a9dc4,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -15127,17 +15122,6 @@ PrefabInstance:
       propertyPath: m_isInputParsingRequired
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 6213084866986106099, guid: 029862c00d6c5d0469c8c4c29b0a9dc4,
-        type: 3}
-      propertyPath: weaponsToSpawn.Array.size
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 6213084866986106099, guid: 029862c00d6c5d0469c8c4c29b0a9dc4,
-        type: 3}
-      propertyPath: weaponsToSpawn.Array.data[2]
-      value: 
-      objectReference: {fileID: 2450031967068687964, guid: c3871ad61ff974c40ba053e012555853,
-        type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 029862c00d6c5d0469c8c4c29b0a9dc4, type: 3}
 --- !u!1 &8004502967614562340
