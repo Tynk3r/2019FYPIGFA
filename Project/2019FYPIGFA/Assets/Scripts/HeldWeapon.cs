@@ -11,6 +11,7 @@ public class HeldWeapon : MonoBehaviour
     public Player player;
     private float attackTimer = 0f;
     ProjectilePool projectilePoolInstance;
+    private static int projectileID;
     // Start is called before the first frame update
     void Start()
     {
@@ -21,8 +22,10 @@ public class HeldWeapon : MonoBehaviour
         transform.localRotation = Quaternion.Euler(itemData.heldRotation);
         player = GameObject.FindGameObjectsWithTag("Player")[0].GetComponent<Player>();
         projectilePoolInstance = ProjectilePool.g_sharedInstance;
+        projectileID = projectilePoolInstance.GetPooledObjectIndex(itemData.projectile);
         if (null == projectilePoolInstance)
             Debug.LogError("The projectile pool no exist!");
+
     }
 
     // Update is called once per frame
@@ -94,6 +97,17 @@ public class HeldWeapon : MonoBehaviour
                     }
                 }
                 break;
+            case ItemData.WEAPON_TYPE.PROJECTILE:
+                // Uses the object pooler to spawn the bullet
+                int i = projectilePoolInstance.GetPooledObjectIndex(itemData.projectile);
+                I_Projectile projectile = projectilePoolInstance.FetchObjectInPool(i).GetComponent<I_Projectile>();
+                if (null == projectile)
+                {
+                    Debug.LogWarning("Did not get any projectile");
+                    break;
+                }
+                projectile.Discharge(player.yLookObject.transform.forward * 10f, player.yLookObject.transform.position /*+ player.yLookObject.transform.forward*/);
+                break;
             default:
                 Debug.LogError("Assign weapon type before trying to attack.");
                 break;
@@ -119,7 +133,7 @@ public class HeldWeapon : MonoBehaviour
                 attackCollider.transform.parent = Camera.main.transform;
                 break;
             case ItemData.SKILL_TYPE.MAYO_DRINK:
-                player.ApplyBuff(Buffable.CHAR_BUFF.BUFF_SLOMO, 5f);
+                //player.ApplyBuff(Buffable.CHAR_BUFF.BUFF_SLOMO, 5f);
                 Debug.Log("Applied mayo drink");
                 break;
             default:

@@ -371,9 +371,11 @@ public class Player : MonoBehaviour
             pickupInfoText.SetActive(false);
 
         // Objective Arrow (MAYBE INEFFICIENT CONSIDER REDOING)
-        if(nextObjective != gameController.GetClosestPoint(transform.position, arrowLocationType).transform)
+        SpawnPoint pt = gameController.GetClosestPoint(transform.position, arrowLocationType);
+
+        if (pt != null && nextObjective != pt.transform)
         {
-            nextObjective = gameController.GetClosestPoint(transform.position, arrowLocationType).transform;
+            nextObjective = pt.transform;
             if (nextObjective.GetComponent<SpawnPoint>().GetPointType() == SpawnPoint.POINT_TYPE.EMPTY)
             {
                 objectiveArrow.SetActive(false);

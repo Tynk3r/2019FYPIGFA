@@ -18,6 +18,7 @@ public class AIManager : Enemy
     public virtual void Die()
     {
         agent.enabled = false;
+        alive = false;
     }
 
     public void MoveToTarget(Transform _targetTransform)

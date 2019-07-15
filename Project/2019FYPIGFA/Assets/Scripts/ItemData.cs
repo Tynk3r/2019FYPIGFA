@@ -54,7 +54,7 @@ public class ItemData
     public GameObject impactEffect;
 
     [DrawIf("weaponType", WEAPON_TYPE.PROJECTILE)]
-    public GameObject projectile;
+    public string projectile;
 
 
     public ItemData Clone()
@@ -73,7 +73,9 @@ public class ItemData
             material = this.material,
             heldPosition = this.heldPosition,
             heldRotation = this.heldRotation,
-            impactEffect = this.impactEffect
+            impactEffect = this.impactEffect,
+            projectile = this.projectile,
+            weaponBuff = this.weaponBuff
         };
         return clone;
     }
