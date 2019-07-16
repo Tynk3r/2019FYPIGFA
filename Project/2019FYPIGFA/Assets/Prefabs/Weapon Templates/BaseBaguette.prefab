@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemData:
-    skillType: 0
+    skillType: 1
     weaponType: 1
     type: Baguette
     mesh: {fileID: 4300000, guid: d20c2daee76ceff4eb767943ed41fac0, type: 3}
@@ -57,4 +57,5 @@ MonoBehaviour:
     weaponDamage: 50
     attackRange: 2.5
     impactEffect: {fileID: 0}
-    projectile: {fileID: 0}
+    projectileID: 0
+    projectileForce: 0
