@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
-public class FeralShopper : AIManager
+public class FeralShopper : Enemy
 {
     public float attackRange = 10f;
     public float fleeHealthThreshold = 50f;

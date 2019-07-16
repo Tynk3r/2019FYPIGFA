@@ -8,8 +8,9 @@ public class LungePoint : MonoBehaviour, I_Projectile
     public static float lifetime = 3f;
     private float m_countdown;
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
+        Debug.Log("yes");
     }
 
     // Update is called once per frame
