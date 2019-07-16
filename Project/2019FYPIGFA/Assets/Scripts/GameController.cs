@@ -118,6 +118,8 @@ public class GameController : MonoBehaviour
 
     public SpawnPoint GetClosestPoint(Vector3 position, params SpawnPoint.POINT_TYPE[] types)
     {
+        if (spawnPoints.Count() <= 0)
+            return null;
         SpawnPoint tempPt = spawnPoints[0];
         float distance = Mathf.Infinity;
         foreach (SpawnPoint pt in FindObjectsOfType<SpawnPoint>())
@@ -135,6 +137,8 @@ public class GameController : MonoBehaviour
 
     public SpawnPoint GetClosestPoint(Vector3 position)
     {
+        if (spawnPoints.Count() <= 0)
+            return null;
         SpawnPoint tempPt = spawnPoints[0];
         float distance = Mathf.Infinity;
         foreach (SpawnPoint pt in FindObjectsOfType<SpawnPoint>())

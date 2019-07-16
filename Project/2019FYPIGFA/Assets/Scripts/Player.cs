@@ -13,6 +13,7 @@ public class Player : MonoBehaviour
     public string[] collectedObjectives;
     private Vector3 externalForce;
     private bool hasExternalForce;
+    private List<Buffable.Buff> buffList;
 
     [Header("Stats")]
     public float maxHealth = 100f;
@@ -23,7 +24,6 @@ public class Player : MonoBehaviour
     private float staminaDecayMultiplier = 1f;
     private float health, stamina;
     private bool staminaRecovering;
-    private List<Buffable.Buff> buffList;
 
     [Header("UI")]
     public GameObject staminaBarOutline;
@@ -122,7 +122,6 @@ public class Player : MonoBehaviour
         if (hasExternalForce)
             UpdateExternalForce();
         UpdateWeapon();
-        UpdateBuffs();
         UpdateLook();
         UpdateInventory();
         UpdateUI();
@@ -130,16 +129,6 @@ public class Player : MonoBehaviour
 
     void UpdateWeapon()
     {
-        if (ItemData.BUFF_TYPE.NONE != currentWeapon.itemData.weaponBuff.buff)
-        {
-            currentWeapon.itemData.weaponBuff.duration -= Time.deltaTime;
-            if (currentWeapon.itemData.weaponBuff.duration <= 0f)
-            {
-                currentWeapon.itemData.weaponBuff.duration = 0f;
-                currentWeapon.itemData.weaponBuff.buff = ItemData.BUFF_TYPE.NONE;
-                Debug.Log("Buff ran out");
-            }
-        }
         if (currentWeapon && currentWeapon.itemData != null && currentWeapon.itemData.weaponType != ItemData.WEAPON_TYPE.NONE)
         {
             if (Input.GetButtonDown("Fire1"))
@@ -186,6 +175,16 @@ public class Player : MonoBehaviour
                     currentWeapon.ChangeWeapon(weaponInventory.itemList[nextWeaponIndex]);
                 }
             }
+            if (ItemData.BUFF_TYPE.NONE != currentWeapon.itemData.weaponBuff.buff)
+            {
+                currentWeapon.itemData.weaponBuff.duration -= Time.deltaTime;
+                if (currentWeapon.itemData.weaponBuff.duration <= 0f)
+                {
+                    currentWeapon.itemData.weaponBuff.duration = 0f;
+                    currentWeapon.itemData.weaponBuff.buff = ItemData.BUFF_TYPE.NONE;
+                    Debug.Log("Buff ran out");
+                }
+            }
         }
         else if (weaponInventory.itemList.Count != 0)
             currentWeapon.ChangeWeapon(weaponInventory.itemList[0]);
@@ -215,29 +214,6 @@ public class Player : MonoBehaviour
                 Debug.Log("No Space Left in Inventory");
             else
                 floorWeapon.GetComponent<Interactable>().OnPickedUp(this.gameObject);
-        }
-        if (Input.GetButtonDown("Use") && currentWeapon.itemData.weaponType != ItemData.WEAPON_TYPE.NONE)
-        {
-            // Ray cast to check for buff machine
-            RaycastHit hit;
-            const float useRange = 1f;
-            if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.TransformDirection(Vector3.forward), out hit, useRange))
-            {
-                BuffMachineBase machine = hit.collider.gameObject.GetComponent<BuffMachineBase>();
-                if (null != machine)
-                {
-                    Debug.Log("Found a machine to use");
-                    ItemData.WeaponBuff newBuff;
-                    if (machine.DispenseBuff(out newBuff)) // If a buff has been found
-                    {
-                        Debug.Log("Used the dispenser successfully!");
-                        //ApplyBuff(newBuff.buff, newBuff.duration);
-                        currentWeapon.ApplyBuff(newBuff);
-                    }
-                }
-                else
-                    Debug.Log("There's no machine to use");
-            }
         }
         // Drop Weapons From Inventory as Interactables
         if (Input.GetButtonDown("Drop Weapon"))
@@ -515,9 +491,11 @@ public class Player : MonoBehaviour
             pickupInfoText.SetActive(false);
 
         // Objective Arrow (MAYBE INEFFICIENT CONSIDER REDOING)
-        if(nextObjective != gameController.GetClosestPoint(transform.position, arrowLocationType).transform)
+        SpawnPoint pt = gameController.GetClosestPoint(transform.position, arrowLocationType);
+
+        if (pt != null && nextObjective != pt.transform)
         {
-            nextObjective = gameController.GetClosestPoint(transform.position, arrowLocationType).transform;
+            nextObjective = pt.transform;
             if (nextObjective.GetComponent<SpawnPoint>().GetPointType() == SpawnPoint.POINT_TYPE.EMPTY)
             {
                 objectiveArrow.SetActive(false);
@@ -614,7 +592,6 @@ public class Player : MonoBehaviour
                 enemyName.SetActive(false);
         }
     }
-
     /// <summary>
     /// Returns the percentage of health out of the max health of the player.
     /// </summary>
@@ -713,8 +690,7 @@ public class Player : MonoBehaviour
         health -= trueDamage;
         return trueDamage <= 0f;
     }
-
-
+    
     public void AddExternalForce(Vector3 _force)
     {
         externalForce += _force;

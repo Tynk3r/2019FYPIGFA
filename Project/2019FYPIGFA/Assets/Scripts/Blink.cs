@@ -5,20 +5,12 @@ using System.Collections;
 // this toggles a component (usually an Image or Renderer) on and off for an interval to simulate a blinking effect
 public class Blink : MonoBehaviour
 {
-
     // this is the UI.Text or other UI element you want to toggle
     public MaskableGraphic imageToToggle;
-
     public float interval = 1f;
     public float startDelay = 0.5f;
-    bool isBlinking = false;
-
     public AudioClip clip;
-
-    void Start()
-    {
-
-    }
+    private bool isBlinking = false;
 
     public void StartBlink()
     {
@@ -45,7 +37,6 @@ public class Blink : MonoBehaviour
             imageToToggle.enabled = true;
         }
     }
-
     public void ToggleState()
     {
         imageToToggle.enabled = !imageToToggle.enabled;

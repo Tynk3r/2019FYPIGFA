@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class B_Egg : MonoBehaviour, I_Projectile
+public class P_PizzaSlice : MonoBehaviour, I_Projectile
 {
     public static float damage = 50f;
     public static float MAX_LIFETIME = 5.0f;
@@ -34,13 +34,7 @@ public class B_Egg : MonoBehaviour, I_Projectile
     }
     public void Detonate()
     {
-        // Play egg particle effects and deals damage to all enemies in area
-        // Get all game objects within radius of explosion and deal damage to them
-        //LayerMask layerMask = 11 << 8;
-        //int layerMaskEnemy = 1 << 9;
-        //int layerMaskDestructible = 1 << 10;
-        //int finalLayerMask = layerMaskEnemy | layerMaskDestructible;
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, EXPLOSIVE_RANGE/*, finalLayerMask*/);
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, EXPLOSIVE_RANGE);
         int i = 0;
         while (i < hitColliders.Length)
         {

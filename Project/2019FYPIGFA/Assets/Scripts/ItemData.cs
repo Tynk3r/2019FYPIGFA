@@ -56,6 +56,7 @@ public class ItemData
     [DrawIf("weaponType", WEAPON_TYPE.PROJECTILE)]
     public int projectileID = -1;
     public float projectileMagnitude;
+    public string projectile;
 
     [SerializeField]
     private string projectileName;
@@ -79,7 +80,9 @@ public class ItemData
             impactEffect = this.impactEffect,
             projectileID = ProjectilePool.g_sharedInstance.GetPooledObjectIndex(this.projectileName),
             projectileMagnitude = this.projectileMagnitude,
-            projectileName = this.projectileName
+            projectileName = this.projectileName,
+            projectile = this.projectile,
+            weaponBuff = this.weaponBuff
         };
         return clone;
     }
