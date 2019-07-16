@@ -54,8 +54,11 @@ public class ItemData
     public GameObject impactEffect;
 
     [DrawIf("weaponType", WEAPON_TYPE.PROJECTILE)]
-    public GameObject projectile;
+    public int projectileID = -1;
+    public float projectileMagnitude;
 
+    [SerializeField]
+    private string projectileName;
 
     public ItemData Clone()
     {
@@ -73,7 +76,10 @@ public class ItemData
             material = this.material,
             heldPosition = this.heldPosition,
             heldRotation = this.heldRotation,
-            impactEffect = this.impactEffect
+            impactEffect = this.impactEffect,
+            projectileID = ProjectilePool.g_sharedInstance.GetPooledObjectIndex(this.projectileName),
+            projectileMagnitude = this.projectileMagnitude,
+            projectileName = this.projectileName
         };
         return clone;
     }

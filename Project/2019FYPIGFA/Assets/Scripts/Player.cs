@@ -382,8 +382,6 @@ public class Player : MonoBehaviour
                 BuffEnd(buffList[i].buff);
                 buffList.Remove(buffList[i]);
             }
-            if (buffList[i].duration != buffList[i].duration)
-                Debug.LogError("Reference doesn't work here");
             // TODO: function to play sound on buff expunge?
 
         }
@@ -583,7 +581,11 @@ public class Player : MonoBehaviour
         if (healthBar.GetComponent<RectTransform>().localScale != new Vector3(health / maxHealth, healthBar.transform.localScale.y, healthBar.transform.localScale.z))
             healthBar.GetComponent<RectTransform>().localScale = new Vector3(health / maxHealth, healthBar.transform.localScale.y, healthBar.transform.localScale.z);
         if (health == 0)
+        {
+#if UNITY_EDITOR
             EditorApplication.isPlaying = false;
+#endif
+        }
 
         // Target Info
         if (enemyName.GetComponent<RectTransform>().localPosition != new Vector3(enemyHealthBarPosition.x, enemyHealthBarPosition.y, 0))

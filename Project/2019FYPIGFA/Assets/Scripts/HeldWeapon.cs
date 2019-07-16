@@ -94,6 +94,12 @@ public class HeldWeapon : MonoBehaviour
                     }
                 }
                 break;
+            case ItemData.WEAPON_TYPE.PROJECTILE:
+                // Spawn the projectile at where player shoots
+                I_Projectile bullet = ProjectilePool.g_sharedInstance.FetchObjectInPool(itemData.projectileID).GetComponent<I_Projectile>();
+                bullet.Initialize();
+                bullet.Discharge(Camera.main.transform.forward * itemData.projectileMagnitude, transform.position + Camera.main.transform.forward * 1f);
+                break;
             default:
                 Debug.LogError("Assign weapon type before trying to attack.");
                 break;
@@ -107,9 +113,9 @@ public class HeldWeapon : MonoBehaviour
         switch (itemData.skillType)
         {
             case ItemData.SKILL_TYPE.LUNGE:
-                player.AddExternalForce(Camera.main.transform.forward * 100f);
+                player.AddExternalForce(Camera.main.transform.forward * 10f);
                 // Now add a collider in front of the main camera
-                GameObject attackCollider = projectilePoolInstance.FetchObjectInPool(0);
+                GameObject attackCollider = projectilePoolInstance.FetchObjectInPool(itemData.projectileID);
                 Debug.Log("Spawned object " + attackCollider);
                 Vector3 scale = new Vector3(1f, 1f, 1f);
                 attackCollider.GetComponent<I_Projectile>().Initialize();
