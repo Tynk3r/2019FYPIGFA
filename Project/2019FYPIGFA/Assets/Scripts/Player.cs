@@ -254,7 +254,10 @@ public class Player : MonoBehaviour
     void UpdatePickup()
     {
         // Check what colliders in range
-        Collider[] hitColliders = Physics.OverlapCapsule(transform.position + new Vector3(0f, characterController.height * 0.5f, 0f), transform.position - new Vector3(0f, characterController.height * 0.5f, 0f), characterController.radius);
+        Collider[] hitColliders = Physics.OverlapCapsule(
+            transform.position + new Vector3(0f, characterController.height, 0f), 
+            transform.position - new Vector3(0f, characterController.height, 0f), 
+            characterController.radius);
         foreach (Collider c in hitColliders)
         {
             GameObject g = c.gameObject;
@@ -433,7 +436,7 @@ public class Player : MonoBehaviour
 
         // Objective Arrow (MAYBE INEFFICIENT CONSIDER REDOING)
         GameObject pt = null;
-        if (heldObjective == "Nothin'")
+        if (arrowLocationType != POINT_TYPE.OBJECTIVE || heldObjective == "Nothin'")
         {
             SpawnPoint pt2 = gameController.GetClosestPoint(transform.position, arrowLocationType);
             if (pt2 != null)

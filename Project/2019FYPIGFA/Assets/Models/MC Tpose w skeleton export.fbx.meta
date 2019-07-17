@@ -1,20 +1,9 @@
 fileFormatVersion: 2
-guid: faed772a7bf35d242b86110d36a81c2c
+guid: 6e5d83f0ea47e0a4688b733a7ed6da38
 ModelImporter:
   serializedVersion: 23
-  fileIDToRecycleName:
-    100000: //RootNode
-    400000: //RootNode
-    2100000: MCtexture
-    2300000: //RootNode
-    3300000: //RootNode
-    4300000: MC
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: MCtexture
-    second: {fileID: 2100000, guid: 609200f4a37b35444bf69ffda29d47c7, type: 2}
+  fileIDToRecycleName: {}
+  externalObjects: {}
   materials:
     importMaterials: 1
     materialName: 0
@@ -45,7 +34,7 @@ ModelImporter:
     isReadable: 1
   meshes:
     lODScreenPercentages: []
-    globalScale: 25
+    globalScale: 1
     meshCompression: 0
     addColliders: 0
     useSRGBMaterialColor: 1
@@ -94,7 +83,7 @@ ModelImporter:
     hasExtraRoot: 0
     skeletonHasParents: 1
   lastHumanDescriptionAvatarSource: {instanceID: 0}
-  animationType: 0
+  animationType: 2
   humanoidOversampling: 1
   additionalBone: 0
   userData: 
