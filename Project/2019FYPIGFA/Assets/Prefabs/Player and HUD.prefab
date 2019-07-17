@@ -169,7 +169,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1839500851542433860}
-  - component: {fileID: 1839500851542433858}
   - component: {fileID: 1839500851542433859}
   m_Layer: 8
   m_Name: Post-process Volume
@@ -192,19 +191,6 @@ Transform:
   m_Father: {fileID: 6213084867027212611}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &1839500851542433858
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1839500851542433861}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &1839500851542433859
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -558,7 +544,7 @@ MonoBehaviour:
   enemyHealthBarPosition: {x: 0, y: 500}
   shoppingList: {fileID: 6213084866432960488}
   objectiveArrow: {fileID: 7891749104356227642}
-  arrowLocationType: 1
+  arrowLocationType: 0
   objectiveFloater: {fileID: 6798436069360163643}
   minimapCamera: {fileID: 6327069674072907749}
   minimapZoom: 6
@@ -1452,9 +1438,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   finishedLevel: 0
   spawnPoints: []
-  numberOfObjectives: 0
+  numberOfObjectives: 8
   shoppingList: {fileID: 6213084866537641075}
-  numberOfWeapons: 6
+  numberOfWeapons: 3
   weaponsToSpawn:
   - {fileID: 4973895901848710586, guid: 69cc83631a583ef4f802b4992c178502, type: 3}
   - {fileID: 2450031967068687964, guid: 7504cc1304328454e84f5d5096d91a53, type: 3}
@@ -2153,13 +2139,17 @@ MonoBehaviour:
     material: {fileID: 0}
     heldPosition: {x: 0, y: 0, z: 0}
     heldRotation: {x: 0, y: 0, z: 0}
+    shootOffset: 0.5
     attackRate: 0
     durability: 0
     durabilityDecay: 0
     weaponDamage: 0
     attackRange: 0
     impactEffect: {fileID: 0}
+    projectileID: -1
+    projectileMagnitude: 0
     projectile: 
+    projectileName: 
   player: {fileID: 0}
 --- !u!1 &6213084867698177921
 GameObject:

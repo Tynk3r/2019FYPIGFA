@@ -281,6 +281,11 @@ public class Player : MonoBehaviour
             {
                 StartCoroutine(PickUpObjective(g.GetComponent<SpawnPoint>()));
             }
+
+            // Stairs trigger
+            if (g.GetComponent<LevelTrigger>() != null
+                && gameController.finishedLevel)
+                g.GetComponent<LevelTrigger>().Activate();
         }
 
         // Submit objectives
@@ -537,7 +542,7 @@ public class Player : MonoBehaviour
 
     void UpdateBuffs()
     {
-        for(int i = 0; i < buffList.Count; ++i)
+        for (int i = 0; i < buffList.Count; ++i)
         {
             if ((buffList[i].duration - Time.deltaTime) < buffList[i].nextTickVal)
             {
@@ -572,7 +577,7 @@ public class Player : MonoBehaviour
         newBuff.buff = _buffType;
         buffList.Add(newBuff);
         // Initiate a starting effect for the new buff
-        switch(_buffType)
+        switch (_buffType)
         {
             case Buffable.CHAR_BUFF.BUFF_SLOMO:
                 Time.timeScale = 0.5f;
@@ -582,7 +587,7 @@ public class Player : MonoBehaviour
 
     void BuffEnd(Buffable.CHAR_BUFF _buffType)
     {
-        switch(_buffType)
+        switch (_buffType)
         {
             case Buffable.CHAR_BUFF.BUFF_SLOMO:
                 Time.timeScale = 1f;
@@ -592,7 +597,7 @@ public class Player : MonoBehaviour
 
     void BuffTick(Buffable.Buff _buff)
     {
-        switch(_buff.buff)
+        switch (_buff.buff)
         {
             case Buffable.CHAR_BUFF.BUFF_SLOMO:
                 break;

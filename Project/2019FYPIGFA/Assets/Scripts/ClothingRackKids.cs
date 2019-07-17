@@ -264,7 +264,6 @@ public class ClothingRackKids : Enemy
 
     private void OnCollisionEnter(Collision collision)
     {
-        Debug.Log("Enemy collided with " + collision.gameObject);
         // Make sure not colliding with ground
         if (Physics.Raycast(new Ray(transform.position, -transform.up), out RaycastHit hit, Mathf.Infinity) && currentState != STATES.DEATH)
         {
