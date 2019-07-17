@@ -9,6 +9,8 @@ public class ObjectPoolItem
     public GameObject objectToPool;
     public int amountToPool;
     public bool shouldExpand = true;
+    [DrawIf("shouldExpand",true)]
+    public int expandLimit = 10;
     public ObjectPoolItem(string name, GameObject obj, int amount, bool expand = true)
     {
         this.name = name;
@@ -66,7 +68,11 @@ public class ProjectilePool : MonoBehaviour
         // If pool can expand and too no objects were found
         if (itemsToPool[_index].shouldExpand)
         {
-            GameObject obj = Instantiate(itemsToPool[_index].objectToPool); // Instantiate another game object
+            GameObject obj;
+            if (pooledObjectsList[_index].Count >= itemsToPool[_index].expandLimit)
+                obj = pooledObjectsList[_index][0];
+            else
+                obj = Instantiate(itemsToPool[_index].objectToPool); // Instantiate another game object
             obj.GetComponent<I_Projectile>().Initialize();
             obj.SetActive(false);
             obj.transform.parent = this.transform; // CHECK: this necessary?
