@@ -109,11 +109,15 @@ public class Enemy : AIManager
     public IEnumerator DeathAnimation()
     {
         yield return new WaitForSecondsRealtime(2f);
+        while(GetComponent<Rigidbody>().velocity.magnitude > 0.001f)
+        {
+            yield return null;
+        }
         if (GetComponent<Rigidbody>() != null)
             GetComponent<Rigidbody>().isKinematic = true;
         while (transform.position.y > -transform.localScale.y)
         {
-            transform.Translate(new Vector3(0f, -0.5f*Time.deltaTime, 0f), Space.World);
+            transform.Translate(new Vector3(0f, -0.5f * Time.deltaTime, 0f), Space.World);
             yield return null;
         }
         Destroy(this.gameObject);

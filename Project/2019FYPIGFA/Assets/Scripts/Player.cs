@@ -4,13 +4,13 @@ using System.Collections;
 using System;
 using TMPro;
 using UnityEditor;
+using static SpawnPoint;
 
 [RequireComponent(typeof(CharacterController))]
 public class Player : MonoBehaviour
 {
     private CharacterController characterController;
     public GameController gameController;
-    public string[] collectedObjectives;
     private Vector3 externalForce;
     private bool hasExternalForce;
     private List<Buffable.Buff> buffList;
@@ -40,7 +40,6 @@ public class Player : MonoBehaviour
     public GameObject shoppingList;
     public GameObject objectiveArrow;
     public SpawnPoint.POINT_TYPE arrowLocationType;
-    private Transform nextObjective = null;
     public Transform objectiveFloater;
     public Camera minimapCamera;
     [Range(10f, 1f)]
@@ -98,6 +97,16 @@ public class Player : MonoBehaviour
     private GameObject floorWeapon = null;
     public GameObject pickupInfoText;
 
+    [Header("Objective")]
+    public List<string> collectedObjectives = new List<string>();
+    public string heldObjective = "Nothin'";
+    private Transform nextObjective = null;
+
+    ref CharacterController GetCharacterController()
+    {
+        return ref characterController;
+    }
+
     void Start()
     {
         // Variable Initialisation
@@ -109,6 +118,7 @@ public class Player : MonoBehaviour
         inventoryPanel.gameObject.SetActive(false);
         shoppingList.SetActive(false);
         externalForce = new Vector3(0f, 0f, 0f);
+        characterController.detectCollisions = false;
         hasExternalForce = false;
         // Misc QOL Stuff
         Cursor.lockState = CursorLockMode.Locked;
@@ -118,13 +128,180 @@ public class Player : MonoBehaviour
 
     void Update()
     {
-        UpdateMove();
+        UpdateLook();
         if (hasExternalForce)
             UpdateExternalForce();
+        UpdateMove();
+        UpdatePickup();
         UpdateWeapon();
-        UpdateLook();
         UpdateInventory();
         UpdateUI();
+    }
+
+    void UpdateLook()
+    {
+        // FOV Change Whilst Sprintng
+        if (Input.GetButton("Sprint") && Input.GetAxis("Vertical") > 0f && !staminaRecovering)
+            Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView + (Time.deltaTime * FOVDeltaChange), defaultFOV, maxFOV);
+        else
+            Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView - (Time.deltaTime * FOVDeltaChange), defaultFOV, Camera.main.fieldOfView);
+
+        // Strafing Camera Sway
+        if (characterController.isGrounded)
+            cameraSwayAngle = Input.GetAxis("Horizontal") * -cameraSwayMaxAngle;
+
+        // View Bobbing
+        if (Input.GetAxis("Vertical") > 0 && characterController.isGrounded)
+        {
+            viewBobTimer += Time.deltaTime * viewBobSpeedFront;
+            viewBobObject.transform.localPosition = new Vector3(Input.GetAxis("Vertical") * maximumXBobFront * Mathf.Sin(viewBobTimer * (2 * Mathf.PI)),
+                                                                Input.GetAxis("Vertical") * maximumYBobFront * Mathf.Sin(viewBobTimer * (4 * Mathf.PI)),
+                                                                0);
+            if (viewBobTimer >= 1)
+                viewBobTimer = 0f;
+        }
+        else if (Input.GetAxis("Vertical") < 0 && characterController.isGrounded)
+        {
+            viewBobTimer += Time.deltaTime * viewBobSpeedBack;
+            viewBobObject.transform.localPosition = new Vector3(Input.GetAxis("Vertical") * maximumXBobBack * Mathf.Sin(viewBobTimer * (2 * Mathf.PI)),
+                                                                Input.GetAxis("Vertical") * maximumYBobBack * Mathf.Sin(viewBobTimer * (4 * Mathf.PI)),
+                                                                0);
+            if (viewBobTimer >= 1)
+                viewBobTimer = 0f;
+        }
+        else
+            viewBobObject.transform.localPosition = new Vector3(Input.GetAxis("Vertical") * maximumXBobFront * Mathf.Sin(viewBobTimer * (2 * Mathf.PI)),
+                                                                Input.GetAxis("Vertical") * maximumYBobFront * Mathf.Sin(viewBobTimer * (4 * Mathf.PI)),
+                                                                0);
+
+        // Landing Animation
+        if (falling)
+        {
+            if (characterController.isGrounded)
+            {
+                falling = false;
+                //Debug.Log("Landed with velocity of " + landingVelocity);
+                landingCo = LandingSink(landingVelocity);
+                StartCoroutine(landingCo);
+            }
+            else
+                landingVelocity = characterController.velocity.y;
+        }
+        else if (!characterController.isGrounded)
+            falling = true;
+
+        // Mouse Controls
+        rotation.y += Input.GetAxis("Mouse X");
+        rotation.x += Input.GetAxis("Mouse Y");
+        rotation.x = Mathf.Clamp(rotation.x, -maxYLookRange, maxYLookRange); // lock Y look
+        // Left to Right Look on Player, Up Down Look on Camera Look to isolate movement to XZ plane
+        transform.localRotation = Quaternion.Euler(0, rotation.y * mouseYSpeed, 0);
+        yLookObject.transform.localRotation = Quaternion.Euler(rotation.x * mouseXSpeed, 0, 0);
+        viewBobObject.transform.localRotation = Quaternion.Euler(0, 0, cameraSwayAngle);
+    }
+
+    void UpdateExternalForce()
+    {
+        if (externalForce.sqrMagnitude < 30f)
+        {
+            externalForce = Vector3.zero;
+            hasExternalForce = false;
+            return;
+        }
+        characterController.Move(externalForce * Time.deltaTime);
+        externalForce = Vector3.Lerp(externalForce, Vector3.zero, 1 * Time.deltaTime); // TODO: check decay on externalForce
+    }
+
+    void UpdateMove()
+    {
+        if (characterController.isGrounded)
+        {
+            doubleJump = false;
+            // moveDirection = (transform.right * Input.GetAxis("Horizontal")) + (Vector3.ProjectOnPlane(transform.forward, new Vector3(0, 1, 0)) * Input.GetAxis("Vertical")); // deprecated movement that ignored y look
+            if (Input.GetButton("Sprint") && Input.GetAxis("Vertical") > 0f && !staminaRecovering)
+            {
+                stamina = Mathf.Max(stamina - (Time.deltaTime * staminaDecayMultiplier), 0f);
+                moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed * sprintSpeedModifier) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
+            }
+            else if (Input.GetAxis("Vertical") < 0f)
+                moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed * retreatSpeedModifier) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
+            else
+                moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
+
+            if (Input.GetButton("Jump"))
+            {
+                doubleJump = true;
+                moveDirection.y = jumpSpeed;
+            }
+            if (smoothWeaponLandingDistanceMultiplier != weaponLandingDistanceMultiplier)
+                smoothWeaponLandingDistanceMultiplier = weaponLandingDistanceMultiplier;
+        }
+        else
+        {
+            if (Input.GetButton("Sprint") && Input.GetAxis("Vertical") > 0f && !staminaRecovering)
+                stamina = Mathf.Max(stamina - (Time.deltaTime * staminaDecayMultiplier), 0f);
+
+            if (doubleJump && Input.GetButtonDown("Jump"))
+            {
+                doubleJump = false;
+                moveDirection.y = jumpSpeed;
+            }
+            if (smoothWeaponLandingDistanceMultiplier != 1)
+                smoothWeaponLandingDistanceMultiplier = 1;
+        }
+        moveDirection.y -= gravity * Time.deltaTime; // Ensure a Stunk to floor
+        characterController.Move(moveDirection * Time.deltaTime);
+    }
+
+    void UpdatePickup()
+    {
+        // Check what colliders in range
+        Collider[] hitColliders = Physics.OverlapCapsule(
+            transform.position + new Vector3(0f, characterController.height, 0f),
+            transform.position - new Vector3(0f, characterController.height, 0f),
+            characterController.radius);
+        foreach (Collider c in hitColliders)
+        {
+            GameObject g = c.gameObject;
+
+            // Update closest weapon
+            floorWeapon = null;
+            if (g.GetComponent<Interactable>() != null)
+            {
+                if (floorWeapon == null || (g.transform.position - transform.position).magnitude <= (floorWeapon.transform.position - transform.position).magnitude)
+                {
+                    floorWeapon = g;
+                }
+            }
+
+            // Pick up objectives on collide
+            if (g.GetComponent<SpawnPoint>() != null
+                && g.GetComponent<SpawnPoint>().GetPointType() == POINT_TYPE.OBJECTIVE
+                && heldObjective == "Nothin'")
+            {
+                StartCoroutine(PickUpObjective(g.GetComponent<SpawnPoint>()));
+            }
+        }
+
+        // Submit objectives
+        if (Physics.Raycast(new Ray(transform.position, yLookObject.transform.forward), out RaycastHit hit, 10f)
+            && hit.collider.GetComponent<Cashier>() != null)
+        {
+            if (Input.GetButtonDown("Pick Up"))
+            {
+                Debug.Log("Submitted " + heldObjective + " to Cashier.");
+                heldObjective = "Nothin'";
+            }
+        }
+
+        // Pick up Weapon you are currently standing over
+        if (Input.GetButtonDown("Pick Up") && floorWeapon != null)
+        {
+            if (weaponInventory.itemList.Count >= 3)
+                Debug.Log("No Space Left in Inventory");
+            else
+                floorWeapon.GetComponent<Interactable>().OnPickedUp(this.gameObject);
+        }
     }
 
     void UpdateWeapon()
@@ -192,29 +369,6 @@ public class Player : MonoBehaviour
 
     void UpdateInventory()
     {
-        // Pickup Interactables
-        /*if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out RaycastHit hit, 100))
-        {
-            Debug.DrawLine(Camera.main.transform.position, hit.point);
-            if (hit.collider.GetComponent<Interactable>() != null)
-            {
-                GameObject interactable = hit.transform.gameObject;
-                if (Input.GetButtonDown("Pick Up"))
-                {
-                    if (weaponInventory.itemList.Count >= 3)
-                        Debug.Log("No Space Left in Inventory");
-                    else
-                        interactable.GetComponent<Interactable>().OnPickedUp(this.gameObject);
-                }
-            }
-        }*/
-        if (Input.GetButtonDown("Pick Up") && floorWeapon != null)
-        {
-            if (weaponInventory.itemList.Count >= 3)
-                Debug.Log("No Space Left in Inventory");
-            else
-                floorWeapon.GetComponent<Interactable>().OnPickedUp(this.gameObject);
-        }
         // Drop Weapons From Inventory as Interactables
         if (Input.GetButtonDown("Drop Weapon"))
         {
@@ -227,7 +381,7 @@ public class Player : MonoBehaviour
                 weaponInventory.RemoveItem(currentWeapon.itemData);
                 GameObject droppedWeapon = new GameObject("dropped" + currentWeapon.itemData.type, typeof(Interactable));
                 droppedWeapon.GetComponent<Interactable>().Initialize(currentWeapon.RemoveWeapon());
-                if (Physics.Raycast(new Ray(transform.position, transform.up), out RaycastHit hit, Mathf.Infinity))
+                if (Physics.Raycast(new Ray(transform.position, -transform.up), out RaycastHit hit, Mathf.Infinity))
                     droppedWeapon.transform.position = new Vector3(transform.position.x, hit.transform.position.y + 1, transform.position.z);
                 else
                     droppedWeapon.transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z);
@@ -240,107 +394,145 @@ public class Player : MonoBehaviour
         }
     }
 
-    void UpdateMove()
+    void UpdateUI()
     {
-        if (characterController.isGrounded)
+        // Inventory
+        if (Input.GetKeyDown(KeyCode.U))
         {
-            doubleJump = false;
-            // moveDirection = (transform.right * Input.GetAxis("Horizontal")) + (Vector3.ProjectOnPlane(transform.forward, new Vector3(0, 1, 0)) * Input.GetAxis("Vertical")); // deprecated movement that ignored y look
-            if (Input.GetButton("Sprint") && Input.GetAxis("Vertical") > 0f && !staminaRecovering)
-            {
-                stamina = Mathf.Max(stamina - (Time.deltaTime * staminaDecayMultiplier), 0f);
-                moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed * sprintSpeedModifier) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
-            }
-            else if (Input.GetAxis("Vertical") < 0f)
-                moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed * retreatSpeedModifier) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
-            else
-                moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
+            inventoryPanel.gameObject.SetActive(!inventoryPanel.gameObject.activeSelf);
+            if (inventoryPanel.gameObject.activeSelf)
+                shoppingList.SetActive(false);
+        }
 
-            if (Input.GetButton("Jump"))
+        // Check Objectives
+        if (Input.GetKeyDown(KeyCode.O))
+        {
+            gameController.UpdateShoppingList();
+            shoppingList.SetActive(!shoppingList.activeSelf);
+            if (shoppingList.gameObject.activeSelf)
+                inventoryPanel.gameObject.SetActive(false);
+            Debug.Log(heldObjective);
+            string s = "Collected Items: ";
+            int i = 0;
+            foreach (string ss in collectedObjectives)
             {
-                doubleJump = true;
-                moveDirection.y = jumpSpeed;
+                i++;
+                if (i >= collectedObjectives.Count)
+                    s += ss;
+                else
+                    s += ss + ", ";
             }
-            if (smoothWeaponLandingDistanceMultiplier != weaponLandingDistanceMultiplier)
-                smoothWeaponLandingDistanceMultiplier = weaponLandingDistanceMultiplier;
+            Debug.Log(s);
+        }
+
+        // Update Pickup Info
+        if (floorWeapon)
+        {
+            if (!pickupInfoText.activeSelf)
+                pickupInfoText.SetActive(true);
+            string s = "Press [E] to pick up " + floorWeapon.GetComponent<Interactable>().itemData.type;
+            pickupInfoText.GetComponent<TextMeshProUGUI>().text = s;
+        }
+        else
+            pickupInfoText.SetActive(false);
+
+        // Objective Arrow (MAYBE INEFFICIENT CONSIDER REDOING)
+        GameObject pt = null;
+        if (arrowLocationType != POINT_TYPE.OBJECTIVE || heldObjective == "Nothin'")
+        {
+            SpawnPoint pt2 = gameController.GetClosestPoint(transform.position, arrowLocationType);
+            if (pt2 != null)
+                pt = pt2.gameObject;
+        }
+        else
+            pt = ((Cashier)FindObjectOfType(typeof(Cashier))).gameObject;
+        if (pt != null)
+        {
+            nextObjective = pt.transform;
+            if (!objectiveArrow.activeSelf)
+                objectiveArrow.SetActive(true);
+            objectiveArrow.transform.LookAt(new Vector3(nextObjective.transform.position.x, objectiveArrow.transform.position.y, nextObjective.transform.position.z), transform.up);
+            objectiveArrow.transform.Rotate(90, 90, 0);
+            if (!objectiveFloater.gameObject.activeSelf)
+                objectiveFloater.gameObject.SetActive(true);
+            objectiveFloater.position = nextObjective.position + new Vector3(0f, 1.25f * nextObjective.localScale.y, 0f);
         }
         else
         {
-            if (Input.GetButton("Sprint") && Input.GetAxis("Vertical") > 0f && !staminaRecovering)
-                stamina = Mathf.Max(stamina - (Time.deltaTime * staminaDecayMultiplier), 0f);
-
-            if (doubleJump && Input.GetButtonDown("Jump"))
-            {
-                doubleJump = false;
-                moveDirection.y = jumpSpeed;
-            }
-            if (smoothWeaponLandingDistanceMultiplier != 1)
-                smoothWeaponLandingDistanceMultiplier = 1;
+            objectiveArrow.SetActive(false);
+            objectiveFloater.gameObject.SetActive(false);
         }
-        moveDirection.y -= gravity * Time.deltaTime; // Ensure a Stunk to floor
-        characterController.Move(moveDirection * Time.deltaTime);
-    }
 
-    void UpdateLook()
-    {
-        // FOV Change Whilst Sprintng
-        if (Input.GetButton("Sprint") && Input.GetAxis("Vertical") > 0f && !staminaRecovering)
-            Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView + (Time.deltaTime * FOVDeltaChange), defaultFOV, maxFOV);
-        else
-            Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView - (Time.deltaTime * FOVDeltaChange), defaultFOV, Camera.main.fieldOfView);
+        // Minimap
+        if (Input.GetButtonDown("MinimapZoomIn"))
+            minimapZoom = Mathf.Clamp(minimapZoom + 1, 1f, 10f);
+        else if (Input.GetButtonDown("MinimapZoomOut"))
+            minimapZoom = Mathf.Clamp(minimapZoom - 1, 1f, 10f);
+        if (minimapCamera.orthographicSize != minimapZoom)
+            minimapCamera.orthographicSize = minimapZoom;
 
-        // Strafing Camera Sway
-        if (characterController.isGrounded)
-            cameraSwayAngle = Input.GetAxis("Horizontal") * -cameraSwayMaxAngle;
-
-        // View Bobbing
-        if (Input.GetAxis("Vertical") > 0 && characterController.isGrounded)
+        // Stamina
+        if (staminaBarOutline.GetComponent<RectTransform>().localPosition != new Vector3(staminaBarPosition.x, staminaBarPosition.y, 0))
+            staminaBarOutline.GetComponent<RectTransform>().localPosition = new Vector3(staminaBarPosition.x, staminaBarPosition.y, 0);
+        if (GetStam() <= 0f && !staminaRecovering && stamRegenTimerDone)
         {
-            viewBobTimer += Time.deltaTime * viewBobSpeedFront;
-            viewBobObject.transform.localPosition = new Vector3(Input.GetAxis("Vertical") * maximumXBobFront * Mathf.Sin(viewBobTimer * (2 * Mathf.PI)),
-                                                                Input.GetAxis("Vertical") * maximumYBobFront * Mathf.Sin(viewBobTimer * (4 * Mathf.PI)),
-                                                                0);
-            if (viewBobTimer >= 1)
-                viewBobTimer = 0f;
+            staminaBarOutline.GetComponentInChildren<Blink>().StartBlink();
+            stamRegenTimer = 2f;
+            stamRegenTimerDone = false;
+            staminaRecovering = true;
         }
-        else if (Input.GetAxis("Vertical") < 0 && characterController.isGrounded)
+        else if (staminaRecovering && stamRegenTimer <= 0f && !stamRegenTimerDone)
         {
-            viewBobTimer += Time.deltaTime * viewBobSpeedBack;
-            viewBobObject.transform.localPosition = new Vector3(Input.GetAxis("Vertical") * maximumXBobBack * Mathf.Sin(viewBobTimer * (2 * Mathf.PI)),
-                                                                Input.GetAxis("Vertical") * maximumYBobBack * Mathf.Sin(viewBobTimer * (4 * Mathf.PI)),
-                                                                0);
-            if (viewBobTimer >= 1)
-                viewBobTimer = 0f;
+            stamRegenTimer = 0f;
+            stamRegenTimerDone = true;
+        }
+        else if (GetStam() >= 1f && staminaRecovering)
+        {
+            staminaRecovering = false;
+            staminaBarOutline.GetComponentInChildren<Blink>().StopBlink();
         }
         else
-            viewBobObject.transform.localPosition = new Vector3(Input.GetAxis("Vertical") * maximumXBobFront * Mathf.Sin(viewBobTimer * (2 * Mathf.PI)),
-                                                                Input.GetAxis("Vertical") * maximumYBobFront * Mathf.Sin(viewBobTimer * (4 * Mathf.PI)),
-                                                                0);
-
-        // Landing Animation
-        if (falling)
         {
-            if (characterController.isGrounded)
-            {
-                falling = false;
-                //Debug.Log("Landed with velocity of " + landingVelocity);
-                landingCo = LandingSink(landingVelocity);
-                StartCoroutine(landingCo);
-            }
-            else
-                landingVelocity = characterController.velocity.y;
+            stamRegenTimer -= Time.deltaTime;
         }
-        else if (!characterController.isGrounded)
-            falling = true;
+        if (stamRegenTimerDone)
+            stamina = Mathf.Min(stamina + (Time.deltaTime * 0.5f * staminaRegenMultiplier), maxStamina);
+        staminaBar.GetComponent<RectTransform>().localScale = new Vector3(stamina / maxStamina, staminaBar.transform.localScale.y, staminaBar.transform.localScale.z);
 
-        // Mouse Controls
-        rotation.y += Input.GetAxis("Mouse X");
-        rotation.x += Input.GetAxis("Mouse Y");
-        rotation.x = Mathf.Clamp(rotation.x, -maxYLookRange, maxYLookRange); // lock Y look
-        // Left to Right Look on Player, Up Down Look on Camera Look to isolate movement to XZ plane
-        transform.localRotation = Quaternion.Euler(0, rotation.y * mouseYSpeed, 0);
-        yLookObject.transform.localRotation = Quaternion.Euler(rotation.x * mouseXSpeed, 0, 0);
-        viewBobObject.transform.localRotation = Quaternion.Euler(0, 0, cameraSwayAngle);
+        // Health
+        if (healthBarOutline.GetComponent<RectTransform>().localPosition != new Vector3(healthBarPosition.x, healthBarPosition.y, 0))
+            healthBarOutline.GetComponent<RectTransform>().localPosition = new Vector3(healthBarPosition.x, healthBarPosition.y, 0);
+        if (healthBar.GetComponent<RectTransform>().localScale != new Vector3(health / maxHealth, healthBar.transform.localScale.y, healthBar.transform.localScale.z))
+            healthBar.GetComponent<RectTransform>().localScale = new Vector3(health / maxHealth, healthBar.transform.localScale.y, healthBar.transform.localScale.z);
+        if (health == 0)
+            EditorApplication.isPlaying = false;
+
+        // Target Info
+        if (enemyName.GetComponent<RectTransform>().localPosition != new Vector3(enemyHealthBarPosition.x, enemyHealthBarPosition.y, 0))
+            enemyName.GetComponent<RectTransform>().localPosition = new Vector3(enemyHealthBarPosition.x, enemyHealthBarPosition.y, 0);
+        float range = 100f; // Default
+        if (currentWeapon && currentWeapon.itemData != null && currentWeapon.itemData.weaponType == ItemData.WEAPON_TYPE.RAYCAST)
+            range = currentWeapon.itemData.attackRange;
+        if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out RaycastHit hit, range) && hit.collider.GetComponent<Enemy>() && hit.collider.GetComponent<Enemy>().alive)
+        {
+            Enemy enemy = hit.collider.GetComponent<Enemy>();
+            if (currTarget != enemy)
+                currTarget = enemy;
+            if (!enemyName.activeSelf)
+                enemyName.SetActive(true);
+            if (enemyName.GetComponent<TextMeshProUGUI>().text != Enum.GetName(typeof(Enemy.ENEMY_TYPE), enemy.enemyType))
+                enemyName.GetComponent<TextMeshProUGUI>().SetText(Enum.GetName(typeof(Enemy.ENEMY_TYPE), enemy.enemyType));
+            Vector3 vector3 = new Vector3(enemy.health / enemy.maxHealth, enemyHealthBar.transform.localScale.y, enemyHealthBar.transform.localScale.z);
+            if (enemyHealthBar.GetComponent<RectTransform>().localScale != vector3)
+                enemyHealthBar.GetComponent<RectTransform>().localScale = vector3;
+        }
+        else
+        {
+            if (currTarget != null)
+                currTarget = null;
+            if (enemyName.activeSelf)
+                enemyName.SetActive(false);
+        }
     }
 
     void UpdateBuffs()
@@ -410,16 +602,45 @@ public class Player : MonoBehaviour
         }
     }
 
-    void UpdateExternalForce()
+    /// <summary>
+    /// Returns the percentage of health out of the max health of the player.
+    /// </summary>
+    /// <returns>
+    /// Percentage of health out of the max health of the player.
+    /// </returns>
+    public float GetHealth()
     {
-        if (externalForce.sqrMagnitude < 30f)
-        {
-            externalForce = Vector3.zero;
-            hasExternalForce = false;
-            return;
-        }
-        characterController.Move(externalForce * Time.deltaTime);
-        externalForce = Vector3.Lerp(externalForce, Vector3.zero, 1 * Time.deltaTime); // TODO: check decay on externalForce
+        return health / maxHealth;
+    }
+    /// <summary>
+    /// Returns the percentage of stamina out of the max stamina of the player.
+    /// </summary>
+    /// <returns>
+    /// The percentage of stamina out of the max stamina of the player.
+    /// </returns>
+    public float GetStam()
+    {
+        return stamina / maxStamina;
+    }
+
+    /// <summary>
+    /// Apply damage to the player.
+    /// </summary>
+    /// <param name="_damage"></param>
+    /// <returns>True if the player took damage.</returns>
+    public bool TakeDamage(float _damage)
+    {
+        float trueDamage = Mathf.Clamp(_damage, 0, health);
+        Debug.Log("Player took " + trueDamage + " damage.");
+        health -= trueDamage;
+        return trueDamage <= 0f;
+    }
+
+    public void AddExternalForce(Vector3 _force)
+    {
+        externalForce += _force;
+        if (externalForce.sqrMagnitude > 0.2f)
+            hasExternalForce = true;
     }
 
     IEnumerator LandingSink(float landingVelocity)
@@ -460,193 +681,18 @@ public class Player : MonoBehaviour
         }
     }
 
-    void UpdateUI()
+    IEnumerator PickUpObjective(SpawnPoint pt)
     {
-        // Inventory
-        if (Input.GetKeyDown(KeyCode.U))
-        {
-            inventoryPanel.gameObject.SetActive(!inventoryPanel.gameObject.activeSelf);
-            if (inventoryPanel.gameObject.activeSelf)
-                shoppingList.SetActive(false);
-        }
-
-        // Check Objectives
-        if (Input.GetKeyDown(KeyCode.O))
-        {
-            gameController.UpdateShoppingList();
-            shoppingList.SetActive(!shoppingList.activeSelf);
-            if (shoppingList.gameObject.activeSelf)
-                inventoryPanel.gameObject.SetActive(false);
-        }
-
-        // Update Pickup Info
-        if (floorWeapon)
-        {
-            if (!pickupInfoText.activeSelf)
-                pickupInfoText.SetActive(true);
-            string s = "Press [E] to pick up " + floorWeapon.GetComponent<Interactable>().itemData.type;
-            pickupInfoText.GetComponent<TextMeshProUGUI>().text = s;
-        }
-        else
-            pickupInfoText.SetActive(false);
-
-        // Objective Arrow (MAYBE INEFFICIENT CONSIDER REDOING)
-        SpawnPoint pt = gameController.GetClosestPoint(transform.position, arrowLocationType);
-
-        if (pt != null && nextObjective != pt.transform)
-        {
-            nextObjective = pt.transform;
-            if (nextObjective.GetComponent<SpawnPoint>().GetPointType() == SpawnPoint.POINT_TYPE.EMPTY)
-            {
-                objectiveArrow.SetActive(false);
-                objectiveFloater.gameObject.SetActive(false);
-            }
-            else if (nextObjective)
-            {
-                if (!objectiveFloater.gameObject.activeSelf)
-                    objectiveFloater.gameObject.SetActive(true);
-                objectiveFloater.position = nextObjective.position + new Vector3(0f, 1.25f * nextObjective.localScale.y, 0f);
-            }
-        }
-        else if (nextObjective 
-            && nextObjective.GetComponent<SpawnPoint>().GetPointType() != SpawnPoint.POINT_TYPE.EMPTY)
-        {
-            if (!objectiveArrow.activeSelf)
-                objectiveArrow.SetActive(true);
-            objectiveArrow.transform.LookAt(new Vector3(nextObjective.transform.position.x, objectiveArrow.transform.position.y, nextObjective.transform.position.z), transform.up);
-            objectiveArrow.transform.Rotate(90, 90, 0);
-        }
-
-        // Minimap
-        if (Input.GetButtonDown("MinimapZoomIn"))
-            minimapZoom = Mathf.Clamp(minimapZoom + 1, 1f, 10f);
-        else if (Input.GetButtonDown("MinimapZoomOut"))
-            minimapZoom = Mathf.Clamp(minimapZoom - 1, 1f, 10f);
-        if (minimapCamera.orthographicSize != minimapZoom)
-            minimapCamera.orthographicSize = minimapZoom;
-
-        // Stamina
-        if (staminaBarOutline.GetComponent<RectTransform>().localPosition != new Vector3(staminaBarPosition.x, staminaBarPosition.y, 0))
-            staminaBarOutline.GetComponent<RectTransform>().localPosition = new Vector3(staminaBarPosition.x, staminaBarPosition.y, 0);
-        if (GetStam() <= 0f && !staminaRecovering && stamRegenTimerDone)
-        {
-            staminaBarOutline.GetComponentInChildren<Blink>().StartBlink();
-            stamRegenTimer = 2f;
-            stamRegenTimerDone = false;
-            staminaRecovering = true;
-        }
-        else if (staminaRecovering && stamRegenTimer <= 0f && !stamRegenTimerDone)
-        {
-            stamRegenTimer = 0f;
-            stamRegenTimerDone = true;
-        }
-        else if (GetStam() >= 1f && staminaRecovering)
-        {
-            staminaRecovering = false;
-            staminaBarOutline.GetComponentInChildren<Blink>().StopBlink();
-        }
-        else
-        {
-            stamRegenTimer -= Time.deltaTime;
-        }
-        if (stamRegenTimerDone)
-            stamina = Mathf.Min(stamina + (Time.deltaTime * 0.5f * staminaRegenMultiplier), maxStamina);
-        staminaBar.GetComponent<RectTransform>().localScale = new Vector3(stamina / maxStamina, staminaBar.transform.localScale.y, staminaBar.transform.localScale.z);
-
-        // Health
-        if (healthBarOutline.GetComponent<RectTransform>().localPosition != new Vector3(healthBarPosition.x, healthBarPosition.y, 0))
-            healthBarOutline.GetComponent<RectTransform>().localPosition = new Vector3(healthBarPosition.x, healthBarPosition.y, 0);
-        if (healthBar.GetComponent<RectTransform>().localScale != new Vector3(health / maxHealth, healthBar.transform.localScale.y, healthBar.transform.localScale.z))
-            healthBar.GetComponent<RectTransform>().localScale = new Vector3(health / maxHealth, healthBar.transform.localScale.y, healthBar.transform.localScale.z);
-        if (health == 0)
-        {
-#if UNITY_EDITOR
-            EditorApplication.isPlaying = false;
-#endif
-        }
-
-        // Target Info
-        if (enemyName.GetComponent<RectTransform>().localPosition != new Vector3(enemyHealthBarPosition.x, enemyHealthBarPosition.y, 0))
-            enemyName.GetComponent<RectTransform>().localPosition = new Vector3(enemyHealthBarPosition.x, enemyHealthBarPosition.y, 0);
-        float range = 100f; // Default
-        if (currentWeapon && currentWeapon.itemData != null && currentWeapon.itemData.weaponType == ItemData.WEAPON_TYPE.RAYCAST)
-            range = currentWeapon.itemData.attackRange;
-        if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out RaycastHit hit, range) && hit.collider.GetComponent<Enemy>() && hit.collider.GetComponent<Enemy>().alive)
-        {
-            Enemy enemy = hit.collider.GetComponent<Enemy>();
-            if (currTarget != enemy)
-                currTarget = enemy;
-            if (!enemyName.activeSelf)
-                enemyName.SetActive(true);
-            if (enemyName.GetComponent<TextMeshProUGUI>().text != Enum.GetName(typeof(Enemy.ENEMY_TYPE), enemy.enemyType))
-                enemyName.GetComponent<TextMeshProUGUI>().SetText(Enum.GetName(typeof(Enemy.ENEMY_TYPE), enemy.enemyType));
-            Vector3 vector3 = new Vector3(enemy.health / enemy.maxHealth, enemyHealthBar.transform.localScale.y, enemyHealthBar.transform.localScale.z);
-            if (enemyHealthBar.GetComponent<RectTransform>().localScale != vector3)
-                enemyHealthBar.GetComponent<RectTransform>().localScale = vector3;
-        }
-        else
-        {
-            if (currTarget != null)
-                currTarget = null;
-            if (enemyName.activeSelf)
-                enemyName.SetActive(false);
-        }
-    }
-    /// <summary>
-    /// Returns the percentage of health out of the max health of the player.
-    /// </summary>
-    /// <returns>
-    /// Percentage of health out of the max health of the player.
-    /// </returns>
-    public float GetHealth()
-    {
-        return health / maxHealth;
-    }
-    /// <summary>
-    /// Returns the percentage of stamina out of the max stamina of the player.
-    /// </summary>
-    /// <returns>
-    /// The percentage of stamina out of the max stamina of the player.
-    /// </returns>
-    public float GetStam()
-    {
-        return stamina / maxStamina;
-    }
-
-    IEnumerator PickUpObjective(ControllerColliderHit hit)
-    {
-        string objective = gameController.RemovePoint(hit.collider.GetComponent<SpawnPoint>());
+        // TODO : Update Shopping List only when submitted
+        string objective = gameController.RemovePoint(pt);
+        heldObjective = objective;
+        collectedObjectives.Add(objective);
         yield return 0;
         gameController.UpdateShoppingList();
     }
 
-    private void OnTriggerEnter(Collider other)
-    {
-        // Pick up weapons
-        if (other.GetComponent<Interactable>() != null
-            && other.gameObject != floorWeapon
-            && floorWeapon == null)
-        {
-            floorWeapon = other.gameObject;
-        }
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        // Pick up weapons
-        if (other.gameObject == floorWeapon)
-        {
-            floorWeapon = null;
-        }
-    }
-
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        // Pick up Objectives on collide
-        if (hit.collider.GetComponent<SpawnPoint>() != null
-            && hit.collider.GetComponent<SpawnPoint>().GetPointType() == SpawnPoint.POINT_TYPE.OBJECTIVE)
-            StartCoroutine(PickUpObjective(hit));
-
         // Pushing Objects
         Rigidbody body = hit.collider.attachedRigidbody;
         float magnitude = externalForce.magnitude;
@@ -671,30 +717,5 @@ public class Player : MonoBehaviour
         else
             body.velocity += pushDir * 2f / hit.rigidbody.mass;
         externalForce *= -0.1f; //* magnitude * 0.7f;
-    }
-
-    ref CharacterController GetCharacterController()
-    {
-        return ref characterController;
-    }
-
-    /// <summary>
-    /// Apply damage to the player.
-    /// </summary>
-    /// <param name="_damage"></param>
-    /// <returns>True if the player took damage.</returns>
-    public bool TakeDamage(float _damage)
-    {
-        float trueDamage = Mathf.Clamp(_damage, 0, health);
-        Debug.Log("Player took " + trueDamage + " damage.");
-        health -= trueDamage;
-        return trueDamage <= 0f;
-    }
-    
-    public void AddExternalForce(Vector3 _force)
-    {
-        externalForce += _force;
-        if (externalForce.sqrMagnitude > 0.2f)
-            hasExternalForce = true;
     }
 }
