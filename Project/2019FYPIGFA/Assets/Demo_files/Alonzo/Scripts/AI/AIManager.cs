@@ -20,7 +20,6 @@ public class AIManager : MonoBehaviour
     public virtual void Die()
     {
         agent.enabled = false;
-        alive = false;
     }
     /// <summary>
     /// Moves towards specified transform.
