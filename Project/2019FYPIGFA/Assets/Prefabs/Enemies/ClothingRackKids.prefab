@@ -13,8 +13,8 @@ GameObject:
   - component: {fileID: 6733531680966493948}
   - component: {fileID: 6733531680966493946}
   - component: {fileID: 6733531680966493951}
-  - component: {fileID: 3514445699478072827}
-  - component: {fileID: 4130966540638446904}
+  - component: {fileID: 8911555633983547125}
+  - component: {fileID: 8121102532031684660}
   m_Layer: 0
   m_Name: ClothingRackKids
   m_TagString: Enemy
@@ -43,7 +43,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6733531680966493944}
-  m_Mesh: {fileID: 0}
+  m_Mesh: {fileID: 4300000, guid: c5511fe5cef24a94d8747e62ef098acd, type: 3}
 --- !u!23 &6733531680966493948
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -119,7 +119,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 14
   m_CollisionDetection: 0
---- !u!65 &3514445699478072827
+--- !u!65 &8911555633983547125
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -130,9 +130,9 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.49271446, y: 1.1990964, z: 1.4221272}
+  m_Size: {x: 1.8961699, y: 1.5987952, z: 0.65695256}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &4130966540638446904
+--- !u!114 &8121102532031684660
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

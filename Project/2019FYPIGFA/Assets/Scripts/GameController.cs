@@ -132,7 +132,10 @@ public class GameController : MonoBehaviour
                 tempPt = pt;
             }
         }
-        return tempPt;
+        if (types.Contains(tempPt.GetPointType()))
+            return tempPt;
+        else
+            return null;
     }
 
     public SpawnPoint GetClosestPoint(Vector3 position)
@@ -151,7 +154,10 @@ public class GameController : MonoBehaviour
                 tempPt = pt;
             }
         }
-        return tempPt;
+        if (tempPt.GetPointType() != SpawnPoint.POINT_TYPE.EMPTY)
+            return tempPt;
+        else
+            return null;
     }
 
     public string RemovePoint(SpawnPoint spawnPoint)
