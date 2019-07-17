@@ -133,4 +133,10 @@ public class Enemy : AIManager
     {
         return m_speedMultiplier;
     }
+
+    public override void Die()
+    {
+        base.Die();
+        alive = false;
+    }
 }

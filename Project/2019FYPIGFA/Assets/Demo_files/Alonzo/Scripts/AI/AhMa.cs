@@ -98,10 +98,7 @@ public class AhMa : Enemy
             case STATES.DEAD:
                 if (m_countDown <= 0f)
                 {
-                    var rb = GetComponent<Rigidbody>();
-                    rb.detectCollisions = false;
-                    rb.isKinematic = true;
-                    rb.useGravity = false;
+                    StartCoroutine(DeathAnimation());
                 }
                 break;
         }
@@ -148,7 +145,7 @@ public class AhMa : Enemy
     public override void Die()
     {
         base.Die();
-        m_countDown = 500f;
+        m_countDown = 5f;
         ChangeState(STATES.DEAD);
     }
     

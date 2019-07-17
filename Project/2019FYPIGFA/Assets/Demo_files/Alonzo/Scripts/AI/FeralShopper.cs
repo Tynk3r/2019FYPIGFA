@@ -8,7 +8,7 @@ public class FeralShopper : Enemy
     public float fleeHealthThreshold = 50f;
     public float fleeDistThreshold = 10f;
     public static float fleePointMaxDist = 2f;
-    public Transform D_PLAYERTARGET;
+    public Player D_PLAYERTARGET;
     private float m_countDown;
     STATES currState;
     public static float RATE_OF_FIRE = 1f;
@@ -25,7 +25,7 @@ public class FeralShopper : Enemy
         DEAD
     }
     // Start is called before the first frame update
-    void Start()
+    override public void Start()
     {
         base.Start();
         enemyType = ENEMY_TYPE.FERAL_SHOPPER;
@@ -51,9 +51,9 @@ public class FeralShopper : Enemy
             m_attackCooldown = 0f;
 
         UpdateStates();
-        //if ((transform.position - D_PLAYERTARGET.position).sqrMagnitude > fleeDistThreshold * fleeDistThreshold)
+        //if ((transform.position - D_PLAYERTARGET.transform.position).sqrMagnitude > fleeDistThreshold * fleeDistThreshold)
         //{
-        //    MoveToPosition(D_PLAYERTARGET.position);
+        //    MoveToPosition(D_PLAYERTARGET.transform.position);
         //    return;
         //}
         //Vector3 runPos;
@@ -66,22 +66,22 @@ public class FeralShopper : Enemy
         switch (currState)
         {
             case STATES.HOSTILE_CLOSE_GAP:
-                MoveToPosition(D_PLAYERTARGET.position);
-                if ((transform.position - D_PLAYERTARGET.position).sqrMagnitude <= attackRange * attackRange)
+                MoveToPosition(D_PLAYERTARGET.transform.position);
+                if ((transform.position - D_PLAYERTARGET.transform.position).sqrMagnitude <= attackRange * attackRange)
                 {
                     // TODO: raycast for covers
                     //int layerMask = 1 << 9; // For now it's just enemy
                     //RaycastHit hit;
-                    if (Physics.Raycast(transform.position, (D_PLAYERTARGET.position -
+                    if (Physics.Raycast(transform.position, (D_PLAYERTARGET.transform.position -
                         transform.position), attackRange))
                         ChangeState(STATES.HOSTILE_ATTACK);
                 }
                 break;
             case STATES.HOSTILE_ATTACK:
-                if ((transform.position - D_PLAYERTARGET.position).sqrMagnitude < fleeDistThreshold
+                if ((transform.position - D_PLAYERTARGET.transform.position).sqrMagnitude < fleeDistThreshold
                     && health < fleeHealthThreshold)
                     ChangeState(STATES.KITING);
-                else if ((transform.position - D_PLAYERTARGET.position).sqrMagnitude > attackRange * attackRange)
+                else if ((transform.position - D_PLAYERTARGET.transform.position).sqrMagnitude > attackRange * attackRange)
                     ChangeState(STATES.HOSTILE_CLOSE_GAP);
                 if (0 < m_attackCooldown)
                     break;
@@ -111,9 +111,9 @@ public class FeralShopper : Enemy
             return;
         }
         //egg.Discharge(transform.forward * 10f, transform.position + 
-        //    (D_PLAYERTARGET.position - transform.forward).normalized * 0.5f); JFL
+        //    (D_PLAYERTARGET.transform.position - transform.forward).normalized * 0.5f); JFL
         egg.Discharge(transform.forward * 30f, transform.position +
-            (D_PLAYERTARGET.position - transform.position).normalized * 1f);
+            (D_PLAYERTARGET.transform.position - transform.position).normalized * 1f);
     }
 
     void ChangeState(STATES _newState)
@@ -142,7 +142,7 @@ public class FeralShopper : Enemy
 
     bool Kite(out Vector3 _result)
     {
-        Vector3 directionToPlayer = transform.position - D_PLAYERTARGET.position;
+        Vector3 directionToPlayer = transform.position - D_PLAYERTARGET.transform.position;
         Vector3 targetFleePos = transform.position + directionToPlayer;// Target flee pos
         NavMeshHit hit;
         if (NavMesh.SamplePosition(targetFleePos, out hit, fleePointMaxDist, NavMesh.AllAreas))
