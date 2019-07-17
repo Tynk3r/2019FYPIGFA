@@ -38,6 +38,8 @@ public class ItemData
     public Vector3 heldPosition;
     [Tooltip("Determines orientation when held by player.")]
     public Vector3 heldRotation;
+    [Tooltip("Determines the position of projectiles spawning, relative to y look object transform")]
+    public float shootOffset = 0.5f;
     [Tooltip("Attacks Per Second")]
     public float attackRate;
     [Tooltip("Expressed as a Percentage")]
@@ -75,7 +77,8 @@ public class ItemData
             heldRotation = this.heldRotation,
             impactEffect = this.impactEffect,
             projectile = this.projectile,
-            weaponBuff = this.weaponBuff
+            weaponBuff = this.weaponBuff,
+            shootOffset = this.shootOffset
         };
         return clone;
     }

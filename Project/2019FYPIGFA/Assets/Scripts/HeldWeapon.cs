@@ -106,7 +106,9 @@ public class HeldWeapon : MonoBehaviour
                     Debug.LogWarning("Did not get any projectile");
                     break;
                 }
-                projectile.Discharge(player.yLookObject.transform.forward * 10f, player.yLookObject.transform.position /*+ player.yLookObject.transform.forward*/);
+                Vector3 projectilePosition = transform.position + player.yLookObject.transform.forward * itemData.shootOffset;
+                // TODO: based on itemdata's projectile force and not magick number
+                projectile.Discharge(player.yLookObject.transform.forward * 10f, projectilePosition /*+ player.yLookObject.transform.forward*/);
                 break;
             default:
                 Debug.LogError("Assign weapon type before trying to attack.");
