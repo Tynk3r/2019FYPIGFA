@@ -56,8 +56,12 @@ public class ItemData
     public GameObject impactEffect;
 
     [DrawIf("weaponType", WEAPON_TYPE.PROJECTILE)]
+    public int projectileID = -1;
+    public float projectileMagnitude;
     public string projectile;
 
+    [SerializeField]
+    private string projectileName;
 
     public ItemData Clone()
     {
@@ -76,6 +80,9 @@ public class ItemData
             heldPosition = this.heldPosition,
             heldRotation = this.heldRotation,
             impactEffect = this.impactEffect,
+            projectileID = ProjectilePool.g_sharedInstance.GetPooledObjectIndex(this.projectileName),
+            projectileMagnitude = this.projectileMagnitude,
+            projectileName = this.projectileName,
             projectile = this.projectile,
             weaponBuff = this.weaponBuff,
             shootOffset = this.shootOffset

@@ -4,15 +4,16 @@ using System.Collections;
 using System;
 using TMPro;
 using UnityEditor;
-using static SpawnPoint;
 
 [RequireComponent(typeof(CharacterController))]
 public class Player : MonoBehaviour
 {
     private CharacterController characterController;
     public GameController gameController;
+    public string[] collectedObjectives;
     private Vector3 externalForce;
     private bool hasExternalForce;
+    private List<Buffable.Buff> buffList;
 
     [Header("Stats")]
     public float maxHealth = 100f;
@@ -39,6 +40,7 @@ public class Player : MonoBehaviour
     public GameObject shoppingList;
     public GameObject objectiveArrow;
     public SpawnPoint.POINT_TYPE arrowLocationType;
+    private Transform nextObjective = null;
     public Transform objectiveFloater;
     public Camera minimapCamera;
     [Range(10f, 1f)]
@@ -96,16 +98,6 @@ public class Player : MonoBehaviour
     private GameObject floorWeapon = null;
     public GameObject pickupInfoText;
 
-    [Header("Objective")]
-    public List<string> collectedObjectives = new List<string>();
-    public string heldObjective = "Nothin'";
-    private Transform nextObjective = null;
-
-    ref CharacterController GetCharacterController()
-    {
-        return ref characterController;
-    }
-
     void Start()
     {
         // Variable Initialisation
@@ -117,213 +109,22 @@ public class Player : MonoBehaviour
         inventoryPanel.gameObject.SetActive(false);
         shoppingList.SetActive(false);
         externalForce = new Vector3(0f, 0f, 0f);
-        characterController.detectCollisions = false;
         hasExternalForce = false;
         // Misc QOL Stuff
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        buffList = new List<Buffable.Buff>();
     }
 
     void Update()
     {
-        UpdateLook();
+        UpdateMove();
         if (hasExternalForce)
             UpdateExternalForce();
-        UpdateMove();
-        UpdatePickup();
         UpdateWeapon();
+        UpdateLook();
         UpdateInventory();
         UpdateUI();
-    }
-
-    void UpdateLook()
-    {
-        // FOV Change Whilst Sprintng
-        if (Input.GetButton("Sprint") && Input.GetAxis("Vertical") > 0f && !staminaRecovering)
-            Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView + (Time.deltaTime * FOVDeltaChange), defaultFOV, maxFOV);
-        else
-            Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView - (Time.deltaTime * FOVDeltaChange), defaultFOV, Camera.main.fieldOfView);
-
-        // Strafing Camera Sway
-        if (characterController.isGrounded)
-            cameraSwayAngle = Input.GetAxis("Horizontal") * -cameraSwayMaxAngle;
-
-        // View Bobbing
-        if (Input.GetAxis("Vertical") > 0 && characterController.isGrounded)
-        {
-            viewBobTimer += Time.deltaTime * viewBobSpeedFront;
-            viewBobObject.transform.localPosition = new Vector3(Input.GetAxis("Vertical") * maximumXBobFront * Mathf.Sin(viewBobTimer * (2 * Mathf.PI)),
-                                                                Input.GetAxis("Vertical") * maximumYBobFront * Mathf.Sin(viewBobTimer * (4 * Mathf.PI)),
-                                                                0);
-            if (viewBobTimer >= 1)
-                viewBobTimer = 0f;
-        }
-        else if (Input.GetAxis("Vertical") < 0 && characterController.isGrounded)
-        {
-            viewBobTimer += Time.deltaTime * viewBobSpeedBack;
-            viewBobObject.transform.localPosition = new Vector3(Input.GetAxis("Vertical") * maximumXBobBack * Mathf.Sin(viewBobTimer * (2 * Mathf.PI)),
-                                                                Input.GetAxis("Vertical") * maximumYBobBack * Mathf.Sin(viewBobTimer * (4 * Mathf.PI)),
-                                                                0);
-            if (viewBobTimer >= 1)
-                viewBobTimer = 0f;
-        }
-        else
-            viewBobObject.transform.localPosition = new Vector3(Input.GetAxis("Vertical") * maximumXBobFront * Mathf.Sin(viewBobTimer * (2 * Mathf.PI)),
-                                                                Input.GetAxis("Vertical") * maximumYBobFront * Mathf.Sin(viewBobTimer * (4 * Mathf.PI)),
-                                                                0);
-
-        // Landing Animation
-        if (falling)
-        {
-            if (characterController.isGrounded)
-            {
-                falling = false;
-                //Debug.Log("Landed with velocity of " + landingVelocity);
-                landingCo = LandingSink(landingVelocity);
-                StartCoroutine(landingCo);
-            }
-            else
-                landingVelocity = characterController.velocity.y;
-        }
-        else if (!characterController.isGrounded)
-            falling = true;
-
-        // Mouse Controls
-        rotation.y += Input.GetAxis("Mouse X");
-        rotation.x += Input.GetAxis("Mouse Y");
-        rotation.x = Mathf.Clamp(rotation.x, -maxYLookRange, maxYLookRange); // lock Y look
-        // Left to Right Look on Player, Up Down Look on Camera Look to isolate movement to XZ plane
-        transform.localRotation = Quaternion.Euler(0, rotation.y * mouseYSpeed, 0);
-        yLookObject.transform.localRotation = Quaternion.Euler(rotation.x * mouseXSpeed, 0, 0);
-        viewBobObject.transform.localRotation = Quaternion.Euler(0, 0, cameraSwayAngle);
-    }
-
-    void UpdateExternalForce()
-    {
-        if (externalForce.sqrMagnitude < 30f)
-        {
-            externalForce = Vector3.zero;
-            hasExternalForce = false;
-            return;
-        }
-        characterController.Move(externalForce * Time.deltaTime);
-        externalForce = Vector3.Lerp(externalForce, Vector3.zero, 1 * Time.deltaTime); // TODO: check decay on externalForce
-    }
-
-    void UpdateMove()
-    {
-        if (characterController.isGrounded)
-        {
-            doubleJump = false;
-            // moveDirection = (transform.right * Input.GetAxis("Horizontal")) + (Vector3.ProjectOnPlane(transform.forward, new Vector3(0, 1, 0)) * Input.GetAxis("Vertical")); // deprecated movement that ignored y look
-            if (Input.GetButton("Sprint") && Input.GetAxis("Vertical") > 0f && !staminaRecovering)
-            {
-                stamina = Mathf.Max(stamina - (Time.deltaTime * staminaDecayMultiplier), 0f);
-                moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed * sprintSpeedModifier) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
-            }
-            else if (Input.GetAxis("Vertical") < 0f)
-                moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed * retreatSpeedModifier) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
-            else
-                moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
-
-            if (Input.GetButton("Jump"))
-            {
-                doubleJump = true;
-                moveDirection.y = jumpSpeed;
-            }
-            if (smoothWeaponLandingDistanceMultiplier != weaponLandingDistanceMultiplier)
-                smoothWeaponLandingDistanceMultiplier = weaponLandingDistanceMultiplier;
-        }
-        else
-        {
-            if (Input.GetButton("Sprint") && Input.GetAxis("Vertical") > 0f && !staminaRecovering)
-                stamina = Mathf.Max(stamina - (Time.deltaTime * staminaDecayMultiplier), 0f);
-
-            if (doubleJump && Input.GetButtonDown("Jump"))
-            {
-                doubleJump = false;
-                moveDirection.y = jumpSpeed;
-            }
-            if (smoothWeaponLandingDistanceMultiplier != 1)
-                smoothWeaponLandingDistanceMultiplier = 1;
-        }
-        moveDirection.y -= gravity * Time.deltaTime; // Ensure a Stunk to floor
-        characterController.Move(moveDirection * Time.deltaTime);
-    }
-
-    void UpdatePickup()
-    {
-        // Check what colliders in range
-        Collider[] hitColliders = Physics.OverlapCapsule(transform.position + new Vector3(0f, characterController.height * 0.5f, 0f), transform.position - new Vector3(0f, characterController.height * 0.5f, 0f), characterController.radius);
-        foreach (Collider c in hitColliders)
-        {
-            GameObject g = c.gameObject;
-
-            // Update closest weapon
-            floorWeapon = null;
-            if (g.GetComponent<Interactable>() != null)
-            {
-                if (floorWeapon == null || (g.transform.position - transform.position).magnitude <= (floorWeapon.transform.position - transform.position).magnitude)
-                {
-                    floorWeapon = g;
-                }
-            }
-
-            // Pick up objectives on collide
-            if (g.GetComponent<SpawnPoint>() != null
-                && g.GetComponent<SpawnPoint>().GetPointType() == POINT_TYPE.OBJECTIVE
-                && heldObjective == "Nothin'")
-            {
-                StartCoroutine(PickUpObjective(g.GetComponent<SpawnPoint>()));
-            }
-        }
-
-        // Submit objectives
-        if (Physics.Raycast(new Ray(transform.position, yLookObject.transform.forward), out RaycastHit hit, 10f)
-            && hit.collider.GetComponent<Cashier>() != null)
-        {
-            if (Input.GetButtonDown("Pick Up"))
-            {
-                Debug.Log("Submitted " + heldObjective + " to Cashier.");
-                heldObjective = "Nothin'";
-            }
-        }
-
-        // Pick up Weapon you are currently standing over
-        if (Input.GetButtonDown("Pick Up") && floorWeapon != null)
-        {
-            if (weaponInventory.itemList.Count >= 3)
-                Debug.Log("No Space Left in Inventory");
-            else
-                floorWeapon.GetComponent<Interactable>().OnPickedUp(this.gameObject);
-        }
-    }
-
-    void UpdateInventory()
-    {
-        // Drop Weapons From Inventory as Interactables
-        if (Input.GetButtonDown("Drop Weapon"))
-        {
-            if (!currentWeapon || currentWeapon.itemData == null || currentWeapon.itemData.weaponType == ItemData.WEAPON_TYPE.NONE)
-            {
-                Debug.Log("No weapon is currently being held.");
-            }
-            else
-            {
-                weaponInventory.RemoveItem(currentWeapon.itemData);
-                GameObject droppedWeapon = new GameObject("dropped" + currentWeapon.itemData.type, typeof(Interactable));
-                droppedWeapon.GetComponent<Interactable>().Initialize(currentWeapon.RemoveWeapon());
-                if (Physics.Raycast(new Ray(transform.position, -transform.up), out RaycastHit hit, Mathf.Infinity))
-                    droppedWeapon.transform.position = new Vector3(transform.position.x, hit.transform.position.y + 1, transform.position.z);
-                else
-                    droppedWeapon.transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z);
-
-                if (currentWeapon.itemData != null)
-                {
-                    Debug.LogError("Held Weapon was not destroyed");
-                }
-            }
-        }
     }
 
     void UpdateWeapon()
@@ -389,6 +190,276 @@ public class Player : MonoBehaviour
             currentWeapon.ChangeWeapon(weaponInventory.itemList[0]);
     }
 
+    void UpdateInventory()
+    {
+        // Pickup Interactables
+        /*if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out RaycastHit hit, 100))
+        {
+            Debug.DrawLine(Camera.main.transform.position, hit.point);
+            if (hit.collider.GetComponent<Interactable>() != null)
+            {
+                GameObject interactable = hit.transform.gameObject;
+                if (Input.GetButtonDown("Pick Up"))
+                {
+                    if (weaponInventory.itemList.Count >= 3)
+                        Debug.Log("No Space Left in Inventory");
+                    else
+                        interactable.GetComponent<Interactable>().OnPickedUp(this.gameObject);
+                }
+            }
+        }*/
+        if (Input.GetButtonDown("Pick Up") && floorWeapon != null)
+        {
+            if (weaponInventory.itemList.Count >= 3)
+                Debug.Log("No Space Left in Inventory");
+            else
+                floorWeapon.GetComponent<Interactable>().OnPickedUp(this.gameObject);
+        }
+        // Drop Weapons From Inventory as Interactables
+        if (Input.GetButtonDown("Drop Weapon"))
+        {
+            if (!currentWeapon || currentWeapon.itemData == null || currentWeapon.itemData.weaponType == ItemData.WEAPON_TYPE.NONE)
+            {
+                Debug.Log("No weapon is currently being held.");
+            }
+            else
+            {
+                weaponInventory.RemoveItem(currentWeapon.itemData);
+                GameObject droppedWeapon = new GameObject("dropped" + currentWeapon.itemData.type, typeof(Interactable));
+                droppedWeapon.GetComponent<Interactable>().Initialize(currentWeapon.RemoveWeapon());
+                if (Physics.Raycast(new Ray(transform.position, transform.up), out RaycastHit hit, Mathf.Infinity))
+                    droppedWeapon.transform.position = new Vector3(transform.position.x, hit.transform.position.y + 1, transform.position.z);
+                else
+                    droppedWeapon.transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z);
+
+                if (currentWeapon.itemData != null)
+                {
+                    Debug.LogError("Held Weapon was not destroyed");
+                }
+            }
+        }
+    }
+
+    void UpdateMove()
+    {
+        if (characterController.isGrounded)
+        {
+            doubleJump = false;
+            // moveDirection = (transform.right * Input.GetAxis("Horizontal")) + (Vector3.ProjectOnPlane(transform.forward, new Vector3(0, 1, 0)) * Input.GetAxis("Vertical")); // deprecated movement that ignored y look
+            if (Input.GetButton("Sprint") && Input.GetAxis("Vertical") > 0f && !staminaRecovering)
+            {
+                stamina = Mathf.Max(stamina - (Time.deltaTime * staminaDecayMultiplier), 0f);
+                moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed * sprintSpeedModifier) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
+            }
+            else if (Input.GetAxis("Vertical") < 0f)
+                moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed * retreatSpeedModifier) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
+            else
+                moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
+
+            if (Input.GetButton("Jump"))
+            {
+                doubleJump = true;
+                moveDirection.y = jumpSpeed;
+            }
+            if (smoothWeaponLandingDistanceMultiplier != weaponLandingDistanceMultiplier)
+                smoothWeaponLandingDistanceMultiplier = weaponLandingDistanceMultiplier;
+        }
+        else
+        {
+            if (Input.GetButton("Sprint") && Input.GetAxis("Vertical") > 0f && !staminaRecovering)
+                stamina = Mathf.Max(stamina - (Time.deltaTime * staminaDecayMultiplier), 0f);
+
+            if (doubleJump && Input.GetButtonDown("Jump"))
+            {
+                doubleJump = false;
+                moveDirection.y = jumpSpeed;
+            }
+            if (smoothWeaponLandingDistanceMultiplier != 1)
+                smoothWeaponLandingDistanceMultiplier = 1;
+        }
+        moveDirection.y -= gravity * Time.deltaTime; // Ensure a Stunk to floor
+        characterController.Move(moveDirection * Time.deltaTime);
+    }
+
+    void UpdateLook()
+    {
+        // FOV Change Whilst Sprintng
+        if (Input.GetButton("Sprint") && Input.GetAxis("Vertical") > 0f && !staminaRecovering)
+            Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView + (Time.deltaTime * FOVDeltaChange), defaultFOV, maxFOV);
+        else
+            Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView - (Time.deltaTime * FOVDeltaChange), defaultFOV, Camera.main.fieldOfView);
+
+        // Strafing Camera Sway
+        if (characterController.isGrounded)
+            cameraSwayAngle = Input.GetAxis("Horizontal") * -cameraSwayMaxAngle;
+
+        // View Bobbing
+        if (Input.GetAxis("Vertical") > 0 && characterController.isGrounded)
+        {
+            viewBobTimer += Time.deltaTime * viewBobSpeedFront;
+            viewBobObject.transform.localPosition = new Vector3(Input.GetAxis("Vertical") * maximumXBobFront * Mathf.Sin(viewBobTimer * (2 * Mathf.PI)),
+                                                                Input.GetAxis("Vertical") * maximumYBobFront * Mathf.Sin(viewBobTimer * (4 * Mathf.PI)),
+                                                                0);
+            if (viewBobTimer >= 1)
+                viewBobTimer = 0f;
+        }
+        else if (Input.GetAxis("Vertical") < 0 && characterController.isGrounded)
+        {
+            viewBobTimer += Time.deltaTime * viewBobSpeedBack;
+            viewBobObject.transform.localPosition = new Vector3(Input.GetAxis("Vertical") * maximumXBobBack * Mathf.Sin(viewBobTimer * (2 * Mathf.PI)),
+                                                                Input.GetAxis("Vertical") * maximumYBobBack * Mathf.Sin(viewBobTimer * (4 * Mathf.PI)),
+                                                                0);
+            if (viewBobTimer >= 1)
+                viewBobTimer = 0f;
+        }
+        else
+            viewBobObject.transform.localPosition = new Vector3(Input.GetAxis("Vertical") * maximumXBobFront * Mathf.Sin(viewBobTimer * (2 * Mathf.PI)),
+                                                                Input.GetAxis("Vertical") * maximumYBobFront * Mathf.Sin(viewBobTimer * (4 * Mathf.PI)),
+                                                                0);
+
+        // Landing Animation
+        if (falling)
+        {
+            if (characterController.isGrounded)
+            {
+                falling = false;
+                //Debug.Log("Landed with velocity of " + landingVelocity);
+                landingCo = LandingSink(landingVelocity);
+                StartCoroutine(landingCo);
+            }
+            else
+                landingVelocity = characterController.velocity.y;
+        }
+        else if (!characterController.isGrounded)
+            falling = true;
+
+        // Mouse Controls
+        rotation.y += Input.GetAxis("Mouse X");
+        rotation.x += Input.GetAxis("Mouse Y");
+        rotation.x = Mathf.Clamp(rotation.x, -maxYLookRange, maxYLookRange); // lock Y look
+        // Left to Right Look on Player, Up Down Look on Camera Look to isolate movement to XZ plane
+        transform.localRotation = Quaternion.Euler(0, rotation.y * mouseYSpeed, 0);
+        yLookObject.transform.localRotation = Quaternion.Euler(rotation.x * mouseXSpeed, 0, 0);
+        viewBobObject.transform.localRotation = Quaternion.Euler(0, 0, cameraSwayAngle);
+    }
+
+    void UpdateBuffs()
+    {
+        for(int i = 0; i < buffList.Count; ++i)
+        {
+            if ((buffList[i].duration - Time.deltaTime) < buffList[i].nextTickVal)
+            {
+                BuffTick(buffList[i]);
+                buffList[i].nextTickVal -= 0.5f; // Buff will run one more time past 0.0f
+            }
+            buffList[i].duration -= Time.deltaTime;
+            if (buffList[i].duration <= 0f)
+            {
+                BuffEnd(buffList[i].buff);
+                buffList.Remove(buffList[i]);
+            }
+            // TODO: function to play sound on buff expunge?
+
+        }
+    }
+
+    public void ApplyBuff(Buffable.CHAR_BUFF _buffType, float _duration = 0f)
+    {
+        // First find out if the buff has already been applied
+        for (int i = 0; i < buffList.Count; ++i)
+        {
+            if (buffList[i].buff == _buffType)
+            {
+                buffList[i].duration = _duration;  // Reset duration and return
+                return;
+            }
+        }
+        // Create and add new buff instead
+        Buffable.Buff newBuff = new Buffable.Buff();
+        newBuff.duration = _duration;
+        newBuff.buff = _buffType;
+        buffList.Add(newBuff);
+        // Initiate a starting effect for the new buff
+        switch(_buffType)
+        {
+            case Buffable.CHAR_BUFF.BUFF_SLOMO:
+                Time.timeScale = 0.5f;
+                break;
+        }
+    }
+
+    void BuffEnd(Buffable.CHAR_BUFF _buffType)
+    {
+        switch(_buffType)
+        {
+            case Buffable.CHAR_BUFF.BUFF_SLOMO:
+                Time.timeScale = 1f;
+                break;
+        }
+    }
+
+    void BuffTick(Buffable.Buff _buff)
+    {
+        switch(_buff.buff)
+        {
+            case Buffable.CHAR_BUFF.BUFF_SLOMO:
+                break;
+            default:
+                Debug.LogError("No buff found!");
+                break;
+        }
+    }
+
+    void UpdateExternalForce()
+    {
+        if (externalForce.sqrMagnitude < 30f)
+        {
+            externalForce = Vector3.zero;
+            hasExternalForce = false;
+            return;
+        }
+        characterController.Move(externalForce * Time.deltaTime);
+        externalForce = Vector3.Lerp(externalForce, Vector3.zero, 1 * Time.deltaTime); // TODO: check decay on externalForce
+    }
+
+    IEnumerator LandingSink(float landingVelocity)
+    {
+        float displacement = 0f;
+        while (landingVelocity < 0)
+        {
+            displacement = landingVelocity * Time.deltaTime * landingDistanceMultiplier;
+            Camera.main.transform.Translate(0, displacement, 0, Space.World);
+            currentWeapon.transform.Translate(0, displacement * smoothWeaponLandingDistanceMultiplier, 0, Space.World);
+            landingVelocity += landingSpeedMultiplier;
+            if (landingVelocity >= 0 || Camera.main.transform.position.y <= transform.position.y + (transform.localScale.y * 0.5f))
+            {
+                landingVelocity = 0;
+                recoveringCo = LandingRecovery();
+                StartCoroutine(recoveringCo);
+                StopCoroutine(landingCo);
+            }
+            yield return null;
+        }
+    }
+
+    IEnumerator LandingRecovery()
+    {
+        float displacement = Camera.main.transform.localPosition.y;
+        while (Camera.main.transform.localPosition.y < 0)
+        {
+            Camera.main.transform.Translate(0, recoverSpeed, 0, Space.World);
+            currentWeapon.transform.Translate(0, recoverSpeed * smoothWeaponLandingDistanceMultiplier, 0, Space.World);
+            yield return null;
+        }
+        if (Camera.main.transform.localPosition.y >= 0)
+        {
+            Camera.main.transform.localPosition = Vector3.zero;
+            if (currentWeapon && currentWeapon.itemData != null)
+                currentWeapon.transform.localPosition = currentWeapon.itemData.heldPosition;
+            StopCoroutine(recoveringCo);
+        }
+    }
+
     void UpdateUI()
     {
         // Inventory
@@ -406,18 +477,6 @@ public class Player : MonoBehaviour
             shoppingList.SetActive(!shoppingList.activeSelf);
             if (shoppingList.gameObject.activeSelf)
                 inventoryPanel.gameObject.SetActive(false);
-            Debug.Log(heldObjective);
-            string s = "Collected Items: ";
-            int i = 0;
-            foreach (string ss in collectedObjectives)
-            {
-                i++;
-                if (i >= collectedObjectives.Count)
-                    s += ss;
-                else
-                    s += ss + ", ";
-            }
-            Debug.Log(s);
         }
 
         // Update Pickup Info
@@ -432,30 +491,30 @@ public class Player : MonoBehaviour
             pickupInfoText.SetActive(false);
 
         // Objective Arrow (MAYBE INEFFICIENT CONSIDER REDOING)
-        GameObject pt = null;
-        if (heldObjective == "Nothin'")
-        {
-            SpawnPoint pt2 = gameController.GetClosestPoint(transform.position, arrowLocationType);
-            if (pt2 != null)
-                pt = pt2.gameObject;
-        }
-        else
-            pt = ((Cashier)FindObjectOfType(typeof(Cashier))).gameObject;
-        if (pt != null)
+        SpawnPoint pt = gameController.GetClosestPoint(transform.position, arrowLocationType);
+
+        if (pt != null && nextObjective != pt.transform)
         {
             nextObjective = pt.transform;
+            if (nextObjective.GetComponent<SpawnPoint>().GetPointType() == SpawnPoint.POINT_TYPE.EMPTY)
+            {
+                objectiveArrow.SetActive(false);
+                objectiveFloater.gameObject.SetActive(false);
+            }
+            else if (nextObjective)
+            {
+                if (!objectiveFloater.gameObject.activeSelf)
+                    objectiveFloater.gameObject.SetActive(true);
+                objectiveFloater.position = nextObjective.position + new Vector3(0f, 1.25f * nextObjective.localScale.y, 0f);
+            }
+        }
+        else if (nextObjective 
+            && nextObjective.GetComponent<SpawnPoint>().GetPointType() != SpawnPoint.POINT_TYPE.EMPTY)
+        {
             if (!objectiveArrow.activeSelf)
                 objectiveArrow.SetActive(true);
             objectiveArrow.transform.LookAt(new Vector3(nextObjective.transform.position.x, objectiveArrow.transform.position.y, nextObjective.transform.position.z), transform.up);
             objectiveArrow.transform.Rotate(90, 90, 0);
-            if (!objectiveFloater.gameObject.activeSelf)
-                objectiveFloater.gameObject.SetActive(true);
-            objectiveFloater.position = nextObjective.position + new Vector3(0f, 1.25f * nextObjective.localScale.y, 0f);
-        }
-        else
-        {
-            objectiveArrow.SetActive(false);
-            objectiveFloater.gameObject.SetActive(false);
         }
 
         // Minimap
@@ -500,7 +559,11 @@ public class Player : MonoBehaviour
         if (healthBar.GetComponent<RectTransform>().localScale != new Vector3(health / maxHealth, healthBar.transform.localScale.y, healthBar.transform.localScale.z))
             healthBar.GetComponent<RectTransform>().localScale = new Vector3(health / maxHealth, healthBar.transform.localScale.y, healthBar.transform.localScale.z);
         if (health == 0)
+        {
+#if UNITY_EDITOR
             EditorApplication.isPlaying = false;
+#endif
+        }
 
         // Target Info
         if (enemyName.GetComponent<RectTransform>().localPosition != new Vector3(enemyHealthBarPosition.x, enemyHealthBarPosition.y, 0))
@@ -529,82 +592,61 @@ public class Player : MonoBehaviour
                 enemyName.SetActive(false);
         }
     }
-    
+    /// <summary>
+    /// Returns the percentage of health out of the max health of the player.
+    /// </summary>
+    /// <returns>
+    /// Percentage of health out of the max health of the player.
+    /// </returns>
     public float GetHealth()
     {
         return health / maxHealth;
     }
-
+    /// <summary>
+    /// Returns the percentage of stamina out of the max stamina of the player.
+    /// </summary>
+    /// <returns>
+    /// The percentage of stamina out of the max stamina of the player.
+    /// </returns>
     public float GetStam()
     {
         return stamina / maxStamina;
     }
 
-    public bool TakeDamage(float _damage)
+    IEnumerator PickUpObjective(ControllerColliderHit hit)
     {
-        float trueDamage = Mathf.Clamp(_damage, 0, health);
-        Debug.Log("Player took " + trueDamage + " damage.");
-        health -= trueDamage;
-        return trueDamage <= 0f;
-    }
-
-    public void AddExternalForce(Vector3 _force)
-    {
-        externalForce += _force;
-        if (externalForce.sqrMagnitude > 0.2f)
-            hasExternalForce = true;
-    }
-
-    IEnumerator LandingSink(float landingVelocity)
-    {
-        float displacement = 0f;
-        while (landingVelocity < 0)
-        {
-            displacement = landingVelocity * Time.deltaTime * landingDistanceMultiplier;
-            Camera.main.transform.Translate(0, displacement, 0, Space.World);
-            currentWeapon.transform.Translate(0, displacement * smoothWeaponLandingDistanceMultiplier, 0, Space.World);
-            landingVelocity += landingSpeedMultiplier;
-            if (landingVelocity >= 0 || Camera.main.transform.position.y <= transform.position.y + (transform.localScale.y * 0.5f))
-            {
-                landingVelocity = 0;
-                recoveringCo = LandingRecovery();
-                StartCoroutine(recoveringCo);
-                StopCoroutine(landingCo);
-            }
-            yield return null;
-        }
-    }
-
-    IEnumerator LandingRecovery()
-    {
-        float displacement = Camera.main.transform.localPosition.y;
-        while (Camera.main.transform.localPosition.y < 0)
-        {
-            Camera.main.transform.Translate(0, recoverSpeed, 0, Space.World);
-            currentWeapon.transform.Translate(0, recoverSpeed * smoothWeaponLandingDistanceMultiplier, 0, Space.World);
-            yield return null;
-        }
-        if (Camera.main.transform.localPosition.y >= 0)
-        {
-            Camera.main.transform.localPosition = Vector3.zero;
-            if (currentWeapon && currentWeapon.itemData != null)
-                currentWeapon.transform.localPosition = currentWeapon.itemData.heldPosition;
-            StopCoroutine(recoveringCo);
-        }
-    }
-
-    IEnumerator PickUpObjective(SpawnPoint pt)
-    {
-        // TODO : Update Shopping List only when submitted
-        string objective = gameController.RemovePoint(pt);
-        heldObjective = objective;
-        collectedObjectives.Add(objective);
+        string objective = gameController.RemovePoint(hit.collider.GetComponent<SpawnPoint>());
         yield return 0;
         gameController.UpdateShoppingList();
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        // Pick up weapons
+        if (other.GetComponent<Interactable>() != null
+            && other.gameObject != floorWeapon
+            && floorWeapon == null)
+        {
+            floorWeapon = other.gameObject;
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        // Pick up weapons
+        if (other.gameObject == floorWeapon)
+        {
+            floorWeapon = null;
+        }
+    }
+
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
+        // Pick up Objectives on collide
+        if (hit.collider.GetComponent<SpawnPoint>() != null
+            && hit.collider.GetComponent<SpawnPoint>().GetPointType() == SpawnPoint.POINT_TYPE.OBJECTIVE)
+            StartCoroutine(PickUpObjective(hit));
+
         // Pushing Objects
         Rigidbody body = hit.collider.attachedRigidbody;
         float magnitude = externalForce.magnitude;
@@ -629,5 +671,30 @@ public class Player : MonoBehaviour
         else
             body.velocity += pushDir * 2f / hit.rigidbody.mass;
         externalForce *= -0.1f; //* magnitude * 0.7f;
+    }
+
+    ref CharacterController GetCharacterController()
+    {
+        return ref characterController;
+    }
+
+    /// <summary>
+    /// Apply damage to the player.
+    /// </summary>
+    /// <param name="_damage"></param>
+    /// <returns>True if the player took damage.</returns>
+    public bool TakeDamage(float _damage)
+    {
+        float trueDamage = Mathf.Clamp(_damage, 0, health);
+        Debug.Log("Player took " + trueDamage + " damage.");
+        health -= trueDamage;
+        return trueDamage <= 0f;
+    }
+    
+    public void AddExternalForce(Vector3 _force)
+    {
+        externalForce += _force;
+        if (externalForce.sqrMagnitude > 0.2f)
+            hasExternalForce = true;
     }
 }

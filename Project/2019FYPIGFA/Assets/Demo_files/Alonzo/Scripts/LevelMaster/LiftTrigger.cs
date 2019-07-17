@@ -12,13 +12,13 @@ public class LiftTrigger : MonoBehaviour
     private void OnTriggerExit(Collider other)
     {
         Player playerObject = other.gameObject.GetComponent<Player>();
-        if (null != other.gameObject)
+        if (null != playerObject.gameObject)
             playerInLift = false;
     }
     private void OnTriggerEnter(Collider other)
     {
         Player playerObject = other.gameObject.GetComponent<Player>();
-        if (null != other.gameObject)
+        if (null != playerObject.gameObject)
             playerInLift = true;
     }
 }
