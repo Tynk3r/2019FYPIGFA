@@ -8,7 +8,8 @@ public static class Buffable
     {
         BUFF_SLOMO,
         DEBUFF, // For checking
-        DEBUFF_BURN
+        DEBUFF_BURN,
+        DEBUFF_SLOW,
     }
     [System.Serializable]
     public class Buff

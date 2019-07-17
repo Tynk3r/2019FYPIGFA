@@ -6,7 +6,7 @@ using UnityEngine.AI;
 
 [RequireComponent(typeof(Collider))]
 [RequireComponent(typeof(Rigidbody))]
-public class ClothingRackKids : AIManager
+public class ClothingRackKids : Enemy
 {
     public enum STATES
     {
@@ -58,6 +58,7 @@ public class ClothingRackKids : AIManager
     // Start is called before the first frame update
     public override void Start()
     {
+        base.Start();
         if (target == null)
             target = GameObject.FindGameObjectWithTag("Player").transform;
         base.Start();

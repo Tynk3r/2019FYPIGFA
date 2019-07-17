@@ -103,6 +103,8 @@
     <Compile Include="Assets\Scripts\Objective.cs" />
     <Compile Include="Assets\Scripts\P_PizzaSlice.cs" />
     <Compile Include="Assets\Scripts\Player.cs" />
+    <Compile Include="Assets\Scripts\Projectiles\Mayo2Projectile.cs" />
+    <Compile Include="Assets\Scripts\Projectiles\MayoProjectile.cs" />
     <Compile Include="Assets\Scripts\SpawnPoint.cs" />
     <Compile Include="Assets\Scripts\WeaponAbility\Baguette_Ability.cs" />
     <Compile Include="Assets\Scripts\Weapons_Prototype_EggLauncher\I_Weapon.cs" />
@@ -152,6 +154,24 @@
     </Reference>
     <Reference Include="Unity.Analytics.DataPrivacy">
       <HintPath>C:/Users/170264f/Documents/2019FYPIGFA/Project/2019FYPIGFA/Library/ScriptAssemblies/Unity.Analytics.DataPrivacy.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.RenderPipelines.Core.Editor">
+      <HintPath>C:/Users/170264f/Documents/2019FYPIGFA/Project/2019FYPIGFA/Library/ScriptAssemblies/Unity.RenderPipelines.Core.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.RenderPipelines.Core.Runtime">
+      <HintPath>C:/Users/170264f/Documents/2019FYPIGFA/Project/2019FYPIGFA/Library/ScriptAssemblies/Unity.RenderPipelines.Core.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.RenderPipelines.Lightweight.Runtime">
+      <HintPath>C:/Users/170264f/Documents/2019FYPIGFA/Project/2019FYPIGFA/Library/ScriptAssemblies/Unity.RenderPipelines.Lightweight.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.RenderPipelines.Lightweight.Editor">
+      <HintPath>C:/Users/170264f/Documents/2019FYPIGFA/Project/2019FYPIGFA/Library/ScriptAssemblies/Unity.RenderPipelines.Lightweight.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.ShaderGraph.Editor">
+      <HintPath>C:/Users/170264f/Documents/2019FYPIGFA/Project/2019FYPIGFA/Library/ScriptAssemblies/Unity.ShaderGraph.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.RenderPipelines.Core.ShaderLibrary">
+      <HintPath>C:/Users/170264f/Documents/2019FYPIGFA/Project/2019FYPIGFA/Library/ScriptAssemblies/Unity.RenderPipelines.Core.ShaderLibrary.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AIModule">
       <HintPath>C:/Program Files/Unity/Hub/Editor/2018.3.5f1/Editor/Data/Managed/UnityEngine/UnityEngine.AIModule.dll</HintPath>

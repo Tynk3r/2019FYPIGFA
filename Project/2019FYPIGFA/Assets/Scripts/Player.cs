@@ -13,6 +13,7 @@ public class Player : MonoBehaviour
     public GameController gameController;
     private Vector3 externalForce;
     private bool hasExternalForce;
+    private List<Buffable.Buff> buffList;
 
     [Header("Stats")]
     public float maxHealth = 100f;
@@ -122,6 +123,7 @@ public class Player : MonoBehaviour
         // Misc QOL Stuff
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        buffList = new List<Buffable.Buff>();
     }
 
     void Update()
@@ -255,8 +257,8 @@ public class Player : MonoBehaviour
     {
         // Check what colliders in range
         Collider[] hitColliders = Physics.OverlapCapsule(
-            transform.position + new Vector3(0f, characterController.height, 0f), 
-            transform.position - new Vector3(0f, characterController.height, 0f), 
+            transform.position + new Vector3(0f, characterController.height, 0f),
+            transform.position - new Vector3(0f, characterController.height, 0f),
             characterController.radius);
         foreach (Collider c in hitColliders)
         {
@@ -299,33 +301,6 @@ public class Player : MonoBehaviour
                 Debug.Log("No Space Left in Inventory");
             else
                 floorWeapon.GetComponent<Interactable>().OnPickedUp(this.gameObject);
-        }
-    }
-
-    void UpdateInventory()
-    {
-        // Drop Weapons From Inventory as Interactables
-        if (Input.GetButtonDown("Drop Weapon"))
-        {
-            if (!currentWeapon || currentWeapon.itemData == null || currentWeapon.itemData.weaponType == ItemData.WEAPON_TYPE.NONE)
-            {
-                Debug.Log("No weapon is currently being held.");
-            }
-            else
-            {
-                weaponInventory.RemoveItem(currentWeapon.itemData);
-                GameObject droppedWeapon = new GameObject("dropped" + currentWeapon.itemData.type, typeof(Interactable));
-                droppedWeapon.GetComponent<Interactable>().Initialize(currentWeapon.RemoveWeapon());
-                if (Physics.Raycast(new Ray(transform.position, -transform.up), out RaycastHit hit, Mathf.Infinity))
-                    droppedWeapon.transform.position = new Vector3(transform.position.x, hit.transform.position.y + 1, transform.position.z);
-                else
-                    droppedWeapon.transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z);
-
-                if (currentWeapon.itemData != null)
-                {
-                    Debug.LogError("Held Weapon was not destroyed");
-                }
-            }
         }
     }
 
@@ -390,6 +365,33 @@ public class Player : MonoBehaviour
         }
         else if (weaponInventory.itemList.Count != 0)
             currentWeapon.ChangeWeapon(weaponInventory.itemList[0]);
+    }
+
+    void UpdateInventory()
+    {
+        // Drop Weapons From Inventory as Interactables
+        if (Input.GetButtonDown("Drop Weapon"))
+        {
+            if (!currentWeapon || currentWeapon.itemData == null || currentWeapon.itemData.weaponType == ItemData.WEAPON_TYPE.NONE)
+            {
+                Debug.Log("No weapon is currently being held.");
+            }
+            else
+            {
+                weaponInventory.RemoveItem(currentWeapon.itemData);
+                GameObject droppedWeapon = new GameObject("dropped" + currentWeapon.itemData.type, typeof(Interactable));
+                droppedWeapon.GetComponent<Interactable>().Initialize(currentWeapon.RemoveWeapon());
+                if (Physics.Raycast(new Ray(transform.position, -transform.up), out RaycastHit hit, Mathf.Infinity))
+                    droppedWeapon.transform.position = new Vector3(transform.position.x, hit.transform.position.y + 1, transform.position.z);
+                else
+                    droppedWeapon.transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z);
+
+                if (currentWeapon.itemData != null)
+                {
+                    Debug.LogError("Held Weapon was not destroyed");
+                }
+            }
+        }
     }
 
     void UpdateUI()
@@ -532,17 +534,100 @@ public class Player : MonoBehaviour
                 enemyName.SetActive(false);
         }
     }
-    
+
+    void UpdateBuffs()
+    {
+        for(int i = 0; i < buffList.Count; ++i)
+        {
+            if ((buffList[i].duration - Time.deltaTime) < buffList[i].nextTickVal)
+            {
+                BuffTick(buffList[i]);
+                buffList[i].nextTickVal -= 0.5f; // Buff will run one more time past 0.0f
+            }
+            buffList[i].duration -= Time.deltaTime;
+            if (buffList[i].duration <= 0f)
+            {
+                BuffEnd(buffList[i].buff);
+                buffList.Remove(buffList[i]);
+            }
+            // TODO: function to play sound on buff expunge?
+
+        }
+    }
+
+    public void ApplyBuff(Buffable.CHAR_BUFF _buffType, float _duration = 0f)
+    {
+        // First find out if the buff has already been applied
+        for (int i = 0; i < buffList.Count; ++i)
+        {
+            if (buffList[i].buff == _buffType)
+            {
+                buffList[i].duration = _duration;  // Reset duration and return
+                return;
+            }
+        }
+        // Create and add new buff instead
+        Buffable.Buff newBuff = new Buffable.Buff();
+        newBuff.duration = _duration;
+        newBuff.buff = _buffType;
+        buffList.Add(newBuff);
+        // Initiate a starting effect for the new buff
+        switch(_buffType)
+        {
+            case Buffable.CHAR_BUFF.BUFF_SLOMO:
+                Time.timeScale = 0.5f;
+                break;
+        }
+    }
+
+    void BuffEnd(Buffable.CHAR_BUFF _buffType)
+    {
+        switch(_buffType)
+        {
+            case Buffable.CHAR_BUFF.BUFF_SLOMO:
+                Time.timeScale = 1f;
+                break;
+        }
+    }
+
+    void BuffTick(Buffable.Buff _buff)
+    {
+        switch(_buff.buff)
+        {
+            case Buffable.CHAR_BUFF.BUFF_SLOMO:
+                break;
+            default:
+                Debug.LogError("No buff found!");
+                break;
+        }
+    }
+
+    /// <summary>
+    /// Returns the percentage of health out of the max health of the player.
+    /// </summary>
+    /// <returns>
+    /// Percentage of health out of the max health of the player.
+    /// </returns>
     public float GetHealth()
     {
         return health / maxHealth;
     }
-
+    /// <summary>
+    /// Returns the percentage of stamina out of the max stamina of the player.
+    /// </summary>
+    /// <returns>
+    /// The percentage of stamina out of the max stamina of the player.
+    /// </returns>
     public float GetStam()
     {
         return stamina / maxStamina;
     }
 
+    /// <summary>
+    /// Apply damage to the player.
+    /// </summary>
+    /// <param name="_damage"></param>
+    /// <returns>True if the player took damage.</returns>
     public bool TakeDamage(float _damage)
     {
         float trueDamage = Mathf.Clamp(_damage, 0, health);

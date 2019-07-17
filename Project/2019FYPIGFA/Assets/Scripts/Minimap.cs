@@ -16,7 +16,26 @@ public class Minimap : MonoBehaviour
     [Header("Spawn Points")]
     public GameObject objectiveRepresentation;
 
-    private void Start()
+    private void Awake()
+    {
+        InitializeMiniMap();
+    }
+    public void DestroyMinimapElements()
+    {
+        GameObject[] objects = FindObjectsOfType(typeof(GameObject)) as GameObject[];
+        List<GameObject> objectsToClear = new List<GameObject>();
+        foreach(GameObject obj in objects)
+        {
+            if (obj.layer == 9)
+                objectsToClear.Add(obj);
+        }
+        Debug.Log("there are " + objectsToClear.Count + "GameObjects to destroy");
+        foreach(GameObject obj in objectsToClear)
+        {
+            Destroy(obj.gameObject);
+        }
+    }
+    public void InitializeMiniMap()
     {
         // Display Walls in Minimap
         var walls = GameObject.FindGameObjectsWithTag("Walls");
@@ -30,6 +49,7 @@ public class Minimap : MonoBehaviour
                 wallObject.transform.localScale = realObject.GetComponent<BoxCollider>().size;
                 wallObject.transform.rotation = realObject.transform.rotation;
                 wallObject.GetComponent<MeshFilter>().sharedMesh = cube;
+                wallObject.tag = "Untagged";
                 wallObject.layer = 9;
             }
             else
@@ -44,6 +64,7 @@ public class Minimap : MonoBehaviour
         foreach (GameObject realObject in enemies)
         {
             GameObject arrowObject = Instantiate(enemyArrow, realObject.transform);
+            arrowObject.tag = "Untagged";
             arrowObject.layer = 9;
         }
 
@@ -51,7 +72,7 @@ public class Minimap : MonoBehaviour
         var spawnPoints = FindObjectsOfType<SpawnPoint>();
         foreach (SpawnPoint realObject in spawnPoints)
         {
-            switch(realObject.GetPointType())
+            switch (realObject.GetPointType())
             {
                 case SpawnPoint.POINT_TYPE.OBJECTIVE:
                     GameObject objectiveRep = Instantiate(objectiveRepresentation, realObject.transform);
@@ -61,7 +82,7 @@ public class Minimap : MonoBehaviour
                     GameObject weaponRep = Instantiate(realObject.gameObject, realObject.transform);
 
                     bool componentsRemoved = false;
-                    while(!componentsRemoved)
+                    while (!componentsRemoved)
                     {
                         foreach (Component c in weaponRep.GetComponents(typeof(Component)))
                         {
@@ -78,9 +99,10 @@ public class Minimap : MonoBehaviour
                             }
                         }
                     }
+                    weaponRep.tag = "Untagged";
                     weaponRep.layer = 9;
                     weaponRep.transform.localPosition = Vector3.zero;
-                    
+
                     break;
                 default:
                     break;

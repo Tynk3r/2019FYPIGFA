@@ -13,7 +13,9 @@ public class MapGenerator : MonoBehaviour
     public Material BSP_room;
     public Material BSP_hall;
     public int S_mapWidth, S_mapDepth;
-    
+
+    public Vector2 S_forwardSpaceBoundary;
+    public Vector2 S_shelfSpacingBoundary;
     public Vector2 S_roomSizeLimit;
     public Vector2 S_roomHeightLimit;
     public float S_maxLeafSize, S_minLeafSize;
@@ -21,17 +23,18 @@ public class MapGenerator : MonoBehaviour
     public Vector2 liftSize;
 
     private int m_levelSeed;
+    GameObject demoMap;
+    public Minimap minimap;
     #if UNITY_EDITOR
     int offsetY = 0;
     public bool autoUpdate;
-    GameObject demoMap;
+    public bool TEMPDELMAP;
 #endif
     public Tile[] tileSet = new Tile[0];
     public Tile[] wallTileSet = new Tile[0];
     // Start is called before the first frame update
     void Start()
     {
-        
     }
 
     // Update is called once per frame
@@ -40,6 +43,10 @@ public class MapGenerator : MonoBehaviour
         Rigidbody test = gameObject.GetComponent<Rigidbody>();
     }
 
+    /// <summary>
+    /// Spawns the props, calculate the boundaries and destroys them.
+    /// This is because bounds are incorrect if prefabs aren't spawned at least once
+    /// </summary>
     void CalculatePropBounds()
     {
         int index = 0;
@@ -49,17 +56,34 @@ public class MapGenerator : MonoBehaviour
             Collider col = item.GetComponent<BoxCollider>();
             props[index].minBounds = col.bounds.min;
             props[index].maxBounds = col.bounds.max;
+#if UNITY_EDITOR
             DestroyImmediate(item);
+#endif
             ++index;
         }
     }
 
+    public void CleanupMap()
+    {
+        if (null != demoMap)
+        {
+#if UNITY_EDITOR
+            DestroyImmediate(demoMap);
+#else
+            Destroy(demoMap);
+#endif
+        }
+    }
+
+    /// <summary>
+    /// Generates the map on current floor.
+    /// Uses member variables to help guide level sizes and generation
+    /// </summary>
     public void GenerateMap()
     {
-
+        //minimap.DestroyMinimapElements();
         CalculatePropBounds();
-        if (null != demoMap)
-            DestroyImmediate(demoMap);
+        CleanupMap();
         demoMap = new GameObject("MAP");
         m_levelSeed = Random.Range(int.MinValue, int.MaxValue);
         Random.InitState(m_levelSeed);
@@ -113,6 +137,10 @@ public class MapGenerator : MonoBehaviour
 
         // Make the props spawn
         {
+            if (!roomPropGenerator.SetShelfSpacingBoundaries(S_shelfSpacingBoundary))
+                Debug.LogError("ShelfSpacingBoundaries is invalid! use this format: x = min val, y = max val");
+            if (!roomPropGenerator.SetForwardSpaceBoundary(S_forwardSpaceBoundary))
+                Debug.LogError("ForwardSpaceBoundary is invalid! use this format: x = min val, y = max val");
             roomPropGenerator.GenerateLayout(new Vector2(0f, roomSize.y * 0.5f), roomSize, ref props)
                 .transform.parent = demoMap.transform;
         }
@@ -121,8 +149,11 @@ public class MapGenerator : MonoBehaviour
         {
             surface.BuildNavMesh();
         }
+        //if (!TEMPDELMAP)
+        //{
+        //    minimap.InitializeMiniMap();
+        //}
         return;
-        offsetY = 0;
         GameObject plane = MeshGenerator.CreateStairs();// (10, 10, 1f, false);
         Renderer rend = plane.GetComponent<Renderer>();
         rend.material = tileSet[0].material;
@@ -134,6 +165,9 @@ public class MapGenerator : MonoBehaviour
 #endif
     }
 #if UNITY_EDITOR
+    /// <summary>
+    /// Generates the map in editor. This will not be compiled into builds
+    /// </summary>
     public void DrawMapInEditor()
     {
         if (null == demoMap)
@@ -154,6 +188,9 @@ public class MapGenerator : MonoBehaviour
         INDOOR,
         OUTDOOR
     };
+    /// <summary>
+    /// Tile that contains materials for ingame level floor
+    /// </summary>
     [System.Serializable]
     public struct Tile
     {
@@ -166,6 +203,11 @@ public class MapGenerator : MonoBehaviour
         BSP_LAYOUT_TOP_LAYER,
         HIDDEN
     }
+    /// <summary>
+    /// Prop list which contains the boundaries
+    /// Boundaries are only calculated when generation begins
+    /// Objects are assumed to be facing -Z direction, especially if one sided
+    /// </summary>
     [System.Serializable]
     public struct Prop
     {
