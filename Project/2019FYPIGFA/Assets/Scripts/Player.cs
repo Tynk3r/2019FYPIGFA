@@ -40,7 +40,7 @@ public class Player : MonoBehaviour
     public GameObject shoppingList;
     public GameObject objectiveArrow;
     public SpawnPoint.POINT_TYPE arrowLocationType;
-    public Transform objectiveFloater;
+    public Transform objectiveFloaterParent;
     public Camera minimapCamera;
     [Range(10f, 1f)]
     public float minimapZoom = 6f;
@@ -458,14 +458,17 @@ public class Player : MonoBehaviour
                 objectiveArrow.SetActive(true);
             objectiveArrow.transform.LookAt(new Vector3(nextObjective.transform.position.x, objectiveArrow.transform.position.y, nextObjective.transform.position.z), transform.up);
             objectiveArrow.transform.Rotate(90, 90, 0);
-            if (!objectiveFloater.gameObject.activeSelf)
-                objectiveFloater.gameObject.SetActive(true);
-            objectiveFloater.position = nextObjective.position + new Vector3(0f, 1.25f * nextObjective.localScale.y, 0f);
+            if (!objectiveFloaterParent.gameObject.activeSelf)
+                objectiveFloaterParent.gameObject.SetActive(true);
+            objectiveFloaterParent.position = nextObjective.position + new Vector3(
+                0f, 
+                (objectiveFloaterParent.GetComponentInChildren<ObjectiveFloater>().transform.localScale.y + nextObjective.localScale.y) * 0.5f, 
+                0f);
         }
         else
         {
             objectiveArrow.SetActive(false);
-            objectiveFloater.gameObject.SetActive(false);
+            objectiveFloaterParent.gameObject.SetActive(false);
         }
 
         // Minimap
