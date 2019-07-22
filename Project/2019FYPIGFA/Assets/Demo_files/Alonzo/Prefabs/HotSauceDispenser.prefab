@@ -88,7 +88,6 @@ GameObject:
   - component: {fileID: 4028667640723651239}
   - component: {fileID: 4028667640723651238}
   - component: {fileID: 4028667640723651289}
-  - component: {fileID: 4028667640723651236}
   m_Layer: 0
   m_Name: HotSauceDispenser
   m_TagString: Untagged
@@ -137,18 +136,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   uses: 3
-  rend: {fileID: 4028667640612883349}
---- !u!114 &4028667640723651236
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4028667640723651288}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3f976c75644cef84392ffa0b9693bc6e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  uses: 0
   rend: {fileID: 4028667640612883349}

@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &2391678076794629462
+--- !u!1 &7868962852173936698
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,22 +8,22 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 3767204192930907583}
-  - component: {fileID: 2450031967068687964}
+  - component: {fileID: 7868962852173936644}
+  - component: {fileID: 7868962852173936699}
   m_Layer: 0
-  m_Name: BasePizza
+  m_Name: Mayonnaise
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &3767204192930907583
+--- !u!4 &7868962852173936644
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2391678076794629462}
+  m_GameObject: {fileID: 7868962852173936698}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -31,34 +31,34 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2450031967068687964
+--- !u!114 &7868962852173936699
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2391678076794629462}
+  m_GameObject: {fileID: 7868962852173936698}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 255492a3fc9a2ca44a6e6d9c08874d32, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   itemData:
-    skillType: 0
+    skillType: 2
     weaponType: 2
-    type: PizzaShuriken
-    mesh: {fileID: 4300000, guid: ca5abc6bd7a3f4749a67a1330ee83537, type: 3}
-    material: {fileID: 2100000, guid: ca5abc6bd7a3f4749a67a1330ee83537, type: 3}
-    heldPosition: {x: 0.27, y: -0.11, z: 0.41}
-    heldRotation: {x: -12, y: 86, z: -14}
+    type: 
+    mesh: {fileID: 4300000, guid: 70ce7dae986fa914dbfb8a09a0b5bf4c, type: 3}
+    material: {fileID: 2100000, guid: 7f70be5cdc08b974d883826b3d1f27cd, type: 2}
+    heldPosition: {x: 0.28, y: -0.22, z: 0.41}
+    heldRotation: {x: -60.9, y: -194.1, z: -7.4}
     shootOffset: 0.5
-    attackRate: 5
-    durability: 100
-    durabilityDecay: 20
-    weaponDamage: 10
-    attackRange: 10
+    attackRate: 1
+    durability: 7.2
+    durabilityDecay: 1
+    weaponDamage: 0
+    attackRange: 0
     impactEffect: {fileID: 0}
     projectileID: -1
     projectileMagnitude: 10
-    projectile: PizzaSlice
-    projectileName: 
+    projectile: 
+    projectileName: Mayo

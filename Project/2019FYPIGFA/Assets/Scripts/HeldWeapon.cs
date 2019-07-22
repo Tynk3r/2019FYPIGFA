@@ -108,7 +108,7 @@ public class HeldWeapon : MonoBehaviour
                 }
                 Vector3 projectilePosition = transform.position + player.yLookObject.transform.forward * itemData.shootOffset;
                 // TODO: based on itemdata's projectile force and not magick number
-                projectile.Discharge(player.yLookObject.transform.forward * 10f, projectilePosition /*+ player.yLookObject.transform.forward*/);
+                projectile.Discharge(player.yLookObject.transform.forward * itemData.projectileMagnitude, projectilePosition /*+ player.yLookObject.transform.forward*/);
                 
 
                 //// Spawn the projectile at where player shoots
