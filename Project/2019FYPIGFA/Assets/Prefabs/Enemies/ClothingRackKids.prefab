@@ -13,8 +13,8 @@ GameObject:
   - component: {fileID: 6733531680966493948}
   - component: {fileID: 6733531680966493946}
   - component: {fileID: 6733531680966493951}
-  - component: {fileID: 8911555633983547125}
-  - component: {fileID: 8121102532031684660}
+  - component: {fileID: 4393420466763165863}
+  - component: {fileID: 6533856707088571660}
   m_Layer: 0
   m_Name: ClothingRackKids
   m_TagString: Enemy
@@ -43,7 +43,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6733531680966493944}
-  m_Mesh: {fileID: 4300000, guid: c5511fe5cef24a94d8747e62ef098acd, type: 3}
+  m_Mesh: {fileID: 4300000, guid: 4b08deed79fbd754c887b8cd682d9fbe, type: 3}
 --- !u!23 &6733531680966493948
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -90,7 +90,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 6733531680966493944}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.9
+  m_Radius: 0.5
   m_Speed: 1
   m_Acceleration: 0
   avoidancePriority: 50
@@ -99,8 +99,8 @@ NavMeshAgent:
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
-  m_Height: 1.6
-  m_BaseOffset: 0.8
+  m_Height: 1.25
+  m_BaseOffset: 0.6
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
 --- !u!54 &6733531680966493951
@@ -119,7 +119,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 14
   m_CollisionDetection: 0
---- !u!65 &8911555633983547125
+--- !u!65 &4393420466763165863
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -130,9 +130,9 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1.8961699, y: 1.5987952, z: 0.65695256}
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &8121102532031684660
+  m_Size: {x: 0.5286441, y: 1.279036, z: 1.5170957}
+  m_Center: {x: -0.0003542156, y: -0.000000029802322, z: 0.00002160669}
+--- !u!114 &6533856707088571660
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

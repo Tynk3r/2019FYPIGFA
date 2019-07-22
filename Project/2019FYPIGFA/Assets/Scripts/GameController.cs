@@ -9,11 +9,12 @@ using Random = UnityEngine.Random;
 public class GameController : MonoBehaviour
 {
     [Header("Main")]
-    [ReadOnly] public bool finishedLevel = false;
+    [ReadOnly] public bool collectedAll = false;
     public List<SpawnPoint> spawnPoints = new List<SpawnPoint>();
 
     [Header("Shopping List")]
     public int numberOfObjectives;
+    public List<string> shoppingListText = new List<string>();
     public TextMeshProUGUI shoppingList;
 
     [Header("Weapons")]
@@ -24,6 +25,11 @@ public class GameController : MonoBehaviour
     void Start()
     {
         InitPoints();
+        foreach (SpawnPoint pt in FindObjectsOfType<SpawnPoint>())
+        {
+            if (pt.GetPointType() == SpawnPoint.POINT_TYPE.OBJECTIVE)
+                shoppingListText.Add(pt.GetPointName());
+        }
         UpdateShoppingList();
     }
 
@@ -36,15 +42,13 @@ public class GameController : MonoBehaviour
     public void UpdateShoppingList()
     {
         string s = "";
-        foreach (SpawnPoint pt in FindObjectsOfType<SpawnPoint>())
+        foreach (string ss in shoppingListText)
         {
-            if (pt.GetPointType() == SpawnPoint.POINT_TYPE.OBJECTIVE)
-                s += ("- " + pt.GetPointName() + "\n");
+                s += ("- " + ss + "\n");
         }
         if (s == "")
         {
             s = "You've completed your shopping list for this level! Head to the stairs to get the next level.";
-            finishedLevel = true;
         }
         shoppingList.text = s;
     }

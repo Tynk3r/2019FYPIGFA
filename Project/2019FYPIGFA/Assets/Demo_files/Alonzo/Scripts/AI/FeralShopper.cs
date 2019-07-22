@@ -95,7 +95,7 @@ public class FeralShopper : Enemy
                 Kite(out runPos);
                 MoveToPosition(runPos);
                 break;
-            case STATES.DEAD:
+            default:
 
                 break;
         }
