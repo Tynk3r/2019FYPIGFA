@@ -19,7 +19,7 @@ public class EnemyLootManager : MonoBehaviour
         foreach(GameObject weaponObj in baseWeaponList)
         {
             ItemTemplate template = weaponObj.GetComponent<ItemTemplate>();
-            ItemData data = template.itemData;
+            ItemData data = template.itemData.Clone();
             if (ItemData.WEAPON_TYPE.PROJECTILE == data.weaponType)
             {
                 m_rangedWeapons.Add(data);
