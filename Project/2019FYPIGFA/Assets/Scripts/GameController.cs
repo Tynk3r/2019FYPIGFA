@@ -16,6 +16,9 @@ public class GameController : MonoBehaviour
     public int numberOfObjectives;
     public List<string> shoppingListText = new List<string>();
     public TextMeshProUGUI shoppingList;
+    public AudioClip pickUpSound;
+    public AudioClip submitSound;
+    public AudioClip footstepSound;
 
     [Header("Weapons")]
     public int numberOfWeapons;

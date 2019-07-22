@@ -17,10 +17,12 @@ public class Player : MonoBehaviour
     }
     public OBJECTIVE_PROGRESSION gameMode = OBJECTIVE_PROGRESSION.LINEAR;
     private CharacterController characterController;
+    private SoundManager soundController;
     public GameController gameController;
     private Vector3 externalForce;
     private bool hasExternalForce;
     private List<Buffable.Buff> buffList;
+    public AudioSource footstepsSource;
 
     [Header("Stats")]
     public float maxHealth = 100f;
@@ -108,6 +110,7 @@ public class Player : MonoBehaviour
     public List<string> submittedObjectives = new List<string>();
     public List<string> heldObjectives = new List<string>();
     private Transform nextObjective = null;
+    private bool walkingSound = false;
 
     ref CharacterController GetCharacterController()
     {
@@ -121,6 +124,7 @@ public class Player : MonoBehaviour
         stamina = maxStamina;
         maxFOV = Camera.main.fieldOfView * Mathf.Clamp(1f + ((sprintSpeedModifier - 1f) / 2.5f), 1f, 2f);
         characterController = GetComponent<CharacterController>();
+        soundController = gameController.GetComponent<SoundManager>();
         smoothWeaponLandingDistanceMultiplier = weaponLandingDistanceMultiplier;
         inventoryPanel.gameObject.SetActive(false);
         shoppingList.SetActive(false);
@@ -143,7 +147,24 @@ public class Player : MonoBehaviour
         UpdatePickup();
         UpdateWeapon();
         UpdateInventory();
+        UpdateSound();
         UpdateUI();
+    }
+
+    void UpdateSound()
+    {
+        if ((Input.GetAxis("Vertical") != 0f || Input.GetAxis("Horizontal") != 0f)
+            && characterController.isGrounded
+            && !walkingSound)
+        {
+            footstepsSource.volume = 0.1f;
+            walkingSound = true;
+        }
+        else if (walkingSound)
+        {
+            footstepsSource.volume = 0f;
+            walkingSound = false;
+        }
     }
 
     void UpdateLook()
@@ -234,7 +255,9 @@ public class Player : MonoBehaviour
             else if (Input.GetAxis("Vertical") < 0f)
                 moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed * retreatSpeedModifier) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
             else
+            {
                 moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
+            }                
 
             if (Input.GetButton("Jump"))
             {
@@ -307,6 +330,7 @@ public class Player : MonoBehaviour
             if (gameController.shoppingListText.Count <= 0)
                 gameController.collectedAll = true;
             gameController.UpdateShoppingList();
+            soundController.PlaySingle(gameController.submitSound);
         }
 
         // Pick up Weapon you are currently standing over
@@ -458,6 +482,8 @@ public class Player : MonoBehaviour
          || (gameMode == OBJECTIVE_PROGRESSION.LINEAR 
             && heldObjectives.Count + submittedObjectives.Count >= gameController.numberOfObjectives))
             pt = ((Cashier)FindObjectOfType(typeof(Cashier))).gameObject;
+        if (submittedObjectives.Count == gameController.numberOfObjectives)
+            pt = ((LevelTrigger)FindObjectOfType(typeof(LevelTrigger))).gameObject;
 
         SpawnPoint pt2 = gameController.GetClosestPoint(transform.position, arrowLocationType);
         if (pt2 != null && pt == null)
@@ -706,6 +732,7 @@ public class Player : MonoBehaviour
         // TODO : Update Shopping List only when submitted
         string objective = gameController.RemovePoint(pt);
         heldObjectives.Add(objective);
+        soundController.PlaySingle(gameController.pickUpSound);
         yield return 0;
         gameController.UpdateShoppingList();
     }
