@@ -291,6 +291,23 @@ public class FeralShopper : Enemy
         MoveToPosition(goalPos);
         Debug.Log("Searching for weapon at " + lootShelf);
     }
+    private void OnTriggerEnter(Collider other)
+    {
+        if (STATES.SEARCH_WEAPON_MELEE != currState || STATES.SEARCH_WEAPON_RANGED != currState)
+            return;
+        EnemyLoot loot = other.gameObject.GetComponent<EnemyLoot>();
+        if (null == loot)
+            return;
+        if (STATES.SEARCH_WEAPON_RANGED == currState)
+        {
+            m_rangedWeapon = lootManager.GetWeapon(true);
+        }
+        else
+        {
+            m_meleeWeapon = lootManager.GetWeapon(false);
+        }
+        ChangeState(STATES.HOSTILE_CLOSE_GAP);
+    }
 
     public override bool TakeDamage(float _damage)
     {
