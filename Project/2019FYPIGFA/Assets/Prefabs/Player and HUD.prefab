@@ -732,6 +732,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88d736a7d8456e74c8db50a4f8ea6cd4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gameMode: 0
   gameController: {fileID: 6213084866986106099}
   maxHealth: 100
   maxStamina: 10
@@ -778,8 +779,8 @@ MonoBehaviour:
   currentWeapon: {fileID: 6213084867399457385}
   inventoryPanel: {fileID: 6213084866733776714}
   pickupInfoText: {fileID: 207713591559986089}
-  collectedObjectives: []
-  heldObjective: Nothin'
+  submittedObjectives: []
+  heldObjectives: []
 --- !u!114 &6213084866487779252
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1640,9 +1641,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 86fd90d8b77557e46a71a5c61fb2cd50, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  finishedLevel: 0
+  collectedAll: 0
   spawnPoints: []
-  numberOfObjectives: 8
+  numberOfObjectives: 3
+  shoppingListText: []
   shoppingList: {fileID: 6213084866537641075}
   numberOfWeapons: 3
   weaponsToSpawn:

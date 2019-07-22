@@ -9,6 +9,13 @@ using static SpawnPoint;
 [RequireComponent(typeof(CharacterController))]
 public class Player : MonoBehaviour
 {
+
+    public enum OBJECTIVE_PROGRESSION
+    {
+        LINEAR,
+        CIRCUITOUS
+    }
+    public OBJECTIVE_PROGRESSION gameMode = OBJECTIVE_PROGRESSION.LINEAR;
     private CharacterController characterController;
     public GameController gameController;
     private Vector3 externalForce;
@@ -98,8 +105,8 @@ public class Player : MonoBehaviour
     public GameObject pickupInfoText;
 
     [Header("Objective")]
-    public List<string> collectedObjectives = new List<string>();
-    public string heldObjective = "Nothin'";
+    public List<string> submittedObjectives = new List<string>();
+    public List<string> heldObjectives = new List<string>();
     private Transform nextObjective = null;
 
     ref CharacterController GetCharacterController()
@@ -120,6 +127,7 @@ public class Player : MonoBehaviour
         externalForce = new Vector3(0f, 0f, 0f);
         characterController.detectCollisions = false;
         hasExternalForce = false;
+        heldObjectives.Clear();
         // Misc QOL Stuff
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -267,36 +275,38 @@ public class Player : MonoBehaviour
             // Update closest weapon
             floorWeapon = null;
             if (g.GetComponent<Interactable>() != null)
-            {
-                if (floorWeapon == null || (g.transform.position - transform.position).magnitude <= (floorWeapon.transform.position - transform.position).magnitude)
-                {
+                if (floorWeapon == null 
+                    || (g.transform.position - transform.position).magnitude <= (floorWeapon.transform.position - transform.position).magnitude)
                     floorWeapon = g;
-                }
-            }
 
-            // Pick up objectives on collide
+            // Pick up objectives on collide; if less than one objective held or can pickup multiple objectives
             if (g.GetComponent<SpawnPoint>() != null
                 && g.GetComponent<SpawnPoint>().GetPointType() == POINT_TYPE.OBJECTIVE
-                && heldObjective == "Nothin'")
-            {
+                && (heldObjectives.Count < 1 || gameMode == OBJECTIVE_PROGRESSION.LINEAR))
                 StartCoroutine(PickUpObjective(g.GetComponent<SpawnPoint>()));
-            }
 
             // Stairs trigger
             if (g.GetComponent<LevelTrigger>() != null
-                && gameController.finishedLevel)
+                && gameController.collectedAll)
                 g.GetComponent<LevelTrigger>().Activate();
         }
 
         // Submit objectives
         if (Physics.Raycast(new Ray(transform.position, yLookObject.transform.forward), out RaycastHit hit, 10f)
-            && hit.collider.GetComponent<Cashier>() != null)
+            && hit.collider.GetComponent<Cashier>() != null
+            && Input.GetButtonDown("Pick Up")
+            && heldObjectives.Count > 0)
         {
-            if (Input.GetButtonDown("Pick Up"))
+            for (int i = 0; i < heldObjectives.Count; ++i)
             {
-                Debug.Log("Submitted " + heldObjective + " to Cashier.");
-                heldObjective = "Nothin'";
+                Debug.Log("Submitted " + heldObjectives[i] + " to Cashier.");
+                submittedObjectives.Add(heldObjectives[i]);
+                gameController.shoppingListText.Remove(heldObjectives[i]);
             }
+            heldObjectives.Clear();
+            if (gameController.shoppingListText.Count <= 0)
+                gameController.collectedAll = true;
+            gameController.UpdateShoppingList();
         }
 
         // Pick up Weapon you are currently standing over
@@ -416,13 +426,12 @@ public class Player : MonoBehaviour
             shoppingList.SetActive(!shoppingList.activeSelf);
             if (shoppingList.gameObject.activeSelf)
                 inventoryPanel.gameObject.SetActive(false);
-            Debug.Log(heldObjective);
             string s = "Collected Items: ";
             int i = 0;
-            foreach (string ss in collectedObjectives)
+            foreach (string ss in submittedObjectives)
             {
                 i++;
-                if (i >= collectedObjectives.Count)
+                if (i >= submittedObjectives.Count)
                     s += ss;
                 else
                     s += ss + ", ";
@@ -443,14 +452,17 @@ public class Player : MonoBehaviour
 
         // Objective Arrow (MAYBE INEFFICIENT CONSIDER REDOING)
         GameObject pt = null;
-        if (arrowLocationType != POINT_TYPE.OBJECTIVE || heldObjective == "Nothin'")
-        {
-            SpawnPoint pt2 = gameController.GetClosestPoint(transform.position, arrowLocationType);
-            if (pt2 != null)
-                pt = pt2.gameObject;
-        }
-        else
+        if (arrowLocationType == POINT_TYPE.OBJECTIVE
+         && gameMode == OBJECTIVE_PROGRESSION.CIRCUITOUS
+         && heldObjectives.Count > 0
+         || (gameMode == OBJECTIVE_PROGRESSION.LINEAR 
+            && heldObjectives.Count + submittedObjectives.Count >= gameController.numberOfObjectives))
             pt = ((Cashier)FindObjectOfType(typeof(Cashier))).gameObject;
+
+        SpawnPoint pt2 = gameController.GetClosestPoint(transform.position, arrowLocationType);
+        if (pt2 != null && pt == null)
+            pt = pt2.gameObject;
+
         if (pt != null)
         {
             nextObjective = pt.transform;
@@ -693,8 +705,7 @@ public class Player : MonoBehaviour
     {
         // TODO : Update Shopping List only when submitted
         string objective = gameController.RemovePoint(pt);
-        heldObjective = objective;
-        collectedObjectives.Add(objective);
+        heldObjectives.Add(objective);
         yield return 0;
         gameController.UpdateShoppingList();
     }

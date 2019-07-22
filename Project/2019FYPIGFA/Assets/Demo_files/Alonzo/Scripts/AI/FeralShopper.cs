@@ -151,7 +151,7 @@ public class FeralShopper : Enemy
                     ChangeState(STATES.HOSTILE_CLOSE_GAP);
                 }
                 break;
-            case STATES.DEAD:
+            default:
 
                 break;
         }
