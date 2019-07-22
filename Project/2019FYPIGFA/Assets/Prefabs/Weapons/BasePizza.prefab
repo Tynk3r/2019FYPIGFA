@@ -54,7 +54,7 @@ MonoBehaviour:
     shootOffset: 0.5
     attackRate: 5
     durability: 100
-    durabilityDecay: 20
+    durabilityDecay: 50
     weaponDamage: 10
     attackRange: 10
     impactEffect: {fileID: 0}

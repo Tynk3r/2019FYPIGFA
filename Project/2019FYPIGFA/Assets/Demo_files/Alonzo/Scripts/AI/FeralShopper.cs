@@ -20,9 +20,9 @@ public class FeralShopper : Enemy
 
     // For picking up weapons
     [SerializeField]
-    private ItemData m_rangedWeapon = null;
+    private ItemData m_rangedWeapon;
     [SerializeField]
-    private ItemData m_meleeWeapon = null;
+    private ItemData m_meleeWeapon;
 
     public GameObject heldWeapon;
 
@@ -55,7 +55,8 @@ public class FeralShopper : Enemy
         var rb = GetComponent<Rigidbody>();
         rb.isKinematic = true;
         rb.detectCollisions = true;
-        m_meleeWeapon = m_rangedWeapon = null;
+        m_meleeWeapon.weaponType = ItemData.WEAPON_TYPE.NONE;
+        m_rangedWeapon.weaponType = ItemData.WEAPON_TYPE.NONE;
         if (null == heldWeapon)
             Debug.LogError("Missing the held weapon gameObject");
         //else if (null == heldWeapon.GetComponent<MeshFilter>() || null == heldWeapon.GetComponent<MeshRenderer>())
@@ -98,9 +99,10 @@ public class FeralShopper : Enemy
                 }
                 break;
             case STATES.RANGED_ATTACK:
-                if (null == m_rangedWeapon)
+                if (ItemData.WEAPON_TYPE.NONE == m_rangedWeapon.weaponType)
                 {
-                    
+                    ChangeState(STATES.SEARCH_WEAPON_RANGED);
+                    break;
                 }
                 else if ((transform.position - D_PLAYERTARGET.transform.position).sqrMagnitude > rangedAttackRange * rangedAttackRange || m_attackCooldown > 0f)
                 {
@@ -136,9 +138,9 @@ public class FeralShopper : Enemy
                 break;
             case STATES.MELEE_ATTACK:
                 MoveToPosition(D_PLAYERTARGET.transform.position);
-                if (null == m_meleeWeapon)
+                if (ItemData.WEAPON_TYPE.NONE == m_meleeWeapon.weaponType)
                 {
-
+                    ChangeState(STATES.SEARCH_WEAPON_MELEE);
                     break;
                 }
                 else if ((D_PLAYERTARGET.transform.position - transform.position).sqrMagnitude < rangedAttackRange && m_countDown <= 0f)
@@ -290,6 +292,23 @@ public class FeralShopper : Enemy
         Vector3 goalPos = lootManager.GetLootLocation(transform.position, out lootShelf);
         MoveToPosition(goalPos);
         Debug.Log("Searching for weapon at " + lootShelf);
+    }
+    private void OnTriggerEnter(Collider other)
+    {
+        if (STATES.SEARCH_WEAPON_MELEE != currState || STATES.SEARCH_WEAPON_RANGED != currState)
+            return;
+        EnemyLoot loot = other.gameObject.GetComponent<EnemyLoot>();
+        if (null == loot)
+            return;
+        if (STATES.SEARCH_WEAPON_RANGED == currState)
+        {
+            m_rangedWeapon = lootManager.GetWeapon(true);
+        }
+        else
+        {
+            m_meleeWeapon = lootManager.GetWeapon(false);
+        }
+        ChangeState(STATES.HOSTILE_CLOSE_GAP);
     }
 
     public override bool TakeDamage(float _damage)

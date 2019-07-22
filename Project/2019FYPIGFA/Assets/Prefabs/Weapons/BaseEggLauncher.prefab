@@ -59,6 +59,6 @@ MonoBehaviour:
     attackRange: 0
     impactEffect: {fileID: 0}
     projectileID: -1
-    projectileMagnitude: 20
+    projectileMagnitude: 50
     projectile: Egg
     projectileName: 
