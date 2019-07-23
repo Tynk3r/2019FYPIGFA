@@ -21,6 +21,7 @@ public class ItemData
         NONE,
         HOT_SAUCE
     }
+    [Serializable]
     public class WeaponBuff
     {
         public BUFF_TYPE buff = BUFF_TYPE.NONE;

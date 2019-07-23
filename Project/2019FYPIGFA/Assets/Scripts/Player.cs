@@ -371,6 +371,28 @@ public class Player : MonoBehaviour
                     // Skill cooldown
                 }
             }
+            else if (Input.GetButtonDown("Use") && ItemData.WEAPON_TYPE.NONE != currentWeapon.itemData.weaponType)
+            {
+                RaycastHit hit;
+                const float useRange = 1f;
+                if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.TransformDirection(Vector3.forward), out hit, useRange))
+                {
+                    BuffMachineBase machine = hit.collider.gameObject.GetComponent<BuffMachineBase>();
+                    if (null != machine)
+                    {
+                        Debug.Log("Found a machine to use");
+                        ItemData.WeaponBuff newBuff;
+                        if (machine.DispenseBuff(out newBuff)) // If a buff has been found
+                        {
+                            Debug.Log("Used the dispenser successfully!");
+                            // ApplyBuff(newBuff.buff, newBuff.duration);
+                            currentWeapon.ApplyBuff(newBuff);
+                        }
+                    }
+                    else
+                        Debug.Log("There's no machine to use");
+                }
+            }
             if (currentWeapon.itemData.durability <= 0)
             {
                 weaponInventory.RemoveItem(currentWeapon.itemData);
@@ -393,6 +415,7 @@ public class Player : MonoBehaviour
             }
             if (ItemData.BUFF_TYPE.NONE != currentWeapon.itemData.weaponBuff.buff)
             {
+                Debug.unityLogger.Log(currentWeapon.itemData.weaponBuff);
                 currentWeapon.itemData.weaponBuff.duration -= Time.deltaTime;
                 if (currentWeapon.itemData.weaponBuff.duration <= 0f)
                 {
