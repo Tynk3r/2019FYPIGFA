@@ -57,6 +57,7 @@ public class Enemy : AIManager
     }
     public void ApplyBuff(Buffable.CHAR_BUFF _buffType, float _duration = 0f)
     {
+        Debug.Log("Applied a buff of type " + _buffType);
         // First find out if the buff has already been applied
         for (int i = 0; i < m_buffList.Count; ++i)
         {

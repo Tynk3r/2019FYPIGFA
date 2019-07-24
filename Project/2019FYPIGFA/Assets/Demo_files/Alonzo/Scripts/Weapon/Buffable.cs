@@ -4,8 +4,10 @@ using UnityEngine;
 
 public static class Buffable
 {
+    [SerializeField]
     public enum CHAR_BUFF
     {
+        NONE,
         BUFF_SLOMO,
         DEBUFF, // For checking
         DEBUFF_BURN,
