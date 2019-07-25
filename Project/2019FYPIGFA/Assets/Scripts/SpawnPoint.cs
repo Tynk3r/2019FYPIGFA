@@ -1,28 +1,32 @@
 ﻿using System;
 using UnityEngine;
-
 public class SpawnPoint : MonoBehaviour
 {
     public enum POINT_TYPE
     {
         OBJECTIVE,
         WEAPON,
+        HEALTH,
         EMPTY,
     }
 
     private POINT_TYPE pointType = POINT_TYPE.EMPTY;
     private string pointName = null;
-
-    // Start is called before the first frame update
-    void Start()
+    
+    public void SetPointTo(POINT_TYPE p)
     {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
+        pointType = p;
+        switch (pointType)
+        {
+            case POINT_TYPE.HEALTH:
+                pointName = "HealthPickup";
+                transform.localScale = new Vector3(1f,1f,1f);
+                GetComponent<BoxCollider>().size = GetComponent<MeshRenderer>().bounds.size;
+                gameObject.AddComponent<BounceAnimation>();
+                GetComponent<BounceAnimation>().bounce = false;
+                GetComponent<BounceAnimation>().spinRate = 1.5f;
+                break;
+        }
     }
 
     public void SetPointTo(Objective objective)

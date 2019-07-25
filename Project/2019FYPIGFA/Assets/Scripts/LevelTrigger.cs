@@ -16,7 +16,7 @@ public class LevelTrigger : MonoBehaviour
 #if UNITY_EDITOR
             EditorApplication.isPlaying = false;
 #else
-
+        Application.Quit();
 #endif
         else
             SceneManager.LoadScene(nextScene);

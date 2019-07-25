@@ -20,12 +20,17 @@ public class GameController : MonoBehaviour
     public AudioClip submitSound;
     public AudioClip footstepSound;
 
+    [Header("Powerups")]
+    public int numberOfHealthPickups;
+    public Mesh healthPickupMesh;
+    public Material healthPickupMaterial;
+
     [Header("Weapons")]
     public int numberOfWeapons;
     public List<ItemTemplate> weaponsToSpawn = new List<ItemTemplate>();
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         InitPoints();
         foreach (SpawnPoint pt in FindObjectsOfType<SpawnPoint>())
@@ -34,26 +39,6 @@ public class GameController : MonoBehaviour
                 shoppingListText.Add(pt.GetPointName());
         }
         UpdateShoppingList();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
-    public void UpdateShoppingList()
-    {
-        string s = "";
-        foreach (string ss in shoppingListText)
-        {
-                s += ("- " + ss + "\n");
-        }
-        if (s == "")
-        {
-            s = "You've completed your shopping list for this level! Head to the stairs to get the next level.";
-        }
-        shoppingList.text = s;
     }
 
     public void InitPoints()
@@ -102,12 +87,41 @@ public class GameController : MonoBehaviour
             }
         }
 
+        // Spawn Health Pickups
+        float healthPickupsSpawned = 0;
+        while (healthPickupsSpawned < numberOfHealthPickups)
+        {
+            int rand = Random.Range(0, spawnPoints.Count);
+            SpawnPoint healthPickup = spawnPoints[rand];
+            if (healthPickup.GetPointType() == SpawnPoint.POINT_TYPE.EMPTY)
+            {
+                healthPickup.GetComponent<MeshFilter>().mesh = healthPickupMesh;
+                healthPickup.GetComponent<MeshRenderer>().material = healthPickupMaterial;
+                healthPickup.SetPointTo(SpawnPoint.POINT_TYPE.HEALTH);
+                healthPickupsSpawned++;
+            }
+        }
+
         // Clear Unused Spawn Points
         foreach (SpawnPoint s in FindObjectsOfType<SpawnPoint>())
         {
             if (s.GetPointType() == SpawnPoint.POINT_TYPE.EMPTY)
                 s.gameObject.SetActive(false);
         }
+    }
+
+    public void UpdateShoppingList()
+    {
+        string s = "";
+        foreach (string ss in shoppingListText)
+        {
+                s += ("- " + ss + "\n");
+        }
+        if (s == "")
+        {
+            s = "You've completed your shopping list for this level! Head to the stairs to get the next level.";
+        }
+        shoppingList.text = s;
     }
 
     public void PrintShoppingList()
