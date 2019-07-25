@@ -5,8 +5,9 @@ using UnityEngine;
 public class ChilliBuffDispenser : BuffMachineBase
 {
     public Renderer rend;
-    private void Start()
+    public override void Start()
     {
+        base.Start();
         if (null == rend)
             Debug.LogError("Failed to get renderer");
     }

@@ -4,6 +4,8 @@ using UnityEngine;
 [Serializable]
 public class ItemData
 {
+    public const float DURATION_SLOW = 3f;
+    public const float DURATION_BURN = 5f;
     public enum WEAPON_TYPE
     {
         NONE,
@@ -21,6 +23,7 @@ public class ItemData
         NONE,
         HOT_SAUCE
     }
+    [Serializable]
     public class WeaponBuff
     {
         public BUFF_TYPE buff = BUFF_TYPE.NONE;

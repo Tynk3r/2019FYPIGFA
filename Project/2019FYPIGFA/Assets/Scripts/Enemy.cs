@@ -4,13 +4,17 @@ using UnityEngine;
 
 public class Enemy : AIManager
 {
+    const float BURN_DAMAGE_MULT = 0.03f;
     public enum ENEMY_TYPE
     {
         CLOTHING_RACK_KIDS,
         AHMA,
         FERAL_SHOPPER
     }
-
+    [SerializeField]
+    private EnemyBuffCanvas buffCanvas;
+    [SerializeField]
+    private EnemyBuffParticles buffParticles;
     private List<Buffable.Buff> m_buffList;
     public ENEMY_TYPE enemyType;
     public float health = 1;
@@ -23,6 +27,8 @@ public class Enemy : AIManager
     {
         base.Start();
         m_buffList = new List<Buffable.Buff>();
+        if (null == buffCanvas)
+            Debug.LogError("There's not buff canvas attached to this enemy");
     }
 
     // Update is called once per frame
@@ -57,6 +63,7 @@ public class Enemy : AIManager
     }
     public void ApplyBuff(Buffable.CHAR_BUFF _buffType, float _duration = 0f)
     {
+        Debug.Log("Applied a buff of type " + _buffType);
         // First find out if the buff has already been applied
         for (int i = 0; i < m_buffList.Count; ++i)
         {
@@ -81,6 +88,8 @@ public class Enemy : AIManager
                 ChangeSpeedMultiplier(0.5f);
                 break;
         }
+        buffCanvas.AddBuff(_buffType);
+        buffParticles.AddBuff(_buffType);
     }
     void BuffEnd(Buffable.CHAR_BUFF _buffType)
     {
@@ -92,13 +101,16 @@ public class Enemy : AIManager
                 ChangeSpeedMultiplier(1f);
                 break;
         }
+        buffCanvas.RemoveBuff(_buffType);
+        buffParticles.RemoveBuff(_buffType);
     }
     void BuffTick(Buffable.Buff _buff)
     {
+        Debug.Log("Ticking buff");
         switch (_buff.buff)
         {
             case Buffable.CHAR_BUFF.DEBUFF_BURN:
-                TakeDamage(_buff.tickValue);
+                TakeDamage(maxHealth * BURN_DAMAGE_MULT);
                 break;
             default:
                 //Debug.LogError("No buff found!");

@@ -81,9 +81,16 @@ public class HeldWeapon : MonoBehaviour
                     if (attackTimer > 0f)
                         return false;
 
-                    if (hit.collider.GetComponent<Enemy>() != null) // TODO: APPLY DEBUFF HERE
+                    if (hit.collider.GetComponent<Enemy>() != null) // TODO: OPTIMIZE IN CASE OF DEATH
                     {
                         Enemy enemy = hit.collider.GetComponent<Enemy>();
+                        enemy.TakeDamage(itemData.weaponDamage);
+                        switch (itemData.weaponBuff.buff)
+                        {
+                            case ItemData.BUFF_TYPE.HOT_SAUCE:
+                                enemy.ApplyBuff(Buffable.CHAR_BUFF.DEBUFF_BURN, ItemData.DURATION_BURN);
+                                break;
+                        }
                         enemy.health = Mathf.Clamp(enemy.health - itemData.weaponDamage, 0, enemy.maxHealth);
                         attackTimer = 1 / itemData.attackRate;
                         itemData.durability = Mathf.Clamp(itemData.durability - itemData.durabilityDecay, 0, 100);
