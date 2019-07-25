@@ -415,7 +415,6 @@ public class Player : MonoBehaviour
             }
             if (ItemData.BUFF_TYPE.NONE != currentWeapon.itemData.weaponBuff.buff)
             {
-                Debug.unityLogger.Log(currentWeapon.itemData.weaponBuff);
                 currentWeapon.itemData.weaponBuff.duration -= Time.deltaTime;
                 if (currentWeapon.itemData.weaponBuff.duration <= 0f)
                 {

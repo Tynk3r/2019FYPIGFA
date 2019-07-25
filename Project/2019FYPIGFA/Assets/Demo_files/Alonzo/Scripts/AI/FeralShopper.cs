@@ -71,6 +71,7 @@ public class FeralShopper : Enemy
     // Update is called once per frame
     override public void Update()
     {
+        base.Update();
         if (0f < m_countDown)
             m_countDown -= Time.deltaTime;
         if (0f < m_attackCooldown)
