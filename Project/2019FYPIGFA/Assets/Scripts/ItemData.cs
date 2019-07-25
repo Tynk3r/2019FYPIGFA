@@ -21,6 +21,7 @@ public class ItemData
         NONE,
         HOT_SAUCE
     }
+    [Serializable]
     public class WeaponBuff
     {
         public BUFF_TYPE buff = BUFF_TYPE.NONE;
@@ -38,6 +39,8 @@ public class ItemData
     public Vector3 heldPosition;
     [Tooltip("Determines orientation when held by player.")]
     public Vector3 heldRotation;
+    [Tooltip("Determines the position of projectiles spawning, relative to y look object transform")]
+    public float shootOffset = 0.5f;
     [Tooltip("Attacks Per Second")]
     public float attackRate;
     [Tooltip("Expressed as a Percentage")]
@@ -54,8 +57,12 @@ public class ItemData
     public GameObject impactEffect;
 
     [DrawIf("weaponType", WEAPON_TYPE.PROJECTILE)]
-    public GameObject projectile;
+    public int projectileID = -1;
+    public float projectileMagnitude;
+    public string projectile;
 
+    [SerializeField]
+    private string projectileName;
 
     public ItemData Clone()
     {
@@ -73,7 +80,13 @@ public class ItemData
             material = this.material,
             heldPosition = this.heldPosition,
             heldRotation = this.heldRotation,
-            impactEffect = this.impactEffect
+            impactEffect = this.impactEffect,
+            projectileID = ProjectilePool.g_sharedInstance.GetPooledObjectIndex(this.projectileName),
+            projectileMagnitude = this.projectileMagnitude,
+            projectileName = this.projectileName,
+            projectile = this.projectile,
+            weaponBuff = this.weaponBuff,
+            shootOffset = this.shootOffset
         };
         return clone;
     }

@@ -12,7 +12,7 @@ public class Interactable : MonoBehaviour
 {
     [SerializeField]
     private ItemTemplate itemTemplate = null;
-    [HideInInspector]
+    [ReadOnly]
     public ItemData itemData = null;
     public bool canPickUp = true;
     

@@ -68,6 +68,11 @@ public class Lift : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Changes the state of the lift.
+    /// Also runs the starting effect at the beginning of a new state, based on new state
+    /// </summary>
+    /// <param name="_newState">The new state to change into</param>
     void ChangeState(LIFT_STATE _newState)
     {
         // TODO: REMOVE

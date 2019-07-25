@@ -4,15 +4,25 @@ using System.Collections;
 using System;
 using TMPro;
 using UnityEditor;
+using static SpawnPoint;
 
 [RequireComponent(typeof(CharacterController))]
 public class Player : MonoBehaviour
 {
+
+    public enum OBJECTIVE_PROGRESSION
+    {
+        LINEAR,
+        CIRCUITOUS
+    }
+    public OBJECTIVE_PROGRESSION gameMode = OBJECTIVE_PROGRESSION.LINEAR;
     private CharacterController characterController;
+    private SoundManager soundController;
     public GameController gameController;
-    public string[] collectedObjectives;
     private Vector3 externalForce;
     private bool hasExternalForce;
+    private List<Buffable.Buff> buffList;
+    public AudioSource footstepsSource;
 
     [Header("Stats")]
     public float maxHealth = 100f;
@@ -39,8 +49,7 @@ public class Player : MonoBehaviour
     public GameObject shoppingList;
     public GameObject objectiveArrow;
     public SpawnPoint.POINT_TYPE arrowLocationType;
-    private Transform nextObjective = null;
-    public Transform objectiveFloater;
+    public Transform objectiveFloaterParent;
     public Camera minimapCamera;
     [Range(10f, 1f)]
     public float minimapZoom = 6f;
@@ -97,6 +106,17 @@ public class Player : MonoBehaviour
     private GameObject floorWeapon = null;
     public GameObject pickupInfoText;
 
+    [Header("Objective")]
+    public List<string> submittedObjectives = new List<string>();
+    public List<string> heldObjectives = new List<string>();
+    private Transform nextObjective = null;
+    private bool walkingSound = false;
+
+    ref CharacterController GetCharacterController()
+    {
+        return ref characterController;
+    }
+
     void Start()
     {
         // Variable Initialisation
@@ -104,179 +124,47 @@ public class Player : MonoBehaviour
         stamina = maxStamina;
         maxFOV = Camera.main.fieldOfView * Mathf.Clamp(1f + ((sprintSpeedModifier - 1f) / 2.5f), 1f, 2f);
         characterController = GetComponent<CharacterController>();
+        soundController = gameController.GetComponent<SoundManager>();
         smoothWeaponLandingDistanceMultiplier = weaponLandingDistanceMultiplier;
         inventoryPanel.gameObject.SetActive(false);
         shoppingList.SetActive(false);
         externalForce = new Vector3(0f, 0f, 0f);
+        characterController.detectCollisions = false;
         hasExternalForce = false;
+        heldObjectives.Clear();
         // Misc QOL Stuff
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        buffList = new List<Buffable.Buff>();
     }
 
     void Update()
     {
-        UpdateMove();
+        UpdateLook();
         if (hasExternalForce)
             UpdateExternalForce();
+        UpdateMove();
+        UpdatePickup();
         UpdateWeapon();
-        UpdateLook();
         UpdateInventory();
+        UpdateSound();
         UpdateUI();
     }
 
-    void UpdateWeapon()
+    void UpdateSound()
     {
-        if (currentWeapon && currentWeapon.itemData != null && currentWeapon.itemData.weaponType != ItemData.WEAPON_TYPE.NONE)
+        if ((Input.GetAxis("Vertical") != 0f || Input.GetAxis("Horizontal") != 0f)
+            && characterController.isGrounded
+            && !walkingSound)
         {
-            if (Input.GetButtonDown("Fire1"))
-            {
-                if (currentWeapon.Fire())
-                {
-                    //hit
-                }
-                else
-                {
-                    //weapon cooldown
-                }
-                if (currTarget != null)
-                    enemyHealthBar.GetComponent<RectTransform>().localScale = new Vector3(currTarget.health / currTarget.maxHealth, enemyHealthBar.transform.localScale.y, enemyHealthBar.transform.localScale.z);
-            }
-            if (Input.GetButtonDown("Fire2"))
-            {
-                if (currentWeapon.Skill())
-                {
-                    // Skill used
-                }
-                else
-                {
-                    // Skill cooldown
-                }
-            }
-            if (currentWeapon.itemData.durability <= 0)
-            {
-                weaponInventory.RemoveItem(currentWeapon.itemData);
-                currentWeapon.RemoveWeapon();
-                Debug.Log("Weapon Broke!");
-            }
-            if (Input.GetButtonDown("Next Weapon"))
-            {
-                if (weaponInventory.itemList.Count == 0)
-                    Debug.Log("You Don't Have Any Weapons!");
-                else if (weaponInventory.itemList.Count == 1)
-                    Debug.Log("You Don't Have Any Other Weapons!");
-                else if (weaponInventory.itemList.Count > 1)
-                {
-                    int nextWeaponIndex = weaponInventory.itemList.IndexOf(currentWeapon.itemData) + 1;
-                    if (weaponInventory.itemList.IndexOf(currentWeapon.itemData) == weaponInventory.itemList.Count - 1)
-                        nextWeaponIndex = 0;
-                    currentWeapon.ChangeWeapon(weaponInventory.itemList[nextWeaponIndex]);
-                }
-            }
-            if (ItemData.BUFF_TYPE.NONE != currentWeapon.itemData.weaponBuff.buff)
-            {
-                currentWeapon.itemData.weaponBuff.duration -= Time.deltaTime;
-                if (currentWeapon.itemData.weaponBuff.duration <= 0f)
-                {
-                    currentWeapon.itemData.weaponBuff.duration = 0f;
-                    currentWeapon.itemData.weaponBuff.buff = ItemData.BUFF_TYPE.NONE;
-                    Debug.Log("Buff ran out");
-                }
-            }
+            footstepsSource.volume = 0.1f;
+            walkingSound = true;
         }
-        else if (weaponInventory.itemList.Count != 0)
-            currentWeapon.ChangeWeapon(weaponInventory.itemList[0]);
-    }
-
-    void UpdateInventory()
-    {
-        // Pickup Interactables
-        /*if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out RaycastHit hit, 100))
+        else if (walkingSound)
         {
-            Debug.DrawLine(Camera.main.transform.position, hit.point);
-            if (hit.collider.GetComponent<Interactable>() != null)
-            {
-                GameObject interactable = hit.transform.gameObject;
-                if (Input.GetButtonDown("Pick Up"))
-                {
-                    if (weaponInventory.itemList.Count >= 3)
-                        Debug.Log("No Space Left in Inventory");
-                    else
-                        interactable.GetComponent<Interactable>().OnPickedUp(this.gameObject);
-                }
-            }
-        }*/
-        if (Input.GetButtonDown("Pick Up") && floorWeapon != null)
-        {
-            if (weaponInventory.itemList.Count >= 3)
-                Debug.Log("No Space Left in Inventory");
-            else
-                floorWeapon.GetComponent<Interactable>().OnPickedUp(this.gameObject);
+            footstepsSource.volume = 0f;
+            walkingSound = false;
         }
-        // Drop Weapons From Inventory as Interactables
-        if (Input.GetButtonDown("Drop Weapon"))
-        {
-            if (!currentWeapon || currentWeapon.itemData == null || currentWeapon.itemData.weaponType == ItemData.WEAPON_TYPE.NONE)
-            {
-                Debug.Log("No weapon is currently being held.");
-            }
-            else
-            {
-                weaponInventory.RemoveItem(currentWeapon.itemData);
-                GameObject droppedWeapon = new GameObject("dropped" + currentWeapon.itemData.type, typeof(Interactable));
-                droppedWeapon.GetComponent<Interactable>().Initialize(currentWeapon.RemoveWeapon());
-                if (Physics.Raycast(new Ray(transform.position, transform.up), out RaycastHit hit, Mathf.Infinity))
-                    droppedWeapon.transform.position = new Vector3(transform.position.x, hit.transform.position.y + 1, transform.position.z);
-                else
-                    droppedWeapon.transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z);
-
-                if (currentWeapon.itemData != null)
-                {
-                    Debug.LogError("Held Weapon was not destroyed");
-                }
-            }
-        }
-    }
-
-    void UpdateMove()
-    {
-        if (characterController.isGrounded)
-        {
-            doubleJump = false;
-            // moveDirection = (transform.right * Input.GetAxis("Horizontal")) + (Vector3.ProjectOnPlane(transform.forward, new Vector3(0, 1, 0)) * Input.GetAxis("Vertical")); // deprecated movement that ignored y look
-            if (Input.GetButton("Sprint") && Input.GetAxis("Vertical") > 0f && !staminaRecovering)
-            {
-                stamina = Mathf.Max(stamina - (Time.deltaTime * staminaDecayMultiplier), 0f);
-                moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed * sprintSpeedModifier) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
-            }
-            else if (Input.GetAxis("Vertical") < 0f)
-                moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed * retreatSpeedModifier) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
-            else
-                moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
-
-            if (Input.GetButton("Jump"))
-            {
-                doubleJump = true;
-                moveDirection.y = jumpSpeed;
-            }
-            if (smoothWeaponLandingDistanceMultiplier != weaponLandingDistanceMultiplier)
-                smoothWeaponLandingDistanceMultiplier = weaponLandingDistanceMultiplier;
-        }
-        else
-        {
-            if (Input.GetButton("Sprint") && Input.GetAxis("Vertical") > 0f && !staminaRecovering)
-                stamina = Mathf.Max(stamina - (Time.deltaTime * staminaDecayMultiplier), 0f);
-
-            if (doubleJump && Input.GetButtonDown("Jump"))
-            {
-                doubleJump = false;
-                moveDirection.y = jumpSpeed;
-            }
-            if (smoothWeaponLandingDistanceMultiplier != 1)
-                smoothWeaponLandingDistanceMultiplier = 1;
-        }
-        moveDirection.y -= gravity * Time.deltaTime; // Ensure a Stunk to floor
-        characterController.Move(moveDirection * Time.deltaTime);
     }
 
     void UpdateLook()
@@ -340,6 +228,234 @@ public class Player : MonoBehaviour
         yLookObject.transform.localRotation = Quaternion.Euler(rotation.x * mouseXSpeed, 0, 0);
         viewBobObject.transform.localRotation = Quaternion.Euler(0, 0, cameraSwayAngle);
     }
+
+    void UpdateExternalForce()
+    {
+        if (externalForce.sqrMagnitude < 30f)
+        {
+            externalForce = Vector3.zero;
+            hasExternalForce = false;
+            return;
+        }
+        characterController.Move(externalForce * Time.deltaTime);
+        externalForce = Vector3.Lerp(externalForce, Vector3.zero, 1 * Time.deltaTime); // TODO: check decay on externalForce
+    }
+
+    void UpdateMove()
+    {
+        if (characterController.isGrounded)
+        {
+            doubleJump = false;
+            // moveDirection = (transform.right * Input.GetAxis("Horizontal")) + (Vector3.ProjectOnPlane(transform.forward, new Vector3(0, 1, 0)) * Input.GetAxis("Vertical")); // deprecated movement that ignored y look
+            if (Input.GetButton("Sprint") && Input.GetAxis("Vertical") > 0f && !staminaRecovering)
+            {
+                stamina = Mathf.Max(stamina - (Time.deltaTime * staminaDecayMultiplier), 0f);
+                moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed * sprintSpeedModifier) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
+            }
+            else if (Input.GetAxis("Vertical") < 0f)
+                moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed * retreatSpeedModifier) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
+            else
+            {
+                moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
+            }                
+
+            if (Input.GetButton("Jump"))
+            {
+                doubleJump = true;
+                moveDirection.y = jumpSpeed;
+            }
+            if (smoothWeaponLandingDistanceMultiplier != weaponLandingDistanceMultiplier)
+                smoothWeaponLandingDistanceMultiplier = weaponLandingDistanceMultiplier;
+        }
+        else
+        {
+            if (Input.GetButton("Sprint") && Input.GetAxis("Vertical") > 0f && !staminaRecovering)
+                stamina = Mathf.Max(stamina - (Time.deltaTime * staminaDecayMultiplier), 0f);
+
+            if (doubleJump && Input.GetButtonDown("Jump"))
+            {
+                doubleJump = false;
+                moveDirection.y = jumpSpeed;
+            }
+            if (smoothWeaponLandingDistanceMultiplier != 1)
+                smoothWeaponLandingDistanceMultiplier = 1;
+        }
+        moveDirection.y -= gravity * Time.deltaTime; // Ensure a Stunk to floor
+        characterController.Move(moveDirection * Time.deltaTime);
+    }
+
+    void UpdatePickup()
+    {
+        // Check what colliders in range
+        Collider[] hitColliders = Physics.OverlapCapsule(
+            transform.position + new Vector3(0f, characterController.height, 0f),
+            transform.position - new Vector3(0f, characterController.height, 0f),
+            characterController.radius);
+        foreach (Collider c in hitColliders)
+        {
+            GameObject g = c.gameObject;
+
+            // Update closest weapon
+            floorWeapon = null;
+            if (g.GetComponent<Interactable>() != null)
+                if (floorWeapon == null 
+                    || (g.transform.position - transform.position).magnitude <= (floorWeapon.transform.position - transform.position).magnitude)
+                    floorWeapon = g;
+
+            // Pick up objectives on collide; if less than one objective held or can pickup multiple objectives
+            if (g.GetComponent<SpawnPoint>() != null
+                && g.GetComponent<SpawnPoint>().GetPointType() == POINT_TYPE.OBJECTIVE
+                && (heldObjectives.Count < 1 || gameMode == OBJECTIVE_PROGRESSION.LINEAR))
+                StartCoroutine(PickUpObjective(g.GetComponent<SpawnPoint>()));
+
+            // Stairs trigger
+            if (g.GetComponent<LevelTrigger>() != null
+                && gameController.collectedAll)
+                g.GetComponent<LevelTrigger>().Activate();
+        }
+
+        // Submit objectives
+        if (Physics.Raycast(new Ray(transform.position, yLookObject.transform.forward), out RaycastHit hit, 10f)
+            && hit.collider.GetComponent<Cashier>() != null
+            && Input.GetButtonDown("Pick Up")
+            && heldObjectives.Count > 0)
+        {
+            for (int i = 0; i < heldObjectives.Count; ++i)
+            {
+                Debug.Log("Submitted " + heldObjectives[i] + " to Cashier.");
+                submittedObjectives.Add(heldObjectives[i]);
+                gameController.shoppingListText.Remove(heldObjectives[i]);
+            }
+            heldObjectives.Clear();
+            if (gameController.shoppingListText.Count <= 0)
+                gameController.collectedAll = true;
+            gameController.UpdateShoppingList();
+            soundController.PlaySingle(gameController.submitSound);
+        }
+
+        // Pick up Weapon you are currently standing over
+        if (Input.GetButtonDown("Pick Up") && floorWeapon != null)
+        {
+            if (weaponInventory.itemList.Count >= 3)
+                Debug.Log("No Space Left in Inventory");
+            else
+                floorWeapon.GetComponent<Interactable>().OnPickedUp(this.gameObject);
+        }
+    }
+
+    void UpdateWeapon()
+    {
+        if (currentWeapon && currentWeapon.itemData != null && currentWeapon.itemData.weaponType != ItemData.WEAPON_TYPE.NONE)
+        {
+            if (Input.GetButtonDown("Fire1"))
+            {
+                if (currentWeapon.Fire())
+                {
+                    //hit
+                }
+                else
+                {
+                    //weapon cooldown
+                }
+                if (currTarget != null)
+                    enemyHealthBar.GetComponent<RectTransform>().localScale = new Vector3(currTarget.health / currTarget.maxHealth, enemyHealthBar.transform.localScale.y, enemyHealthBar.transform.localScale.z);
+            }
+            if (Input.GetButtonDown("Fire2"))
+            {
+                if (currentWeapon.Skill())
+                {
+                    // Skill used
+                }
+                else
+                {
+                    // Skill cooldown
+                }
+            }
+            else if (Input.GetButtonDown("Use") && ItemData.WEAPON_TYPE.NONE != currentWeapon.itemData.weaponType)
+            {
+                RaycastHit hit;
+                const float useRange = 1f;
+                if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.TransformDirection(Vector3.forward), out hit, useRange))
+                {
+                    BuffMachineBase machine = hit.collider.gameObject.GetComponent<BuffMachineBase>();
+                    if (null != machine)
+                    {
+                        Debug.Log("Found a machine to use");
+                        ItemData.WeaponBuff newBuff;
+                        if (machine.DispenseBuff(out newBuff)) // If a buff has been found
+                        {
+                            Debug.Log("Used the dispenser successfully!");
+                            // ApplyBuff(newBuff.buff, newBuff.duration);
+                            currentWeapon.ApplyBuff(newBuff);
+                        }
+                    }
+                    else
+                        Debug.Log("There's no machine to use");
+                }
+            }
+            if (currentWeapon.itemData.durability <= 0)
+            {
+                weaponInventory.RemoveItem(currentWeapon.itemData);
+                currentWeapon.RemoveWeapon();
+                Debug.Log("Weapon Broke!");
+            }
+            if (Input.GetButtonDown("Next Weapon"))
+            {
+                if (weaponInventory.itemList.Count == 0)
+                    Debug.Log("You Don't Have Any Weapons!");
+                else if (weaponInventory.itemList.Count == 1)
+                    Debug.Log("You Don't Have Any Other Weapons!");
+                else if (weaponInventory.itemList.Count > 1)
+                {
+                    int nextWeaponIndex = weaponInventory.itemList.IndexOf(currentWeapon.itemData) + 1;
+                    if (weaponInventory.itemList.IndexOf(currentWeapon.itemData) == weaponInventory.itemList.Count - 1)
+                        nextWeaponIndex = 0;
+                    currentWeapon.ChangeWeapon(weaponInventory.itemList[nextWeaponIndex]);
+                }
+            }
+            if (ItemData.BUFF_TYPE.NONE != currentWeapon.itemData.weaponBuff.buff)
+            {
+                Debug.unityLogger.Log(currentWeapon.itemData.weaponBuff);
+                currentWeapon.itemData.weaponBuff.duration -= Time.deltaTime;
+                if (currentWeapon.itemData.weaponBuff.duration <= 0f)
+                {
+                    currentWeapon.itemData.weaponBuff.duration = 0f;
+                    currentWeapon.itemData.weaponBuff.buff = ItemData.BUFF_TYPE.NONE;
+                    Debug.Log("Buff ran out");
+                }
+            }
+        }
+        else if (weaponInventory.itemList.Count != 0)
+            currentWeapon.ChangeWeapon(weaponInventory.itemList[0]);
+    }
+
+    void UpdateInventory()
+    {
+        // Drop Weapons From Inventory as Interactables
+        if (Input.GetButtonDown("Drop Weapon"))
+        {
+            if (!currentWeapon || currentWeapon.itemData == null || currentWeapon.itemData.weaponType == ItemData.WEAPON_TYPE.NONE)
+            {
+                Debug.Log("No weapon is currently being held.");
+            }
+            else
+            {
+                weaponInventory.RemoveItem(currentWeapon.itemData);
+                GameObject droppedWeapon = new GameObject("dropped" + currentWeapon.itemData.type, typeof(Interactable));
+                droppedWeapon.GetComponent<Interactable>().Initialize(currentWeapon.RemoveWeapon());
+                if (Physics.Raycast(new Ray(transform.position, -transform.up), out RaycastHit hit, Mathf.Infinity))
+                    droppedWeapon.transform.position = new Vector3(transform.position.x, hit.transform.position.y + 1, transform.position.z);
+                else
+                    droppedWeapon.transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z);
+
+                if (currentWeapon.itemData != null)
+                {
+                    Debug.LogError("Held Weapon was not destroyed");
+                }
+            }
+        }
+    }
+
     void UpdateUI()
     {
         // Inventory
@@ -357,6 +473,17 @@ public class Player : MonoBehaviour
             shoppingList.SetActive(!shoppingList.activeSelf);
             if (shoppingList.gameObject.activeSelf)
                 inventoryPanel.gameObject.SetActive(false);
+            string s = "Collected Items: ";
+            int i = 0;
+            foreach (string ss in submittedObjectives)
+            {
+                i++;
+                if (i >= submittedObjectives.Count)
+                    s += ss;
+                else
+                    s += ss + ", ";
+            }
+            Debug.Log(s);
         }
 
         // Update Pickup Info
@@ -371,28 +498,38 @@ public class Player : MonoBehaviour
             pickupInfoText.SetActive(false);
 
         // Objective Arrow (MAYBE INEFFICIENT CONSIDER REDOING)
-        if(nextObjective != gameController.GetClosestPoint(transform.position, arrowLocationType).transform)
+        GameObject pt = null;
+        if (arrowLocationType == POINT_TYPE.OBJECTIVE
+         && gameMode == OBJECTIVE_PROGRESSION.CIRCUITOUS
+         && heldObjectives.Count > 0
+         || (gameMode == OBJECTIVE_PROGRESSION.LINEAR 
+            && heldObjectives.Count + submittedObjectives.Count >= gameController.numberOfObjectives))
+            pt = ((Cashier)FindObjectOfType(typeof(Cashier))).gameObject;
+        if (submittedObjectives.Count == gameController.numberOfObjectives)
+            pt = ((LevelTrigger)FindObjectOfType(typeof(LevelTrigger))).gameObject;
+
+        SpawnPoint pt2 = gameController.GetClosestPoint(transform.position, arrowLocationType);
+        if (pt2 != null && pt == null)
+            pt = pt2.gameObject;
+
+        if (pt != null)
         {
-            nextObjective = gameController.GetClosestPoint(transform.position, arrowLocationType).transform;
-            if (nextObjective.GetComponent<SpawnPoint>().GetPointType() == SpawnPoint.POINT_TYPE.EMPTY)
-            {
-                objectiveArrow.SetActive(false);
-                objectiveFloater.gameObject.SetActive(false);
-            }
-            else if (nextObjective)
-            {
-                if (!objectiveFloater.gameObject.activeSelf)
-                    objectiveFloater.gameObject.SetActive(true);
-                objectiveFloater.position = nextObjective.position + new Vector3(0f, 1.25f * nextObjective.localScale.y, 0f);
-            }
-        }
-        else if (nextObjective 
-            && nextObjective.GetComponent<SpawnPoint>().GetPointType() != SpawnPoint.POINT_TYPE.EMPTY)
-        {
+            nextObjective = pt.transform;
             if (!objectiveArrow.activeSelf)
                 objectiveArrow.SetActive(true);
             objectiveArrow.transform.LookAt(new Vector3(nextObjective.transform.position.x, objectiveArrow.transform.position.y, nextObjective.transform.position.z), transform.up);
             objectiveArrow.transform.Rotate(90, 90, 0);
+            if (!objectiveFloaterParent.gameObject.activeSelf)
+                objectiveFloaterParent.gameObject.SetActive(true);
+            objectiveFloaterParent.position = nextObjective.position + new Vector3(
+                0f, 
+                (objectiveFloaterParent.GetComponentInChildren<ObjectiveFloater>().transform.localScale.y + nextObjective.localScale.y) * 0.5f, 
+                0f);
+        }
+        else
+        {
+            objectiveArrow.SetActive(false);
+            objectiveFloaterParent.gameObject.SetActive(false);
         }
 
         // Minimap
@@ -467,16 +604,112 @@ public class Player : MonoBehaviour
         }
     }
 
-    void UpdateExternalForce()
+    void UpdateBuffs()
     {
-        if (externalForce.sqrMagnitude < 30f)
+        for (int i = 0; i < buffList.Count; ++i)
         {
-            externalForce = Vector3.zero;
-            hasExternalForce = false;
-            return;
+            if ((buffList[i].duration - Time.deltaTime) < buffList[i].nextTickVal)
+            {
+                BuffTick(buffList[i]);
+                buffList[i].nextTickVal -= 0.5f; // Buff will run one more time past 0.0f
+            }
+            buffList[i].duration -= Time.deltaTime;
+            if (buffList[i].duration <= 0f)
+            {
+                BuffEnd(buffList[i].buff);
+                buffList.Remove(buffList[i]);
+            }
+            // TODO: function to play sound on buff expunge?
+
         }
-        characterController.Move(externalForce * Time.deltaTime);
-        externalForce = Vector3.Lerp(externalForce, Vector3.zero, 1 * Time.deltaTime); // TODO: check decay on externalForce
+    }
+
+    public void ApplyBuff(Buffable.CHAR_BUFF _buffType, float _duration = 0f)
+    {
+        // First find out if the buff has already been applied
+        for (int i = 0; i < buffList.Count; ++i)
+        {
+            if (buffList[i].buff == _buffType)
+            {
+                buffList[i].duration = _duration;  // Reset duration and return
+                return;
+            }
+        }
+        // Create and add new buff instead
+        Buffable.Buff newBuff = new Buffable.Buff();
+        newBuff.duration = _duration;
+        newBuff.buff = _buffType;
+        buffList.Add(newBuff);
+        // Initiate a starting effect for the new buff
+        switch (_buffType)
+        {
+            case Buffable.CHAR_BUFF.BUFF_SLOMO:
+                Time.timeScale = 0.5f;
+                break;
+        }
+    }
+
+    void BuffEnd(Buffable.CHAR_BUFF _buffType)
+    {
+        switch (_buffType)
+        {
+            case Buffable.CHAR_BUFF.BUFF_SLOMO:
+                Time.timeScale = 1f;
+                break;
+        }
+    }
+
+    void BuffTick(Buffable.Buff _buff)
+    {
+        switch (_buff.buff)
+        {
+            case Buffable.CHAR_BUFF.BUFF_SLOMO:
+                break;
+            default:
+                Debug.LogError("No buff found!");
+                break;
+        }
+    }
+
+    /// <summary>
+    /// Returns the percentage of health out of the max health of the player.
+    /// </summary>
+    /// <returns>
+    /// Percentage of health out of the max health of the player.
+    /// </returns>
+    public float GetHealth()
+    {
+        return health / maxHealth;
+    }
+    /// <summary>
+    /// Returns the percentage of stamina out of the max stamina of the player.
+    /// </summary>
+    /// <returns>
+    /// The percentage of stamina out of the max stamina of the player.
+    /// </returns>
+    public float GetStam()
+    {
+        return stamina / maxStamina;
+    }
+
+    /// <summary>
+    /// Apply damage to the player.
+    /// </summary>
+    /// <param name="_damage"></param>
+    /// <returns>True if the player took damage.</returns>
+    public bool TakeDamage(float _damage)
+    {
+        float trueDamage = Mathf.Clamp(_damage, 0, health);
+        Debug.Log("Player took " + trueDamage + " damage.");
+        health -= trueDamage;
+        return trueDamage <= 0f;
+    }
+
+    public void AddExternalForce(Vector3 _force)
+    {
+        externalForce += _force;
+        if (externalForce.sqrMagnitude > 0.2f)
+            hasExternalForce = true;
     }
 
     IEnumerator LandingSink(float landingVelocity)
@@ -517,61 +750,18 @@ public class Player : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Returns the percentage of health out of the max health of the player.
-    /// </summary>
-    /// <returns>
-    /// Percentage of health out of the max health of the player.
-    /// </returns>
-    public float GetHealth()
+    IEnumerator PickUpObjective(SpawnPoint pt)
     {
-        return health / maxHealth;
-    }
-    /// <summary>
-    /// Returns the percentage of stamina out of the max stamina of the player.
-    /// </summary>
-    /// <returns>
-    /// The percentage of stamina out of the max stamina of the player.
-    /// </returns>
-    public float GetStam()
-    {
-        return stamina / maxStamina;
-    }
-
-    IEnumerator PickUpObjective(ControllerColliderHit hit)
-    {
-        string objective = gameController.RemovePoint(hit.collider.GetComponent<SpawnPoint>());
+        // TODO : Update Shopping List only when submitted
+        string objective = gameController.RemovePoint(pt);
+        heldObjectives.Add(objective);
+        soundController.PlaySingle(gameController.pickUpSound);
         yield return 0;
         gameController.UpdateShoppingList();
     }
 
-    private void OnTriggerEnter(Collider other)
-    {
-        // Pick up weapons
-        if (other.GetComponent<Interactable>() != null
-            && other.gameObject != floorWeapon
-            && floorWeapon == null)
-        {
-            floorWeapon = other.gameObject;
-        }
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        // Pick up weapons
-        if (other.gameObject == floorWeapon)
-        {
-            floorWeapon = null;
-        }
-    }
-
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        // Pick up Objectives on collide
-        if (hit.collider.GetComponent<SpawnPoint>() != null
-            && hit.collider.GetComponent<SpawnPoint>().GetPointType() == SpawnPoint.POINT_TYPE.OBJECTIVE)
-            StartCoroutine(PickUpObjective(hit));
-
         // Pushing Objects
         Rigidbody body = hit.collider.attachedRigidbody;
         float magnitude = externalForce.magnitude;
@@ -596,30 +786,5 @@ public class Player : MonoBehaviour
         else
             body.velocity += pushDir * 2f / hit.rigidbody.mass;
         externalForce *= -0.1f; //* magnitude * 0.7f;
-    }
-
-    ref CharacterController GetCharacterController()
-    {
-        return ref characterController;
-    }
-
-    /// <summary>
-    /// Apply damage to the player.
-    /// </summary>
-    /// <param name="_damage"></param>
-    /// <returns>True if the player took damage.</returns>
-    public bool TakeDamage(float _damage)
-    {
-        float trueDamage = Mathf.Clamp(_damage, 0, health);
-        Debug.Log("Player took " + trueDamage + " damage.");
-        health -= trueDamage;
-        return trueDamage <= 0f;
-    }
-    
-    public void AddExternalForce(Vector3 _force)
-    {
-        externalForce += _force;
-        if (externalForce.sqrMagnitude > 0.2f)
-            hasExternalForce = true;
     }
 }

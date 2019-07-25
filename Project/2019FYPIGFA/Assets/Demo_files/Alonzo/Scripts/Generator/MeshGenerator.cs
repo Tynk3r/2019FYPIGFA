@@ -4,7 +4,15 @@ using UnityEngine;
 
 public static class MeshGenerator
 {
-    // Plane creation
+    /// <summary>
+    /// Creates a plane mesh. UV can be automatically calculated based on size.
+    /// The plane normal is always facing upwards and there is no depth as it's a plane
+    /// </summary>
+    /// <param name="_width">The width of the plane</param>
+    /// <param name="_height">The height of the plane</param>
+    /// <param name="_uvScale">UV scale for texturing based on current dimensions</param>
+    /// <param name="_collider">Places a collider on the object. Default true</param>
+    /// <returns></returns>
     public static GameObject CreatePlane(float _width, float _height, float _uvScale = 1f, bool _collider = true)
     {
         GameObject go = new GameObject("Plane");
@@ -38,7 +46,18 @@ public static class MeshGenerator
         m.RecalculateNormals();
         return go;
     }
-
+    /// <summary>
+    /// Creates a wall with a space for a doorway.
+    /// UV is also recalculated accordingly for seamless tiling effect
+    /// The wall normal is always facing the -Z axis
+    /// </summary>
+    /// <param name="_width">The overall width of the wall</param>
+    /// <param name="_height">The overall height of the door</param>
+    /// <param name="_doorWidth">The width of the doorway</param>
+    /// <param name="_doorHeight">The height of the doorway</param>
+    /// <param name="_doorX">The X position of the door on the wall (minimum 0)</param>
+    /// <param name="_uvScale">The UV scale of the wall.</param>
+    /// <returns></returns>
     public static GameObject CreateDoorWall(float _width, float _height, float _doorWidth, float _doorHeight, float _doorX, float _uvScale = 1f)
     {
         GameObject go = new GameObject("DoorWall");

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Enemy : MonoBehaviour
+public class Enemy : AIManager
 {
     public enum ENEMY_TYPE
     {
@@ -15,13 +15,21 @@ public class Enemy : MonoBehaviour
     public ENEMY_TYPE enemyType;
     public float health = 1;
     public float maxHealth;
+    private float m_speedMultiplier = 1f;
     [HideInInspector]
     public bool alive = true;
+
+    public virtual void Start()
+    {
+        base.Start();
+        m_buffList = new List<Buffable.Buff>();
+    }
 
     // Update is called once per frame
     public virtual void Update()
     {
         health = Mathf.Clamp(health, 0, maxHealth);
+        UpdateBuffs();
     }
 
     public virtual bool TakeDamage(float _damage)
@@ -45,13 +53,11 @@ public class Enemy : MonoBehaviour
                 BuffEnd(m_buffList[i].buff);
                 m_buffList.Remove(m_buffList[i]);
             }
-            if (m_buffList[i].duration != m_buffList[i].duration)
-                Debug.LogError("Reference doesn't work here");
-            // TODO: function to play sound on buff expunge?
         }
     }
     public void ApplyBuff(Buffable.CHAR_BUFF _buffType, float _duration = 0f)
     {
+        Debug.Log("Applied a buff of type " + _buffType);
         // First find out if the buff has already been applied
         for (int i = 0; i < m_buffList.Count; ++i)
         {
@@ -72,6 +78,9 @@ public class Enemy : MonoBehaviour
         {
             case Buffable.CHAR_BUFF.DEBUFF_BURN:
                 break;
+            case Buffable.CHAR_BUFF.DEBUFF_SLOW:
+                ChangeSpeedMultiplier(0.5f);
+                break;
         }
     }
     void BuffEnd(Buffable.CHAR_BUFF _buffType)
@@ -79,6 +88,9 @@ public class Enemy : MonoBehaviour
         switch (_buffType)
         {
             case Buffable.CHAR_BUFF.DEBUFF_BURN:
+                break;
+            case Buffable.CHAR_BUFF.DEBUFF_SLOW:
+                ChangeSpeedMultiplier(1f);
                 break;
         }
     }
@@ -90,7 +102,7 @@ public class Enemy : MonoBehaviour
                 TakeDamage(_buff.tickValue);
                 break;
             default:
-                Debug.LogError("No buff found!");
+                //Debug.LogError("No buff found!");
                 break;
         }
     }
@@ -98,13 +110,34 @@ public class Enemy : MonoBehaviour
     public IEnumerator DeathAnimation()
     {
         yield return new WaitForSecondsRealtime(2f);
+        while(GetComponent<Rigidbody>().velocity.magnitude > 0.001f)
+        {
+            yield return null;
+        }
         if (GetComponent<Rigidbody>() != null)
             GetComponent<Rigidbody>().isKinematic = true;
         while (transform.position.y > -transform.localScale.y)
         {
-            transform.Translate(new Vector3(0f, -0.5f*Time.deltaTime, 0f), Space.World);
+            transform.Translate(new Vector3(0f, -0.5f * Time.deltaTime, 0f), Space.World);
             yield return null;
         }
         Destroy(this.gameObject);
+    }
+
+    public virtual void ChangeSpeedMultiplier(float _newMult)
+    {
+        ChangeSpeed(agent.speed / m_speedMultiplier * _newMult);
+        m_speedMultiplier = _newMult;
+    }
+
+    public float GetSpeedMultiplier()
+    {
+        return m_speedMultiplier;
+    }
+
+    public override void Die()
+    {
+        base.Die();
+        alive = false;
     }
 }

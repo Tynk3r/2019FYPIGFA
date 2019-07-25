@@ -11,6 +11,7 @@ public class HeldWeapon : MonoBehaviour
     public Player player;
     private float attackTimer = 0f;
     ProjectilePool projectilePoolInstance;
+    private static int projectileID;
     // Start is called before the first frame update
     void Start()
     {
@@ -21,8 +22,10 @@ public class HeldWeapon : MonoBehaviour
         transform.localRotation = Quaternion.Euler(itemData.heldRotation);
         player = GameObject.FindGameObjectsWithTag("Player")[0].GetComponent<Player>();
         projectilePoolInstance = ProjectilePool.g_sharedInstance;
+        projectileID = projectilePoolInstance.GetPooledObjectIndex(itemData.projectile);
         if (null == projectilePoolInstance)
             Debug.LogError("The projectile pool no exist!");
+
     }
 
     // Update is called once per frame
@@ -94,6 +97,25 @@ public class HeldWeapon : MonoBehaviour
                     }
                 }
                 break;
+            case ItemData.WEAPON_TYPE.PROJECTILE:
+                // Uses the object pooler to spawn the bullet
+                int i = projectilePoolInstance.GetPooledObjectIndex(itemData.projectile);
+                I_Projectile projectile = projectilePoolInstance.FetchObjectInPool(i).GetComponent<I_Projectile>();
+                if (null == projectile)
+                {
+                    Debug.LogWarning("Did not get any projectile");
+                    break;
+                }
+                Vector3 projectilePosition = transform.position + player.yLookObject.transform.forward * itemData.shootOffset;
+                // TODO: based on itemdata's projectile force and not magick number
+                projectile.Discharge(player.yLookObject.transform.forward * itemData.projectileMagnitude, projectilePosition /*+ player.yLookObject.transform.forward*/);
+                
+
+                //// Spawn the projectile at where player shoots
+                //I_Projectile bullet = ProjectilePool.g_sharedInstance.FetchObjectInPool(itemData.projectileID).GetComponent<I_Projectile>();
+                //bullet.Initialize();
+                //bullet.Discharge(Camera.main.transform.forward * itemData.projectileMagnitude, transform.position + Camera.main.transform.forward * 1f);
+                break;
             default:
                 Debug.LogError("Assign weapon type before trying to attack.");
                 break;
@@ -107,9 +129,9 @@ public class HeldWeapon : MonoBehaviour
         switch (itemData.skillType)
         {
             case ItemData.SKILL_TYPE.LUNGE:
-                player.AddExternalForce(Camera.main.transform.forward * 100f);
+                player.AddExternalForce(Camera.main.transform.forward * 10f);
                 // Now add a collider in front of the main camera
-                GameObject attackCollider = projectilePoolInstance.FetchObjectInPool(0);
+                GameObject attackCollider = projectilePoolInstance.FetchObjectInPool(itemData.projectileID);
                 Debug.Log("Spawned object " + attackCollider);
                 Vector3 scale = new Vector3(1f, 1f, 1f);
                 attackCollider.GetComponent<I_Projectile>().Initialize();
@@ -119,7 +141,7 @@ public class HeldWeapon : MonoBehaviour
                 attackCollider.transform.parent = Camera.main.transform;
                 break;
             case ItemData.SKILL_TYPE.MAYO_DRINK:
-                player.ApplyBuff(Buffable.CHAR_BUFF.BUFF_SLOMO, 5f);
+                //player.ApplyBuff(Buffable.CHAR_BUFF.BUFF_SLOMO, 5f);
                 Debug.Log("Applied mayo drink");
                 break;
             default:

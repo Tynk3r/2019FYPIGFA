@@ -9,6 +9,8 @@ public class ObjectPoolItem
     public GameObject objectToPool;
     public int amountToPool;
     public bool shouldExpand = true;
+    [DrawIf("shouldExpand",true)]
+    public int expandLimit = 10;
     public ObjectPoolItem(string name, GameObject obj, int amount, bool expand = true)
     {
         this.name = name;
@@ -50,7 +52,13 @@ public class ProjectilePool : MonoBehaviour
     {
         
     }
-
+    /// <summary>
+    /// Gets a projectile with matching ID from the pool.
+    /// Does not automatically set object active or call Initialize on projectile
+    /// If shouldExpand is enabled for the object in pool, list will automatically expand when needed.
+    /// </summary>
+    /// <param name="_index">index of projectile in pool</param>
+    /// <returns>object with matching index. Returns null if there are none available</returns>
     public GameObject FetchObjectInPool(int _index)
     {
         int currSize = pooledObjectsList[_index].Count; // Size of pool
@@ -66,7 +74,11 @@ public class ProjectilePool : MonoBehaviour
         // If pool can expand and too no objects were found
         if (itemsToPool[_index].shouldExpand)
         {
-            GameObject obj = Instantiate(itemsToPool[_index].objectToPool); // Instantiate another game object
+            GameObject obj;
+            if (pooledObjectsList[_index].Count >= itemsToPool[_index].expandLimit)
+                obj = pooledObjectsList[_index][0];
+            else
+                obj = Instantiate(itemsToPool[_index].objectToPool); // Instantiate another game object
             obj.GetComponent<I_Projectile>().Initialize();
             obj.SetActive(false);
             obj.transform.parent = this.transform; // CHECK: this necessary?
@@ -81,7 +93,11 @@ public class ProjectilePool : MonoBehaviour
         GameObject bullet;
         int maxCount;
     }
-
+    /// <summary>
+    /// Gives the ID of the pooled object
+    /// </summary>
+    /// <param name="_name">The name given to the projectile</param>
+    /// <returns>The ID of the projectile</returns>
     public int GetPooledObjectIndex(string _name)
     {
         int index = 0;
@@ -93,7 +109,11 @@ public class ProjectilePool : MonoBehaviour
         }
         return -1;
     }
-
+    /// <summary>
+    /// Private function to store and object into the objectpool
+    /// relies on information from itemsToPool
+    /// </summary>
+    /// <param name="_index">The index of the object</param>
     void StoreObjectPoolElement(int _index)
     {
         ObjectPoolItem item = itemsToPool[_index];   // Get the item using index\

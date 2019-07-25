@@ -37,18 +37,16 @@ public class B_Egg : MonoBehaviour, I_Projectile
         // Play egg particle effects and deals damage to all enemies in area
         // Get all game objects within radius of explosion and deal damage to them
         //LayerMask layerMask = 11 << 8;
-        int layerMaskEnemy = 1 << 9;
-        int layerMaskDestructible = 1 << 10;
-        int finalLayerMask = layerMaskEnemy | layerMaskDestructible;
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, EXPLOSIVE_RANGE, finalLayerMask);
+        //int layerMaskEnemy = 1 << 9;
+        //int layerMaskDestructible = 1 << 10;
+        //int finalLayerMask = layerMaskEnemy | layerMaskDestructible;
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, EXPLOSIVE_RANGE/*, finalLayerMask*/);
         int i = 0;
         while (i < hitColliders.Length)
         {
             // Check if it's an enemy. If it is, it takes damage
             Enemy enemyHit = hitColliders[i].GetComponent<Enemy>();
-            if (null == enemyHit)
-                continue;
-            if (enemyHit.TakeDamage(damage))
+            if (enemyHit != null && enemyHit.TakeDamage(damage))
             {
                 // Apply force away from eggsplosion
                 //enemyHit.GetComponent<Rigidbody>().AddForce((hitColliders[i].gameObject.transform.position - transform.position).normalized * EXPLOSION_FORCE);
@@ -60,6 +58,7 @@ public class B_Egg : MonoBehaviour, I_Projectile
     }
     private void OnCollisionEnter(Collision collision)
     {
-        Detonate();
+        if (collision.gameObject.tag != "Player")
+            Detonate();
     }
 }

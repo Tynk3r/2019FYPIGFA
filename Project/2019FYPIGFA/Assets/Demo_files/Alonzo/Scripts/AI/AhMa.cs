@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
-public class AhMa : AIManager
+public class AhMa : Enemy
 {
     public float enragedHealthThreshold = 50f;
     public float baseMoveSpeed = 3.5f;
@@ -37,6 +37,7 @@ public class AhMa : AIManager
     // Update is called once per frame
     override public void Update()
     {
+        base.Update();
         m_countDown = Mathf.Max(m_countDown - Time.deltaTime, 0f);
         UpdateStates();
         if (health <= 0f)
@@ -97,10 +98,7 @@ public class AhMa : AIManager
             case STATES.DEAD:
                 if (m_countDown <= 0f)
                 {
-                    var rb = GetComponent<Rigidbody>();
-                    rb.detectCollisions = false;
-                    rb.isKinematic = true;
-                    rb.useGravity = false;
+                    StartCoroutine(DeathAnimation());
                 }
                 break;
         }
@@ -119,10 +117,10 @@ public class AhMa : AIManager
         switch (currState)
         {
             case STATES.HOSTILE:
-                ChangeSpeed(baseMoveSpeed, acceleration);
+                ChangeSpeed(baseMoveSpeed * GetSpeedMultiplier(), acceleration);
                 break;
             case STATES.ENRAGED:
-                ChangeSpeed(enragedMoveSpeed, acceleration);
+               // ChangeSpeed(enragedMoveSpeed * GetSpeedMultiplier(), acceleration);
                 break;
             case STATES.DEAD:
                 var rb = GetComponent<Rigidbody>();
@@ -147,7 +145,8 @@ public class AhMa : AIManager
     public override void Die()
     {
         base.Die();
-        m_countDown = 500f;
+        m_countDown = 5f;
         ChangeState(STATES.DEAD);
     }
+    
 }

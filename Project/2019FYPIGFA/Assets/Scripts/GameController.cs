@@ -9,12 +9,16 @@ using Random = UnityEngine.Random;
 public class GameController : MonoBehaviour
 {
     [Header("Main")]
-    [ReadOnly] public bool finishedLevel = false;
+    [ReadOnly] public bool collectedAll = false;
     public List<SpawnPoint> spawnPoints = new List<SpawnPoint>();
 
     [Header("Shopping List")]
     public int numberOfObjectives;
+    public List<string> shoppingListText = new List<string>();
     public TextMeshProUGUI shoppingList;
+    public AudioClip pickUpSound;
+    public AudioClip submitSound;
+    public AudioClip footstepSound;
 
     [Header("Weapons")]
     public int numberOfWeapons;
@@ -24,6 +28,11 @@ public class GameController : MonoBehaviour
     void Start()
     {
         InitPoints();
+        foreach (SpawnPoint pt in FindObjectsOfType<SpawnPoint>())
+        {
+            if (pt.GetPointType() == SpawnPoint.POINT_TYPE.OBJECTIVE)
+                shoppingListText.Add(pt.GetPointName());
+        }
         UpdateShoppingList();
     }
 
@@ -36,15 +45,13 @@ public class GameController : MonoBehaviour
     public void UpdateShoppingList()
     {
         string s = "";
-        foreach (SpawnPoint pt in FindObjectsOfType<SpawnPoint>())
+        foreach (string ss in shoppingListText)
         {
-            if (pt.GetPointType() == SpawnPoint.POINT_TYPE.OBJECTIVE)
-                s += ("- " + pt.GetPointName() + "\n");
+                s += ("- " + ss + "\n");
         }
         if (s == "")
         {
             s = "You've completed your shopping list for this level! Head to the stairs to get the next level.";
-            finishedLevel = true;
         }
         shoppingList.text = s;
     }
@@ -118,6 +125,8 @@ public class GameController : MonoBehaviour
 
     public SpawnPoint GetClosestPoint(Vector3 position, params SpawnPoint.POINT_TYPE[] types)
     {
+        if (spawnPoints.Count() <= 0)
+            return null;
         SpawnPoint tempPt = spawnPoints[0];
         float distance = Mathf.Infinity;
         foreach (SpawnPoint pt in FindObjectsOfType<SpawnPoint>())
@@ -130,11 +139,16 @@ public class GameController : MonoBehaviour
                 tempPt = pt;
             }
         }
-        return tempPt;
+        if (types.Contains(tempPt.GetPointType()))
+            return tempPt;
+        else
+            return null;
     }
 
     public SpawnPoint GetClosestPoint(Vector3 position)
     {
+        if (spawnPoints.Count() <= 0)
+            return null;
         SpawnPoint tempPt = spawnPoints[0];
         float distance = Mathf.Infinity;
         foreach (SpawnPoint pt in FindObjectsOfType<SpawnPoint>())
@@ -147,7 +161,10 @@ public class GameController : MonoBehaviour
                 tempPt = pt;
             }
         }
-        return tempPt;
+        if (tempPt.GetPointType() != SpawnPoint.POINT_TYPE.EMPTY)
+            return tempPt;
+        else
+            return null;
     }
 
     public string RemovePoint(SpawnPoint spawnPoint)

@@ -60,21 +60,60 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Demo_files\Alonzo\Scripts\AI\AhMa.cs" />
+    <Compile Include="Assets\Demo_files\Alonzo\Scripts\AI\AIManager.cs" />
+    <Compile Include="Assets\Demo_files\Alonzo\Scripts\AI\Enemy1.cs" />
+    <Compile Include="Assets\Demo_files\Alonzo\Scripts\AI\EnemyControl.cs" />
+    <Compile Include="Assets\Demo_files\Alonzo\Scripts\AI\FeralShopper.cs" />
+    <Compile Include="Assets\Demo_files\Alonzo\Scripts\AI\I_Projectile.cs" />
+    <Compile Include="Assets\Demo_files\Alonzo\Scripts\AI\ProjectilePool.cs" />
+    <Compile Include="Assets\Demo_files\Alonzo\Scripts\Errors\GenerationErrors.cs" />
+    <Compile Include="Assets\Demo_files\Alonzo\Scripts\Errors\loss.cs" />
+    <Compile Include="Assets\Demo_files\Alonzo\Scripts\Errors\Tester.cs" />
+    <Compile Include="Assets\Demo_files\Alonzo\Scripts\Generator\BaseLevelGenerator.cs" />
+    <Compile Include="Assets\Demo_files\Alonzo\Scripts\Generator\BSP.cs" />
     <Compile Include="Assets\Demo_files\Alonzo\Scripts\Generator\MapGenerator.cs" />
     <Compile Include="Assets\Demo_files\Alonzo\Scripts\Generator\MapGeneratorEditor.cs" />
     <Compile Include="Assets\Demo_files\Alonzo\Scripts\Generator\MeshGenerator.cs" />
+    <Compile Include="Assets\Demo_files\Alonzo\Scripts\Generator\RoomPropGenerator.cs" />
+    <Compile Include="Assets\Demo_files\Alonzo\Scripts\Generator\ShopGenerator.cs" />
+    <Compile Include="Assets\Demo_files\Alonzo\Scripts\LevelMaster\Lift.cs" />
+    <Compile Include="Assets\Demo_files\Alonzo\Scripts\LevelMaster\LiftTrigger.cs" />
+    <Compile Include="Assets\Demo_files\Alonzo\Scripts\Weapon\Buffable.cs" />
+    <Compile Include="Assets\Demo_files\Alonzo\Scripts\Weapon\buffDispenser\BuffMachineBase.cs" />
+    <Compile Include="Assets\Demo_files\Alonzo\Scripts\Weapon\buffDispenser\ChilliBuffDispenser.cs" />
+    <Compile Include="Assets\Demo_files\Alonzo\Scripts\Weapon\I_Ability.cs" />
+    <Compile Include="Assets\Demo_files\Alonzo\Scripts\Weapon\weaponDetectionCollider\LungePoint.cs" />
     <Compile Include="Assets\Demo_files\Rafiq\Scripts\PlayerDEMO.cs" />
     <Compile Include="Assets\FPSDisplay.cs" />
+    <Compile Include="Assets\ObjectiveFloater.cs" />
+    <Compile Include="Assets\Prefabs\Environment\Getboundstest.cs" />
+    <Compile Include="Assets\Scripts\Attributes\DrawIfAttribute.cs" />
+    <Compile Include="Assets\Scripts\Attributes\ReadOnlyAttribute.cs" />
     <Compile Include="Assets\Scripts\Blink.cs" />
+    <Compile Include="Assets\Scripts\Cashier.cs" />
     <Compile Include="Assets\Scripts\ClothingRackKids.cs" />
     <Compile Include="Assets\Scripts\Enemy.cs" />
+    <Compile Include="Assets\Scripts\GameController.cs" />
     <Compile Include="Assets\Scripts\HeldWeapon.cs" />
     <Compile Include="Assets\Scripts\Interactable.cs" />
     <Compile Include="Assets\Scripts\Inventory.cs" />
     <Compile Include="Assets\Scripts\ItemData.cs" />
     <Compile Include="Assets\Scripts\ItemTemplate.cs" />
-    <Compile Include="Assets\Scripts\MoveTo.cs" />
+    <Compile Include="Assets\Scripts\LevelTrigger.cs" />
+    <Compile Include="Assets\Scripts\Minimap.cs" />
+    <Compile Include="Assets\Scripts\Objective.cs" />
+    <Compile Include="Assets\Scripts\P_PizzaSlice.cs" />
     <Compile Include="Assets\Scripts\Player.cs" />
+    <Compile Include="Assets\Scripts\Projectiles\Mayo2Projectile.cs" />
+    <Compile Include="Assets\Scripts\Projectiles\MayoProjectile.cs" />
+    <Compile Include="Assets\Scripts\SpawnPoint.cs" />
+    <Compile Include="Assets\Scripts\WeaponAbility\Baguette_Ability.cs" />
+    <Compile Include="Assets\Scripts\Weapons_Prototype_EggLauncher\I_Weapon.cs" />
+    <Compile Include="Assets\Scripts\Weapons_Prototype_EggLauncher\Projectiles\B_Egg.cs" />
+    <Compile Include="Assets\Scripts\Weapons_Prototype_EggLauncher\W_EggLauncher.cs" />
+    <Compile Include="Assets\Scripts\Weapons_Prototype_EggLauncher\WeaponBase.cs" />
+    <Compile Include="Assets\Timer.cs" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Surface-Mobile.shader" />
     <None Include="Assets\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMPro_Properties.cginc" />
@@ -92,11 +131,23 @@
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile.shader" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_Sprite.shader" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Surface.shader" />
+    <Reference Include="Unity.RenderPipelines.Core.Editor">
+      <HintPath>C:/Users/170264f/Documents/2019FYPIGFA/Project/2019FYPIGFA/Library/ScriptAssemblies/Unity.RenderPipelines.Core.Editor.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.ProBuilder.AssetIdRemapUtility">
       <HintPath>C:/Users/170264f/Documents/2019FYPIGFA/Project/2019FYPIGFA/Library/ScriptAssemblies/Unity.ProBuilder.AssetIdRemapUtility.dll</HintPath>
     </Reference>
+    <Reference Include="Unity.RenderPipelines.Core.Runtime">
+      <HintPath>C:/Users/170264f/Documents/2019FYPIGFA/Project/2019FYPIGFA/Library/ScriptAssemblies/Unity.RenderPipelines.Core.Runtime.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.TextMeshPro.Editor">
       <HintPath>C:/Users/170264f/Documents/2019FYPIGFA/Project/2019FYPIGFA/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.RenderPipelines.Lightweight.Runtime">
+      <HintPath>C:/Users/170264f/Documents/2019FYPIGFA/Project/2019FYPIGFA/Library/ScriptAssemblies/Unity.RenderPipelines.Lightweight.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.RenderPipelines.Lightweight.Editor">
+      <HintPath>C:/Users/170264f/Documents/2019FYPIGFA/Project/2019FYPIGFA/Library/ScriptAssemblies/Unity.RenderPipelines.Lightweight.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.PackageManagerUI.Editor">
       <HintPath>C:/Users/170264f/Documents/2019FYPIGFA/Project/2019FYPIGFA/Library/ScriptAssemblies/Unity.PackageManagerUI.Editor.dll</HintPath>
@@ -112,6 +163,12 @@
     </Reference>
     <Reference Include="Unity.ProBuilder.AddOns.Editor">
       <HintPath>C:/Users/170264f/Documents/2019FYPIGFA/Project/2019FYPIGFA/Library/ScriptAssemblies/Unity.ProBuilder.AddOns.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.ShaderGraph.Editor">
+      <HintPath>C:/Users/170264f/Documents/2019FYPIGFA/Project/2019FYPIGFA/Library/ScriptAssemblies/Unity.ShaderGraph.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.RenderPipelines.Core.ShaderLibrary">
+      <HintPath>C:/Users/170264f/Documents/2019FYPIGFA/Project/2019FYPIGFA/Library/ScriptAssemblies/Unity.RenderPipelines.Core.ShaderLibrary.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro">
       <HintPath>C:/Users/170264f/Documents/2019FYPIGFA/Project/2019FYPIGFA/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
@@ -677,6 +734,24 @@
     <Reference Include="System.Xml.Serialization">
       <HintPath>C:/Program Files/Unity/Hub/Editor/2018.3.5f1/Editor/Data/NetStandard/compat/2.0.0/shims/netfx/System.Xml.Serialization.dll</HintPath>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="NavMeshComponentsExamplesEditor.csproj">
+      <Project>{DA326351-DAD0-7CEF-B45B-B0408A7CE11B}</Project>
+      <Name>NavMeshComponentsExamplesEditor</Name>
+    </ProjectReference>
+    <ProjectReference Include="NavMeshComponentsEditor.csproj">
+      <Project>{185A2C78-2A64-7DCE-DD34-6DFFD74975EE}</Project>
+      <Name>NavMeshComponentsEditor</Name>
+    </ProjectReference>
+    <ProjectReference Include="NavMeshComponents.csproj">
+      <Project>{B777E524-3E02-AEE5-B155-448D3154780B}</Project>
+      <Name>NavMeshComponents</Name>
+    </ProjectReference>
+    <ProjectReference Include="NavMeshComponentsExamples.csproj">
+      <Project>{F43FAF5B-757C-4FD4-CD4F-BC4F11603FA7}</Project>
+      <Name>NavMeshComponentsExamples</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />
