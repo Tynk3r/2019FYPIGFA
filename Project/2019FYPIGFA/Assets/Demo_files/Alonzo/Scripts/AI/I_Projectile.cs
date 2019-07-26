@@ -8,7 +8,7 @@ public interface I_Projectile
     /// Initializes the projectile. Intended to replace Start()
     /// This should be called to initialize the projectile when spawned from pooler
     /// </summary>
-    void Initialize();
+    void Initialize(bool _playerOwned);
     /// <summary>
     /// Discharges the projectile
     /// </summary>

@@ -10,14 +10,16 @@ public class P_PizzaSlice : MonoBehaviour, I_Projectile
     public float EXPLOSION_FORCE = 500f;
     public float rotationSpeed = 1f; // Only for aesthetics
 
+    private bool m_playerOwned;
     private float m_lifeTime;
     private Rigidbody m_rb;
 
     // Update is called once per frame
-    public void Initialize()
+    public void Initialize(bool _playerOwned = false)
     {
         m_lifeTime = MAX_LIFETIME;
         m_rb = GetComponent<Rigidbody>();
+        m_playerOwned = _playerOwned;
     }
     void Update()
     {
@@ -37,12 +39,20 @@ public class P_PizzaSlice : MonoBehaviour, I_Projectile
     public void Detonate(GameObject g)
     {
         // Check if it's an enemy. If it is, it takes damage
-        Enemy enemyHit = g.GetComponent<Enemy>();
-        if (enemyHit != null && enemyHit.TakeDamage(damage))
+        Enemy enemyHit = null;
+        Player playerHit = null;
+        if (m_playerOwned)
+            playerHit = g.GetComponent<Player>();
+        else
+            enemyHit = g.GetComponent<Enemy>();
+        if (enemyHit != null)
         {
-            // Apply force away from eggsplosion sorry i mean Pizzasplosion
-            enemyHit.GetComponent<Rigidbody>().AddExplosionForce(EXPLOSION_FORCE, transform.position, EXPLOSIVE_RANGE);
+            // Apply force away from eggsplosion sorry i mean Pizzasplosio
+            if (enemyHit.TakeDamage(damage))
+                enemyHit.GetComponent<Rigidbody>().AddExplosionForce(EXPLOSION_FORCE, transform.position, EXPLOSIVE_RANGE);
         }
+        else if (playerHit != null)
+            playerHit.TakeDamage(damage);
         gameObject.SetActive(false);
     }
     private void OnCollisionEnter(Collision collision)

@@ -23,7 +23,7 @@ public class Mayo2Projectile : MonoBehaviour, I_Projectile
             Detonate();
     }
 
-    public void Initialize()
+    public void Initialize(bool _playerOwned = false)
     {
         m_particleSystem.Stop();
         m_countdown = maxLifeTime;

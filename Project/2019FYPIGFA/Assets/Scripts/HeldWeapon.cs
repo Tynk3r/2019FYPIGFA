@@ -115,6 +115,7 @@ public class HeldWeapon : MonoBehaviour
                 }
                 Vector3 projectilePosition = transform.position + player.yLookObject.transform.forward * itemData.shootOffset;
                 // TODO: based on itemdata's projectile force and not magick number
+                projectile.Initialize(true);
                 projectile.Discharge(player.yLookObject.transform.forward * itemData.projectileMagnitude, projectilePosition /*+ player.yLookObject.transform.forward*/);
                 
 
@@ -141,7 +142,7 @@ public class HeldWeapon : MonoBehaviour
                 GameObject attackCollider = projectilePoolInstance.FetchObjectInPool(itemData.projectileID);
                 Debug.Log("Spawned object " + attackCollider);
                 Vector3 scale = new Vector3(1f, 1f, 1f);
-                attackCollider.GetComponent<I_Projectile>().Initialize();
+                attackCollider.GetComponent<I_Projectile>().Initialize(true);
                 attackCollider.transform.localScale = scale;
                 attackCollider.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 0.3f;
                 attackCollider.transform.rotation = Camera.main.transform.rotation;

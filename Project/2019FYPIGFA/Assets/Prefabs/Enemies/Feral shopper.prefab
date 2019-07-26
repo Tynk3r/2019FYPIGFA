@@ -49,7 +49,7 @@ NavMeshAgent:
   m_AgentTypeID: 0
   m_Radius: 0.5
   m_Speed: 3.5
-  m_Acceleration: 8
+  m_Acceleration: 100
   avoidancePriority: 50
   m_AngularSpeed: 10000
   m_StoppingDistance: 0
@@ -84,6 +84,8 @@ MonoBehaviour:
   meleeEndDistThreshold: 20
   meleeMoveSpeed: 5
   normalMoveSpeed: 3.5
+  meleeRange: 1.3
+  meleeStoppingDistance: 1
   D_PLAYERTARGET: {fileID: 0}
   m_rangedWeapon:
     weaponBuff:

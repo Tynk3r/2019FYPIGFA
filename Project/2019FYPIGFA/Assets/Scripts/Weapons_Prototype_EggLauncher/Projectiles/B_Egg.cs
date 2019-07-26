@@ -12,12 +12,13 @@ public class B_Egg : MonoBehaviour, I_Projectile
 
     private float m_lifeTime;
     private Rigidbody m_rb;
-
+    private bool m_playerOwned;
     // Update is called once per frame
-    public void Initialize()
+    public void Initialize(bool _playerOwned = false)
     {
         m_lifeTime = MAX_LIFETIME;
         m_rb = GetComponent<Rigidbody>();
+        m_playerOwned = _playerOwned;
     }
     void Update()
     {
@@ -45,12 +46,22 @@ public class B_Egg : MonoBehaviour, I_Projectile
         while (i < hitColliders.Length)
         {
             // Check if it's an enemy. If it is, it takes damage
-            Enemy enemyHit = hitColliders[i].GetComponent<Enemy>();
-            if (enemyHit != null && enemyHit.TakeDamage(damage))
+            Enemy enemyHit = null;
+            Player playerHit = null;
+            if (m_playerOwned)
+                playerHit = hitColliders[i].GetComponent<Player>();
+            else
+                enemyHit = hitColliders[i].GetComponent<Enemy>();
+            if (enemyHit != null)
             {
                 // Apply force away from eggsplosion
                 //enemyHit.GetComponent<Rigidbody>().AddForce((hitColliders[i].gameObject.transform.position - transform.position).normalized * EXPLOSION_FORCE);
-                enemyHit.GetComponent<Rigidbody>().AddExplosionForce(EXPLOSION_FORCE, transform.position, EXPLOSIVE_RANGE);
+                if (enemyHit.TakeDamage(damage))
+                    enemyHit.GetComponent<Rigidbody>().AddExplosionForce(EXPLOSION_FORCE, transform.position, EXPLOSIVE_RANGE);
+            }
+            else if (playerHit != null)
+            {
+                playerHit.TakeDamage(damage);
             }
             ++i;
         }

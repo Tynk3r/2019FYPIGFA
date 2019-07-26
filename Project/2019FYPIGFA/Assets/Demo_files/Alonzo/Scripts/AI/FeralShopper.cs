@@ -10,6 +10,8 @@ public class FeralShopper : Enemy
     public float meleeEndDistThreshold = 20f;
     public float meleeMoveSpeed = 5f;
     public float normalMoveSpeed = 3.5f;
+    public float meleeRange = 4f;
+    public float meleeStoppingDistance = 1;
     public Player D_PLAYERTARGET;
     private float m_countDown;
     STATES currState;
@@ -57,6 +59,7 @@ public class FeralShopper : Enemy
         rb.detectCollisions = true;
         m_meleeWeapon.weaponType = ItemData.WEAPON_TYPE.NONE;
         m_rangedWeapon.weaponType = ItemData.WEAPON_TYPE.NONE;
+        D_PLAYERTARGET = FindObjectOfType<Player>();
         if (null == heldWeapon)
             Debug.LogError("Missing the held weapon gameObject");
         //else if (null == heldWeapon.GetComponent<MeshFilter>() || null == heldWeapon.GetComponent<MeshRenderer>())
@@ -78,7 +81,6 @@ public class FeralShopper : Enemy
             m_attackCooldown -= Time.deltaTime;
         else
             m_attackCooldown = 0f;
-
         UpdateStates();
     }
     // CHECK: countdown needed to control state performance
@@ -143,10 +145,11 @@ public class FeralShopper : Enemy
                     ChangeState(STATES.SEARCH_WEAPON_MELEE);
                     break;
                 }
-                else if ((D_PLAYERTARGET.transform.position - transform.position).sqrMagnitude < rangedAttackRange && m_countDown <= 0f)
+                else if ((D_PLAYERTARGET.transform.position - transform.position).sqrMagnitude < meleeRange * meleeRange && m_attackCooldown <= 0f)
                 {
                     // Attack the player here
-                    m_countDown += m_attackCooldown;
+                    if (Attack())
+                        m_attackCooldown += RATE_OF_FIRE;
                 }
                 else if ((D_PLAYERTARGET.transform.position - transform.position).sqrMagnitude > meleeEndDistThreshold * meleeEndDistThreshold)
                 {
@@ -205,7 +208,7 @@ public class FeralShopper : Enemy
             else
                 return false;
             // Attack codes here
-
+            D_PLAYERTARGET.TakeDamage(m_meleeWeapon.weaponDamage);
             return true;
         }
     }
@@ -289,9 +292,8 @@ public class FeralShopper : Enemy
     void SearchWeapon()
     {
         EnemyLoot lootShelf;
-        Vector3 goalPos = lootManager.GetLootLocation(transform.position, out lootShelf);
-        MoveToPosition(goalPos);
-        Debug.Log("Searching for weapon at " + lootShelf);
+        lootManager.GetLootLocation(transform.position, out lootShelf);
+        MoveToPosition(lootShelf.transform.position);
     }
     private void OnTriggerEnter(Collider other)
     {

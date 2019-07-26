@@ -21,7 +21,7 @@ public class LungePoint : MonoBehaviour, I_Projectile
             Detonate();
     }
 
-    public void Initialize()
+    public void Initialize(bool _playerOwned = true)
     {
         // Not needed
         gameObject.SetActive(true);
