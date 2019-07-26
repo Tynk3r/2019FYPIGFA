@@ -190,6 +190,7 @@ public class FeralShopper : Enemy
             }
             //egg.Discharge(transform.forward * 10f, transform.position + 
             //    (D_PLAYERTARGET.transform.position - transform.forward).normalized * 0.5f); JFL
+            projectile.Initialize(false);
             projectile.Discharge(toPlayer * m_rangedWeapon.projectileMagnitude, transform.position +
                 (D_PLAYERTARGET.transform.position - transform.position).normalized * 1f);
             return true;
