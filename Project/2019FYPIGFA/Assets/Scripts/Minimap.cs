@@ -73,39 +73,33 @@ public class Minimap : MonoBehaviour
                 cashierObject.tag = "Untagged";
                 cashierObject.layer = 9;
                 break;
-            default:
-                // Show Spawn Points
-                SpawnPoint pt = go.GetComponent<SpawnPoint>();
-                if (pt != null)
-                    switch (pt.GetPointType())
+            case "Objective":
+                GameObject objectiveRep = Instantiate(objectivePrefab, go.transform);
+                objectiveRep.layer = 9;
+                break;
+            case "Interactable":
+                GameObject weaponRep = Instantiate(go, go.transform);
+                bool componentsRemoved = false;
+                while (!componentsRemoved)
+                {
+                    foreach (Component c in weaponRep.GetComponents(typeof(Component)))
                     {
-                        case SpawnPoint.POINT_TYPE.OBJECTIVE:
-                            GameObject objectiveRep = Instantiate(objectivePrefab, pt.transform);
-                            objectiveRep.layer = 9;
-                            break;
-                        case SpawnPoint.POINT_TYPE.WEAPON:
-                            GameObject weaponRep = Instantiate(pt.gameObject, pt.transform);
-                            bool componentsRemoved = false;
-                            while (!componentsRemoved)
-                            {
-                                foreach (Component c in weaponRep.GetComponents(typeof(Component)))
-                                {
-                                    if (c.GetType() == typeof(Transform)
-                                        || c.GetType() == typeof(MeshRenderer)
-                                        || c.GetType() == typeof(MeshFilter))
-                                        componentsRemoved = true;
-                                    else
-                                    {
-                                        DestroyImmediate(c);
-                                        componentsRemoved = false;
-                                    }
-                                }
-                            }
-                            weaponRep.tag = "Untagged";
-                            weaponRep.layer = 9;
-                            weaponRep.transform.localPosition = Vector3.zero;
-                            break;
+                        if (c.GetType() == typeof(Transform)
+                            || c.GetType() == typeof(MeshRenderer)
+                            || c.GetType() == typeof(MeshFilter))
+                            componentsRemoved = true;
+                        else
+                        {
+                            DestroyImmediate(c);
+                            componentsRemoved = false;
+                        }
                     }
+                }
+                weaponRep.tag = "Untagged";
+                weaponRep.layer = 9;
+                weaponRep.transform.localPosition = Vector3.zero;
+                break;
+            default:
                 break;
         }
     }

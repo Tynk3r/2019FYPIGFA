@@ -19,6 +19,8 @@ public class GameController : MonoBehaviour
     public AudioClip pickUpSound;
     public AudioClip submitSound;
     public AudioClip footstepSound;
+    public AudioClip hitSound;
+    public AudioClip healthSound;
 
     [Header("Powerups")]
     public int numberOfHealthPickups;

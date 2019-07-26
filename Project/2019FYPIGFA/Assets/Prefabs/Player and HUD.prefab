@@ -864,8 +864,8 @@ MonoBehaviour:
   gameController: {fileID: 6213084866986106099}
   maxHealth: 100
   maxStamina: 10
-  staminaRegenMultiplier: 1
-  healthPickupValue: 50
+  staminaRegenMultiplier: 5
+  healthPickupValue: 100
   doubleJumpCost: 1
   staminaBarOutline: {fileID: 6213084866506035300}
   staminaBar: {fileID: 6213084867698177921}
@@ -1782,9 +1782,11 @@ MonoBehaviour:
   pickUpSound: {fileID: 8300000, guid: 02f139a2026a464419a00a02c90e9786, type: 3}
   submitSound: {fileID: 8300000, guid: e62c2d3e04e0672499fe684d297708a9, type: 3}
   footstepSound: {fileID: 8300000, guid: 4ec979fe23efe1c4b97b988ddd821a5d, type: 3}
+  hitSound: {fileID: 8300000, guid: 03cec12859de4884bb0ec719d4bce181, type: 3}
+  healthSound: {fileID: 8300000, guid: 743882d6a3e450b40bbe6295ddfac978, type: 3}
   numberOfHealthPickups: 3
   healthPickupMesh: {fileID: 4300000, guid: 84db0265ad345734089b82ff983127ec, type: 2}
-  healthPickupMaterial: {fileID: 2100000, guid: 5c9ea827aaa4145c8900e81ca1395aae,
+  healthPickupMaterial: {fileID: 2100000, guid: 5195427c0d27644ed90d87ebe86d468a,
     type: 2}
   numberOfWeapons: 6
   weaponsToSpawn:
@@ -2495,6 +2497,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemData:
+    weaponBuff:
+      buff: 0
+      duration: 0
+      magnitude: 0
     skillType: 0
     weaponType: 0
     type: 

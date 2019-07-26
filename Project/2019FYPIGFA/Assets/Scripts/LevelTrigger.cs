@@ -13,11 +13,13 @@ public class LevelTrigger : MonoBehaviour
     public void Activate()
     {
         if (quitScene)
+        {
 #if UNITY_EDITOR
             EditorApplication.isPlaying = false;
 #else
         Application.Quit();
 #endif
+        }
         else
             SceneManager.LoadScene(nextScene);
     }

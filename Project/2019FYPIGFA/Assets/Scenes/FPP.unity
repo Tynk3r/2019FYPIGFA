@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.4475314, g: 0.49749047, b: 0.57532203, a: 1}
+  m_IndirectSpecularColor: {r: 0.4475311, g: 0.49748993, b: 0.57532066, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -336,6 +336,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spawn Point (4)
       objectReference: {fileID: 0}
+    - target: {fileID: 4828440943493023771, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 4828440943493023766, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -416,6 +421,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Spawn Point (31)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4828440943493023771, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 4828440943493023766, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
         type: 3}
@@ -993,6 +1003,16 @@ PrefabInstance:
       propertyPath: m_UseGravity
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5721229086470359492, guid: c8e4b5bf1a744e4499dd82ffdce210e8,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 5721229087588854004, guid: c8e4b5bf1a744e4499dd82ffdce210e8,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c8e4b5bf1a744e4499dd82ffdce210e8, type: 3}
 --- !u!4 &92482184 stripped
@@ -1018,6 +1038,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Spawn Point (20)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4828440943493023771, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 4828440943493023766, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
         type: 3}
@@ -1099,6 +1124,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Spawn Point (6)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4828440943493023771, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 4828440943493023766, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
         type: 3}
@@ -1490,6 +1520,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: ClothingRackKids (3)
       objectReference: {fileID: 0}
+    - target: {fileID: 6733531680966493944, guid: 7fa2a26f8a0f3374da2e69184c60c327,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 6733531680966493950, guid: 7fa2a26f8a0f3374da2e69184c60c327,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1641,6 +1676,16 @@ PrefabInstance:
       propertyPath: m_UseGravity
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5721229086470359492, guid: c8e4b5bf1a744e4499dd82ffdce210e8,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 5721229087588854004, guid: c8e4b5bf1a744e4499dd82ffdce210e8,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c8e4b5bf1a744e4499dd82ffdce210e8, type: 3}
 --- !u!1001 &194608317
@@ -1654,6 +1699,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Spawn Point (9)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4828440943493023771, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 4828440943493023766, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
         type: 3}
@@ -2218,6 +2268,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spawn Point
       objectReference: {fileID: 0}
+    - target: {fileID: 4828440943493023771, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 4828440943493023766, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -2387,6 +2442,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Spawn Point (17)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4828440943493023771, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 4828440943493023766, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
         type: 3}
@@ -2928,6 +2988,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spawn Point (19)
       objectReference: {fileID: 0}
+    - target: {fileID: 4828440943493023771, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 4828440943493023766, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -3085,6 +3150,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Spawn Point (21)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4828440943493023771, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 4828440943493023766, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
         type: 3}
@@ -3567,6 +3637,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: ClothingRackKids (5)
       objectReference: {fileID: 0}
+    - target: {fileID: 6733531680966493944, guid: 7fa2a26f8a0f3374da2e69184c60c327,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 6733531680966493950, guid: 7fa2a26f8a0f3374da2e69184c60c327,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -3647,6 +3722,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Spawn Point (3)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4828440943493023771, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 4828440943493023766, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
         type: 3}
@@ -4129,6 +4209,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Spawn Point (16)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4828440943493023771, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 4828440943493023766, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
         type: 3}
@@ -5419,6 +5504,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spawn Point (29)
       objectReference: {fileID: 0}
+    - target: {fileID: 4828440943493023771, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 4828440943493023766, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -5988,6 +6078,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spawn Point (14)
       objectReference: {fileID: 0}
+    - target: {fileID: 4828440943493023771, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 4828440943493023766, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -6253,6 +6348,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spawn Point (28)
       objectReference: {fileID: 0}
+    - target: {fileID: 4828440943493023771, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 4828440943493023766, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -6321,6 +6421,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: ClothingRackKids (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 6733531680966493944, guid: 7fa2a26f8a0f3374da2e69184c60c327,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 6733531680966493950, guid: 7fa2a26f8a0f3374da2e69184c60c327,
         type: 3}
@@ -6781,6 +6886,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: ClothingRackKids (6)
       objectReference: {fileID: 0}
+    - target: {fileID: 6733531680966493944, guid: 7fa2a26f8a0f3374da2e69184c60c327,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 6733531680966493950, guid: 7fa2a26f8a0f3374da2e69184c60c327,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -7040,6 +7150,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: ClothingRackKids
       objectReference: {fileID: 0}
+    - target: {fileID: 6733531680966493944, guid: 7fa2a26f8a0f3374da2e69184c60c327,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 6733531680966493950, guid: 7fa2a26f8a0f3374da2e69184c60c327,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -7108,6 +7223,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Spawn Point (5)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4828440943493023771, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 4828440943493023766, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
         type: 3}
@@ -7392,6 +7512,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spawn Point (23)
       objectReference: {fileID: 0}
+    - target: {fileID: 4828440943493023771, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 4828440943493023766, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -7565,6 +7690,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Spawn Point (30)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4828440943493023771, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 4828440943493023766, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
         type: 3}
@@ -8013,6 +8143,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spawn Point (8)
       objectReference: {fileID: 0}
+    - target: {fileID: 4828440943493023771, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 4828440943493023766, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -8087,6 +8222,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Spawn Point (25)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4828440943493023771, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 4828440943493023766, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
         type: 3}
@@ -8264,6 +8404,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spawn Point (7)
       objectReference: {fileID: 0}
+    - target: {fileID: 4828440943493023771, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 4828440943493023766, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -8420,6 +8565,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_UseGravity
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5721229086470359492, guid: c8e4b5bf1a744e4499dd82ffdce210e8,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 5721229087588854004, guid: c8e4b5bf1a744e4499dd82ffdce210e8,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c8e4b5bf1a744e4499dd82ffdce210e8, type: 3}
@@ -9042,6 +9197,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spawn Point (18)
       objectReference: {fileID: 0}
+    - target: {fileID: 4828440943493023771, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 4828440943493023766, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -9301,6 +9461,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spawn Point (22)
       objectReference: {fileID: 0}
+    - target: {fileID: 4828440943493023771, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 4828440943493023766, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -9465,6 +9630,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spawn Point (10)
       objectReference: {fileID: 0}
+    - target: {fileID: 4828440943493023771, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 4828440943493023766, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -9533,6 +9703,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Spawn Point (27)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4828440943493023771, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 4828440943493023766, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
         type: 3}
@@ -9691,6 +9866,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Spawn Point (24)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4828440943493023771, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 4828440943493023766, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
         type: 3}
@@ -10351,6 +10531,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spawn Point (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 4828440943493023771, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 4828440943493023766, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -10530,6 +10715,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Spawn Point (13)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4828440943493023771, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 4828440943493023766, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
         type: 3}
@@ -11031,6 +11221,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spawn Point (15)
       objectReference: {fileID: 0}
+    - target: {fileID: 4828440943493023771, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 4828440943493023766, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -11169,6 +11364,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_UseGravity
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5721229086470359492, guid: c8e4b5bf1a744e4499dd82ffdce210e8,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 5721229087588854004, guid: c8e4b5bf1a744e4499dd82ffdce210e8,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c8e4b5bf1a744e4499dd82ffdce210e8, type: 3}
@@ -11383,6 +11588,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Spawn Point (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4828440943493023771, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 4828440943493023766, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
         type: 3}
@@ -12433,6 +12643,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: ClothingRackKids (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 6733531680966493944, guid: 7fa2a26f8a0f3374da2e69184c60c327,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 6733531680966493950, guid: 7fa2a26f8a0f3374da2e69184c60c327,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -12571,6 +12786,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_UseGravity
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5721229086470359492, guid: c8e4b5bf1a744e4499dd82ffdce210e8,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 5721229087588854004, guid: c8e4b5bf1a744e4499dd82ffdce210e8,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c8e4b5bf1a744e4499dd82ffdce210e8, type: 3}
@@ -12870,6 +13095,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Spawn Point (11)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4828440943493023771, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 4828440943493023766, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
         type: 3}
@@ -13205,6 +13435,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_UseGravity
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5721229086470359492, guid: c8e4b5bf1a744e4499dd82ffdce210e8,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 5721229087588854004, guid: c8e4b5bf1a744e4499dd82ffdce210e8,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c8e4b5bf1a744e4499dd82ffdce210e8, type: 3}
@@ -14444,7 +14684,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 8
   m_IsActive: 1
 --- !u!4 &1814921371
 Transform:
@@ -15986,6 +16226,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spawn Point (12)
       objectReference: {fileID: 0}
+    - target: {fileID: 4828440943493023771, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 4828440943493023766, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -16171,6 +16416,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Spawn Point (26)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4828440943493023771, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 4828440943493023766, guid: 77c3e81c55d53c14f8f8d61d7a9de1fd,
         type: 3}
@@ -16525,7 +16775,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 8
   m_IsActive: 1
 --- !u!4 &2049213292
 Transform:
@@ -16926,6 +17176,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: ClothingRackKids (4)
+      objectReference: {fileID: 0}
+    - target: {fileID: 6733531680966493944, guid: 7fa2a26f8a0f3374da2e69184c60c327,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 6733531680966493950, guid: 7fa2a26f8a0f3374da2e69184c60c327,
         type: 3}
@@ -17823,6 +18078,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Cashier
+      objectReference: {fileID: 0}
+    - target: {fileID: 604749324588304553, guid: a287929488dc896499d8236a47598056,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 604749324588304552, guid: a287929488dc896499d8236a47598056,
         type: 3}
@@ -21245,7 +21505,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 8
   m_IsActive: 1
 --- !u!1 &7266327107017854558
 GameObject:
@@ -21264,7 +21524,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 8
   m_IsActive: 1
 --- !u!33 &7291263308552543340
 MeshFilter:
@@ -22200,6 +22460,31 @@ PrefabInstance:
     - target: {fileID: 790408653, guid: 029862c00d6c5d0469c8c4c29b0a9dc4, type: 3}
       propertyPath: m_isInputParsingRequired
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7891749104356227642, guid: 029862c00d6c5d0469c8c4c29b0a9dc4,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 7891749105149468801, guid: 029862c00d6c5d0469c8c4c29b0a9dc4,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 8798733369783717236, guid: 029862c00d6c5d0469c8c4c29b0a9dc4,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 6213084867399457367, guid: 029862c00d6c5d0469c8c4c29b0a9dc4,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 7924664176646800296, guid: 029862c00d6c5d0469c8c4c29b0a9dc4,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 029862c00d6c5d0469c8c4c29b0a9dc4, type: 3}

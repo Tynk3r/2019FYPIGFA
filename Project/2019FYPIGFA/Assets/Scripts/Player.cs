@@ -114,6 +114,7 @@ public class Player : MonoBehaviour
     public List<string> heldObjectives = new List<string>();
     private Transform nextObjective = null;
     private bool walkingSound = false;
+    private bool sprinting;
 
     ref CharacterController GetCharacterController()
     {
@@ -156,7 +157,7 @@ public class Player : MonoBehaviour
     void UpdateLook()
     {
         // FOV Change Whilst Sprintng
-        if (Input.GetButton("Sprint") && Input.GetAxis("Vertical") > 0f && !staminaRecovering)
+        if (sprinting)
             Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView + (Time.deltaTime * FOVDeltaChange), defaultFOV, maxFOV);
         else
             Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView - (Time.deltaTime * FOVDeltaChange), defaultFOV, Camera.main.fieldOfView);
@@ -231,19 +232,26 @@ public class Player : MonoBehaviour
     {
         if (characterController.isGrounded)
         {
+            float walkModifier = 1f;
             doubleJump = false;
             // moveDirection = (transform.right * Input.GetAxis("Horizontal")) + (Vector3.ProjectOnPlane(transform.forward, new Vector3(0, 1, 0)) * Input.GetAxis("Vertical")); // deprecated movement that ignored y look
-            if (Input.GetButton("Sprint") && Input.GetAxis("Vertical") > 0f && !staminaRecovering)
-            {
-                stamina = Mathf.Max(stamina - (Time.deltaTime * staminaDecayMultiplier), 0f);
-                moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed * sprintSpeedModifier) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
-            }
-            else if (Input.GetAxis("Vertical") < 0f)
-                moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed * retreatSpeedModifier) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
+            if (Input.GetButton("Sprint")
+                && Input.GetAxis("Vertical") > 0f
+                && !staminaRecovering)
+                sprinting = true;
             else
-            {
-                moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
-            }                
+                sprinting = false;
+
+            if (sprinting)
+                walkModifier = sprintSpeedModifier;
+            else if (Input.GetAxis("Vertical") < 0f)
+                walkModifier = retreatSpeedModifier;
+            else
+                walkModifier = 1f;
+
+            moveDirection = 
+                transform.forward * Input.GetAxis("Vertical") * walkSpeed * walkModifier
+                + transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier;
 
             if (Input.GetButton("Jump"))
             {
@@ -255,12 +263,10 @@ public class Player : MonoBehaviour
         }
         else
         {
-            if (Input.GetButton("Sprint") && Input.GetAxis("Vertical") > 0f && !staminaRecovering)
-                stamina = Mathf.Max(stamina - (Time.deltaTime * staminaDecayMultiplier), 0f);
-
-            if (doubleJump 
+                        if (doubleJump 
                 && Input.GetButtonDown("Jump") 
-                && stamina >= doubleJumpCost)
+                && stamina >= doubleJumpCost
+                && !staminaRecovering)
             {
                 doubleJump = false;
                 moveDirection.y = jumpSpeed;
@@ -302,8 +308,12 @@ public class Player : MonoBehaviour
                             StartCoroutine(PickUpObjective(pt));
                         break;
                     case POINT_TYPE.HEALTH:
-                        gameController.RemovePoint(pt);
-                        health = Mathf.Clamp(health + healthPickupValue, 0, maxHealth);
+                        if (health < maxHealth)
+                        {
+                            gameController.RemovePoint(pt);
+                            health = Mathf.Clamp(health + healthPickupValue, 0, maxHealth);
+                            soundController.PlaySingle(gameController.healthSound);
+                        }
                         break;
                 }
 
@@ -338,7 +348,12 @@ public class Player : MonoBehaviour
             if (weaponInventory.itemList.Count >= 3)
                 Debug.Log("No Space Left in Inventory");
             else
+            {
                 floorWeapon.GetComponent<Interactable>().OnPickedUp(this.gameObject);
+                if (floorWeapon.GetComponent<SpawnPoint>() != null)
+                    gameController.RemovePoint(floorWeapon.GetComponent<SpawnPoint>());
+
+            }
         }
     }
 
@@ -562,8 +577,12 @@ public class Player : MonoBehaviour
         {
             stamRegenTimer -= Time.deltaTime;
         }
-        if (stamRegenTimerDone)
+
+        if (sprinting)
+            stamina = Mathf.Max(stamina - (Time.deltaTime * staminaDecayMultiplier), 0f);
+        else if (stamRegenTimerDone)
             stamina = Mathf.Min(stamina + (Time.deltaTime * 0.5f * staminaRegenMultiplier), maxStamina);
+
         staminaBar.GetComponent<RectTransform>().localScale = new Vector3(stamina / maxStamina, staminaBar.transform.localScale.y, staminaBar.transform.localScale.z);
 
         // Health
@@ -572,11 +591,13 @@ public class Player : MonoBehaviour
         if (healthBar.GetComponent<RectTransform>().localScale != new Vector3(health / maxHealth, healthBar.transform.localScale.y, healthBar.transform.localScale.z))
             healthBar.GetComponent<RectTransform>().localScale = new Vector3(health / maxHealth, healthBar.transform.localScale.y, healthBar.transform.localScale.z);
         if (health == 0)
+        {
 #if UNITY_EDITOR
             EditorApplication.isPlaying = false;
 #else
         Application.Quit();
 #endif
+        }
 
         // Target Info
         if (enemyName.GetComponent<RectTransform>().localPosition != new Vector3(enemyHealthBarPosition.x, enemyHealthBarPosition.y, 0))
@@ -704,6 +725,7 @@ public class Player : MonoBehaviour
         float trueDamage = Mathf.Clamp(_damage, 0, health);
         Debug.Log("Player took " + trueDamage + " damage.");
         health -= trueDamage;
+        soundController.PlaySingle(gameController.hitSound);
         return trueDamage <= 0f;
     }
 

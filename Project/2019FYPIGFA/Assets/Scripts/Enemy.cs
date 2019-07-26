@@ -13,8 +13,6 @@ public class Enemy : AIManager
     }
     [SerializeField]
     private EnemyBuffCanvas buffCanvas;
-    [SerializeField]
-    private EnemyBuffParticles buffParticles;
     private List<Buffable.Buff> m_buffList;
     public ENEMY_TYPE enemyType;
     public float health = 1;
@@ -89,7 +87,6 @@ public class Enemy : AIManager
                 break;
         }
         buffCanvas.AddBuff(_buffType);
-        buffParticles.AddBuff(_buffType);
     }
     void BuffEnd(Buffable.CHAR_BUFF _buffType)
     {
@@ -102,7 +99,6 @@ public class Enemy : AIManager
                 break;
         }
         buffCanvas.RemoveBuff(_buffType);
-        buffParticles.RemoveBuff(_buffType);
     }
     void BuffTick(Buffable.Buff _buff)
     {
