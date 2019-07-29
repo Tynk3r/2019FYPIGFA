@@ -263,9 +263,8 @@ public class Player : MonoBehaviour
         }
         else
         {
-                        if (doubleJump 
-                && Input.GetButtonDown("Jump") 
-                && stamina >= doubleJumpCost
+            if (doubleJump 
+                && Input.GetButtonDown("Jump")
                 && !staminaRecovering)
             {
                 doubleJump = false;

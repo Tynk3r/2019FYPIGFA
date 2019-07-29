@@ -933,6 +933,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Feral shopper (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 5721229085659608634, guid: c8e4b5bf1a744e4499dd82ffdce210e8,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5721229086607706864, guid: c8e4b5bf1a744e4499dd82ffdce210e8,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1605,6 +1610,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Feral shopper (5)
+      objectReference: {fileID: 0}
+    - target: {fileID: 5721229085659608634, guid: c8e4b5bf1a744e4499dd82ffdce210e8,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5721229086607706864, guid: c8e4b5bf1a744e4499dd82ffdce210e8,
         type: 3}
@@ -8496,6 +8506,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Feral shopper (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 5721229085659608634, guid: c8e4b5bf1a744e4499dd82ffdce210e8,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5721229086607706864, guid: c8e4b5bf1a744e4499dd82ffdce210e8,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -10335,6 +10350,18 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 385568535}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1350616093 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6213084866487779255, guid: 029862c00d6c5d0469c8c4c29b0a9dc4,
+    type: 3}
+  m_PrefabInstance: {fileID: 7891749105605748326}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88d736a7d8456e74c8db50a4f8ea6cd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1351607428
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11294,6 +11321,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Feral shopper (3)
+      objectReference: {fileID: 0}
+    - target: {fileID: 5721229085659608634, guid: c8e4b5bf1a744e4499dd82ffdce210e8,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5721229086607706864, guid: c8e4b5bf1a744e4499dd82ffdce210e8,
         type: 3}
@@ -12717,6 +12749,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Feral shopper
       objectReference: {fileID: 0}
+    - target: {fileID: 5721229085659608634, guid: c8e4b5bf1a744e4499dd82ffdce210e8,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5721229086607706864, guid: c8e4b5bf1a744e4499dd82ffdce210e8,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -13365,6 +13402,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Feral shopper (4)
+      objectReference: {fileID: 0}
+    - target: {fileID: 5721229085659608634, guid: c8e4b5bf1a744e4499dd82ffdce210e8,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5721229086607706864, guid: c8e4b5bf1a744e4499dd82ffdce210e8,
         type: 3}
@@ -22443,6 +22485,26 @@ PrefabInstance:
       propertyPath: m_isInputParsingRequired
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6213084866537641075, guid: 029862c00d6c5d0469c8c4c29b0a9dc4,
+        type: 3}
+      propertyPath: m_textAlignment
+      value: 513
+      objectReference: {fileID: 0}
+    - target: {fileID: 6213084866537641075, guid: 029862c00d6c5d0469c8c4c29b0a9dc4,
+        type: 3}
+      propertyPath: m_fontSize
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 6213084866537641075, guid: 029862c00d6c5d0469c8c4c29b0a9dc4,
+        type: 3}
+      propertyPath: m_fontSizeBase
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 6213084866537641075, guid: 029862c00d6c5d0469c8c4c29b0a9dc4,
+        type: 3}
+      propertyPath: m_textInfo.lineCount
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 207713591559986087, guid: 029862c00d6c5d0469c8c4c29b0a9dc4,
         type: 3}
       propertyPath: m_havePropertiesChanged
@@ -22486,6 +22548,20 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 8
       objectReference: {fileID: 0}
+    - target: {fileID: 790408650, guid: 029862c00d6c5d0469c8c4c29b0a9dc4, type: 3}
+      propertyPath: m_Name
+      value: Tiemr
+      objectReference: {fileID: 0}
+    - target: {fileID: 6213084866487779255, guid: 029862c00d6c5d0469c8c4c29b0a9dc4,
+        type: 3}
+      propertyPath: doubleJumpCost
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6213084866986106099, guid: 029862c00d6c5d0469c8c4c29b0a9dc4,
+        type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 1350616093}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 029862c00d6c5d0469c8c4c29b0a9dc4, type: 3}
 --- !u!1 &8004502967614562340

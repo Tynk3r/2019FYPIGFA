@@ -9,8 +9,19 @@ using Random = UnityEngine.Random;
 public class GameController : MonoBehaviour
 {
     [Header("Main")]
+    public Player player = null;
     [ReadOnly] public bool collectedAll = false;
     public List<SpawnPoint> spawnPoints = new List<SpawnPoint>();
+
+    public enum AGGRESSION_LEVELS
+    {
+        DOCILE,     // NIL - 1/4 
+        ANGRY,      // 1/4 - 1/2
+        ENRAGED,    // 1/2 - 3/4
+        INSANE,     // 3/4 - ALL
+    }
+    [Header("Level Progression")]
+    public AGGRESSION_LEVELS aggressionLevel = AGGRESSION_LEVELS.DOCILE;
 
     [Header("Shopping List")]
     public int numberOfObjectives;
@@ -31,7 +42,6 @@ public class GameController : MonoBehaviour
     public int numberOfWeapons;
     public List<ItemTemplate> weaponsToSpawn = new List<ItemTemplate>();
 
-    // Start is called before the first frame update
     void Awake()
     {
         InitPoints();
@@ -115,9 +125,19 @@ public class GameController : MonoBehaviour
     public void UpdateShoppingList()
     {
         string s = "";
-        foreach (string ss in shoppingListText)
+        foreach (var ss in shoppingListText)
         {
-                s += ("- " + ss + "\n");
+            s += "- " + ss + "\n";
+        }
+        s += "Held Items: \n";
+        int i = 0;
+        foreach (string ss in player.heldObjectives)
+        {
+            i++;
+            if (i >= player.heldObjectives.Count)
+                s += ss;
+            else
+                s += ss + ", ";
         }
         if (s == "")
         {

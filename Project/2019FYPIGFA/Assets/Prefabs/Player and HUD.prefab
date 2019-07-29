@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 790408653}
   - component: {fileID: 790408652}
   m_Layer: 5
-  m_Name: TextMeshPro Text
+  m_Name: Tiemr
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -866,7 +866,7 @@ MonoBehaviour:
   maxStamina: 10
   staminaRegenMultiplier: 5
   healthPickupValue: 100
-  doubleJumpCost: 1
+  doubleJumpCost: 3
   staminaBarOutline: {fileID: 6213084866506035300}
   staminaBar: {fileID: 6213084867698177921}
   staminaBarPosition: {x: -600, y: -480}
@@ -1130,14 +1130,14 @@ MonoBehaviour:
   m_outlineColor:
     serializedVersion: 2
     rgba: 4278190080
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 30
+  m_fontSizeBase: 30
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 1
-  m_textAlignment: 514
+  m_textAlignment: 513
   m_isAlignmentEnumConverted: 1
   m_characterSpacing: 0
   m_wordSpacing: 0
@@ -1176,7 +1176,7 @@ MonoBehaviour:
     spaceCount: 16
     wordCount: 17
     linkCount: 0
-    lineCount: 4
+    lineCount: 3
     pageCount: 1
     materialCount: 1
   m_havePropertiesChanged: 0
@@ -1774,8 +1774,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 86fd90d8b77557e46a71a5c61fb2cd50, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  player: {fileID: 6213084866487779255}
   collectedAll: 0
   spawnPoints: []
+  aggressionLevel: 0
   numberOfObjectives: 8
   shoppingListText: []
   shoppingList: {fileID: 6213084866537641075}
@@ -2423,7 +2425,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 8
   m_IsActive: 1
 --- !u!4 &6213084867399457366
 Transform:
@@ -3264,7 +3266,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 8
   m_IsActive: 1
 --- !u!224 &7891749104356227643
 RectTransform:
@@ -3513,7 +3515,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 8
   m_IsActive: 1
 --- !u!4 &6798436069360163643
 Transform:
@@ -3601,6 +3603,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player Minimap Arrow
       objectReference: {fileID: 0}
+    - target: {fileID: 5020428845799468043, guid: 3163eb08f30e1974780d19f83728bbbb,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 5020428845799960619, guid: 3163eb08f30e1974780d19f83728bbbb,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -3674,6 +3681,10 @@ PrefabInstance:
     - target: {fileID: 100000, guid: faed772a7bf35d242b86110d36a81c2c, type: 3}
       propertyPath: m_Name
       value: Main Character
+      objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: faed772a7bf35d242b86110d36a81c2c, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: faed772a7bf35d242b86110d36a81c2c, type: 3}
       propertyPath: m_LocalPosition.x
