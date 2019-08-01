@@ -4,11 +4,12 @@ using UnityEngine;
 
 public class B_Egg : MonoBehaviour, I_Projectile
 {
-    public static float damage = 50f;
-    public static float MAX_LIFETIME = 5.0f;
-    public static float EXPLOSIVE_RANGE = 5f;
-    public static float EXPLOSION_FORCE = 500f;
-    public static float LINGER_TIME = 1f; // Only for aesthetics
+    public const float damageToEnemy = 50f;
+    public const float damageToPlayer = 1f;
+    public const float MAX_LIFETIME = 5.0f;
+    public const float EXPLOSIVE_RANGE = 10f;
+    public const float EXPLOSION_FORCE = 500f;
+    public const float LINGER_TIME = 1f; // Only for aesthetics
 
     private float m_lifeTime;
     private Rigidbody m_rb;
@@ -48,7 +49,7 @@ public class B_Egg : MonoBehaviour, I_Projectile
             // Check if it's an enemy. If it is, it takes damage
             Enemy enemyHit = null;
             Player playerHit = null;
-            if (m_playerOwned)
+            if (!m_playerOwned)
                 playerHit = hitColliders[i].GetComponent<Player>();
             else
                 enemyHit = hitColliders[i].GetComponent<Enemy>();
@@ -56,12 +57,18 @@ public class B_Egg : MonoBehaviour, I_Projectile
             {
                 // Apply force away from eggsplosion
                 //enemyHit.GetComponent<Rigidbody>().AddForce((hitColliders[i].gameObject.transform.position - transform.position).normalized * EXPLOSION_FORCE);
-                if (enemyHit.TakeDamage(damage))
-                    enemyHit.GetComponent<Rigidbody>().AddExplosionForce(EXPLOSION_FORCE, transform.position, EXPLOSIVE_RANGE);
+                if (enemyHit.TakeDamage(damageToEnemy))
+                {
+                    Rigidbody[] rigidbodies = enemyHit.GetComponentsInChildren<Rigidbody>();
+                    foreach(Rigidbody rigidbody in rigidbodies)
+                    {
+                        rigidbody.AddExplosionForce(EXPLOSION_FORCE, transform.position, EXPLOSIVE_RANGE);
+                    }
+                }
             }
             else if (playerHit != null)
             {
-                playerHit.TakeDamage(damage);
+                playerHit.TakeDamage(damageToPlayer);
             }
             ++i;
         }

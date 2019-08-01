@@ -8,16 +8,19 @@ public class AhMa : Enemy
     public float baseMoveSpeed = 3.5f;
     public float enragedMoveSpeed = 3.5f;
     public static float ATTACK_RATE = 0.3f;
+    public static float ATTACK_DAMAGE = 5f;
     private float m_countDown = 0f;
     public float acceleration = 60f;
     public float attackRangeSquared = 4f;
-
+    
     public Player D_PLAYERTARGET;
+    private Rigidbody rb;
     enum STATES
     {
         IDLE,
         HOSTILE,
         ENRAGED,
+        ATTACK,
         DEAD
     }
     STATES currState = STATES.HOSTILE;
@@ -29,9 +32,18 @@ public class AhMa : Enemy
         ChangeSpeed(baseMoveSpeed, acceleration);
         ChangeState(STATES.HOSTILE); //TODO : REMOVE
 
-        var rb = GetComponent<Rigidbody>();
+        Rigidbody[] rigidBodies = GetComponentsInChildren<Rigidbody>();
+        foreach (Rigidbody rigidbody in rigidBodies)
+        {
+            rigidbody.isKinematic = true;
+            rigidbody.detectCollisions = false;
+        }
+
+        rb = GetComponent<Rigidbody>();
         rb.isKinematic = true;
         rb.detectCollisions = true;
+        D_PLAYERTARGET = (Player)FindObjectOfType(typeof(Player));
+        alive = true;
     }
 
     // Update is called once per frame
@@ -40,8 +52,9 @@ public class AhMa : Enemy
         base.Update();
         m_countDown = Mathf.Max(m_countDown - Time.deltaTime, 0f);
         UpdateStates();
-        if (health <= 0f)
+        if (health <= 0f && alive)
             Die();
+        //Debug.Log("Detect collisions is " + rb.detectCollisions);
     }
     void UpdateStates()
     {
@@ -50,13 +63,7 @@ public class AhMa : Enemy
             case STATES.ENRAGED:
                 if ((D_PLAYERTARGET.transform.position - transform.position).sqrMagnitude < attackRangeSquared && m_countDown == 0f)
                 {
-                    // Stop moving,
-                    agent.updatePosition = false;
-                    // Look at the player
-                    transform.LookAt(D_PLAYERTARGET.transform.position, transform.up);
-                    // Attack
-                    m_countDown = ATTACK_RATE;
-                    D_PLAYERTARGET.TakeDamage(5f);
+                    ChangeState(STATES.ATTACK);
                 }
                 else
                 {
@@ -74,15 +81,7 @@ public class AhMa : Enemy
                     ChangeState(STATES.ENRAGED);
                 if ((D_PLAYERTARGET.transform.position - transform.position).sqrMagnitude < attackRangeSquared && m_countDown == 0f)
                 {
-                    // Stop moving,
-                    agent.updatePosition = false;
-                    // Look at the player
-                    Vector3 positionToLook = D_PLAYERTARGET.transform.position;
-                    positionToLook.y = transform.position.y;
-                    transform.LookAt(positionToLook, new Vector3(0f, 1f, 0f));
-                    // Attack
-                    m_countDown = ATTACK_RATE;
-                    D_PLAYERTARGET.TakeDamage(5f);
+                    ChangeState(STATES.ATTACK);
                 }
                 else
                 {
@@ -95,18 +94,37 @@ public class AhMa : Enemy
                 //    D_PLAYERTARGET.TakeDamage(5f);
                 //}
                 break;
-            case STATES.DEAD:
-                if (m_countDown <= 0f)
+            case STATES.ATTACK:
+                if ((D_PLAYERTARGET.transform.position - transform.position).sqrMagnitude < attackRangeSquared)
                 {
-                    StartCoroutine(DeathAnimation());
+                    // Stop moving,
+                    agent.updatePosition = false;
+                    // Look at the player
+                    Vector3 positionToLook = D_PLAYERTARGET.transform.position;
+                    positionToLook.y = transform.position.y;
+                    transform.LookAt(positionToLook, new Vector3(0f, 1f, 0f));
+                    // Attack
+                    Attack();
+                    m_countDown = ATTACK_RATE;
                 }
+                ChangeState(STATES.HOSTILE);
+                break;
+            case STATES.DEAD:
+                //if (m_countDown <= 0f)
+                //{
+                //    StartCoroutine(DeathAnimation());
+                //}
                 break;
         }
     }
 
     bool Attack()
     {
+        // TODO: check any other conditions like raycast?
         // Play the attack animation
+        Animator anim = GetComponentInChildren<Animator>();
+        anim.SetTrigger("attack");
+        D_PLAYERTARGET.TakeDamage(5f);
         return false;
     }
 
@@ -120,12 +138,24 @@ public class AhMa : Enemy
                 ChangeSpeed(baseMoveSpeed * GetSpeedMultiplier(), acceleration);
                 break;
             case STATES.ENRAGED:
-               // ChangeSpeed(enragedMoveSpeed * GetSpeedMultiplier(), acceleration);
+                ChangeSpeed(enragedMoveSpeed * GetSpeedMultiplier(), acceleration);
+                break;
+            case STATES.ATTACK:
+                ChangeSpeed(0f);
                 break;
             case STATES.DEAD:
-                var rb = GetComponent<Rigidbody>();
-                rb.isKinematic = false;
-                rb.detectCollisions = true;
+                Animator anim = GetComponentInChildren<Animator>();
+                anim.SetBool("run", false);
+                anim.enabled = false;
+                GetComponent<Collider>().enabled = false;
+                Rigidbody[] rigidBodies = GetComponentsInChildren<Rigidbody>();
+                foreach (Rigidbody rigidbody in rigidBodies)
+                {
+                    rigidbody.isKinematic = false;
+                    rigidbody.detectCollisions = true;
+                }
+                //rb.isKinematic = true;
+                //rb.detectCollisions = false;
                 m_countDown = 5f;
                 break;
         }

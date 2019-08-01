@@ -13,10 +13,14 @@ public class FeralShopper : Enemy
     public float meleeRange = 4f;
     public float meleeStoppingDistance = 1;
     public Player D_PLAYERTARGET;
+    private bool m_attacking;
+    private Rigidbody rb;
+    private Animator anim;
     private float m_countDown;
     STATES currState;
     public static float RATE_OF_FIRE = 1f;
-    
+    private const float TURNING_SPEED = 100f;
+
     private float m_attackCooldown;
     ProjectilePool poolInstance;
 
@@ -54,9 +58,10 @@ public class FeralShopper : Enemy
         if (null == poolInstance)
             poolInstance = ProjectilePool.g_sharedInstance;
 
-        var rb = GetComponent<Rigidbody>();
-        rb.isKinematic = true;
-        rb.detectCollisions = true;
+        m_attacking = false;
+        rb = GetComponent<Rigidbody>();
+        anim = GetComponentInChildren<Animator>();
+
         m_meleeWeapon.weaponType = ItemData.WEAPON_TYPE.NONE;
         m_rangedWeapon.weaponType = ItemData.WEAPON_TYPE.NONE;
         D_PLAYERTARGET = FindObjectOfType<Player>();
@@ -69,6 +74,18 @@ public class FeralShopper : Enemy
         lootManager = (EnemyLootManager)FindObjectOfType(typeof(EnemyLootManager));
         if (null == lootManager)
             Debug.LogError("Missing loot manager");
+
+        Rigidbody[] rigidBodies = GetComponentsInChildren<Rigidbody>();
+        foreach (Rigidbody rigidbody in rigidBodies)
+        {
+            rigidbody.isKinematic = true;
+            rigidbody.detectCollisions = false;
+        }
+        rb = GetComponent<Rigidbody>();
+        rb.isKinematic = true;
+        rb.detectCollisions = true;
+        D_PLAYERTARGET = (Player)FindObjectOfType(typeof(Player));
+        alive = true;
     }
 
     // Update is called once per frame
@@ -101,30 +118,46 @@ public class FeralShopper : Enemy
                 }
                 break;
             case STATES.RANGED_ATTACK:
-                if (ItemData.WEAPON_TYPE.NONE == m_rangedWeapon.weaponType)
                 {
-                    ChangeState(STATES.SEARCH_WEAPON_RANGED);
-                    break;
+                    Vector3 newView = D_PLAYERTARGET.transform.position - transform.position;
+                    newView.y = 0;
+                    newView.Normalize();
+                    Quaternion newRotation = new Quaternion();
+                    newRotation.SetLookRotation(newView);
+                    transform.rotation = Quaternion.RotateTowards(transform.rotation, newRotation, Time.deltaTime * TURNING_SPEED);
+                    if (ItemData.WEAPON_TYPE.NONE == m_rangedWeapon.weaponType)
+                    {
+                        ChangeState(STATES.SEARCH_WEAPON_RANGED);
+                        break;
+                    }
+                    else if (m_attacking)
+                    {
+                        // Check if animation finished
+                        var stateInfo = anim.GetCurrentAnimatorStateInfo(0);
+                        // If it has, deal damage
+                        if (stateInfo.IsName("attack"))
+                            FinishAttack();
+                        break;
+                    }
+                    else if ((transform.position - D_PLAYERTARGET.transform.position).sqrMagnitude > rangedAttackRange * rangedAttackRange || m_attackCooldown > 0f)
+                    {
+                        ChangeState(STATES.HOSTILE_CLOSE_GAP);
+                        break;
+                    }
+                    else if ((transform.position - D_PLAYERTARGET.transform.position).sqrMagnitude < meleeStartDistThreshold * meleeStartDistThreshold)
+                    {
+                        ChangeState(STATES.MELEE_ATTACK);
+                    }
+                    //if (0 < m_attackCooldown)
+                    //    break;
+                    if (!BeginAttack()) // If can't attack because of obstacle
+                        MoveToPosition(D_PLAYERTARGET.transform.position);
+                    else
+                    {
+                        MoveToPosition(transform.position);
+                        m_attackCooldown += RATE_OF_FIRE;
+                    }
                 }
-                else if ((transform.position - D_PLAYERTARGET.transform.position).sqrMagnitude > rangedAttackRange * rangedAttackRange || m_attackCooldown > 0f)
-                {
-                    ChangeState(STATES.HOSTILE_CLOSE_GAP);
-                    break;
-                }
-                else if ((transform.position - D_PLAYERTARGET.transform.position).sqrMagnitude < meleeStartDistThreshold * meleeStartDistThreshold)
-                {
-                    ChangeState(STATES.MELEE_ATTACK);
-                }
-                //if (0 < m_attackCooldown)
-                //    break;
-                if (!Attack()) // If can't attack because of obstacle
-                    MoveToPosition(D_PLAYERTARGET.transform.position);
-                else
-                {
-                    MoveToPosition(transform.position);
-                    m_attackCooldown += RATE_OF_FIRE;
-                }
-                
                 break;
             case STATES.SEARCH_WEAPON_RANGED:
                 if (agent.remainingDistance > 0f)
@@ -139,21 +172,39 @@ public class FeralShopper : Enemy
                 ChangeState(STATES.MELEE_ATTACK);
                 break;
             case STATES.MELEE_ATTACK:
-                MoveToPosition(D_PLAYERTARGET.transform.position);
-                if (ItemData.WEAPON_TYPE.NONE == m_meleeWeapon.weaponType)
                 {
-                    ChangeState(STATES.SEARCH_WEAPON_MELEE);
-                    break;
-                }
-                else if ((D_PLAYERTARGET.transform.position - transform.position).sqrMagnitude < meleeRange * meleeRange && m_attackCooldown <= 0f)
-                {
-                    // Attack the player here
-                    if (Attack())
-                        m_attackCooldown += RATE_OF_FIRE;
-                }
-                else if ((D_PLAYERTARGET.transform.position - transform.position).sqrMagnitude > meleeEndDistThreshold * meleeEndDistThreshold)
-                {
-                    ChangeState(STATES.HOSTILE_CLOSE_GAP);
+                    Vector3 newView = D_PLAYERTARGET.transform.position - transform.position;
+                    newView.y = 0;
+                    newView.Normalize();
+                    Quaternion newRotation = new Quaternion();
+                    newRotation.SetLookRotation(newView);
+                    transform.rotation = Quaternion.RotateTowards(transform.rotation, newRotation, Time.deltaTime * TURNING_SPEED);
+                    MoveToPosition(D_PLAYERTARGET.transform.position);
+                    if (ItemData.WEAPON_TYPE.NONE == m_meleeWeapon.weaponType)
+                    {
+                        ChangeState(STATES.SEARCH_WEAPON_MELEE);
+                        break;
+                    }
+                    else if (m_attacking)
+                    {
+                        // Check if animation finished
+                        var stateInfo = anim.GetCurrentAnimatorStateInfo(0);
+                        // If it has, deal damage
+                        if (stateInfo.IsName("attack"))
+                            FinishAttack();
+                        break;
+                    }
+                    else if ((D_PLAYERTARGET.transform.position - transform.position).sqrMagnitude < meleeRange * meleeRange && m_attackCooldown <= 0f)
+                    {
+                        // Attack the player here
+                    
+                        if (BeginAttack())
+                            m_attackCooldown += RATE_OF_FIRE;
+                    }
+                    else if ((D_PLAYERTARGET.transform.position - transform.position).sqrMagnitude > meleeEndDistThreshold * meleeEndDistThreshold)
+                    {
+                        ChangeState(STATES.HOSTILE_CLOSE_GAP);
+                    }
                 }
                 break;
             default:
@@ -162,11 +213,15 @@ public class FeralShopper : Enemy
         }
     }
 
-    bool Attack()
+    bool BeginAttack()
     {
         {
-            //Vector3 newPos = D_PLAYERTARGET.transform.position;
-            transform.LookAt(D_PLAYERTARGET.transform.position);
+            Vector3 newView = D_PLAYERTARGET.transform.position - transform.position;
+            newView.y = 0;
+            newView.Normalize();
+            Quaternion newRotation = new Quaternion();
+            newRotation.SetLookRotation(newView);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, newRotation, Time.deltaTime * 10f);
         }
         if (STATES.RANGED_ATTACK == currState)
             {
@@ -181,18 +236,10 @@ public class FeralShopper : Enemy
             }
             else
                 return false;
-            // Spawn a projectile to be shot to the player
-            I_Projectile projectile = poolInstance.FetchObjectInPool(m_rangedWeapon.projectileID).GetComponent<I_Projectile>();
-            if (null == projectile)
-            {
-                Debug.LogWarning("Did not get any egg");
-                return false;
-            }
             //egg.Discharge(transform.forward * 10f, transform.position + 
             //    (D_PLAYERTARGET.transform.position - transform.forward).normalized * 0.5f); JFL
-            projectile.Initialize(false);
-            projectile.Discharge(toPlayer * m_rangedWeapon.projectileMagnitude, transform.position +
-                (D_PLAYERTARGET.transform.position - transform.position).normalized * 1f);
+            anim.SetTrigger("attack");
+            m_attacking = true;
             return true;
         }
         else
@@ -209,8 +256,46 @@ public class FeralShopper : Enemy
             else
                 return false;
             // Attack codes here
-            D_PLAYERTARGET.TakeDamage(m_meleeWeapon.weaponDamage);
+            anim.SetTrigger("attack");
+            m_attacking = true;
             return true;
+        }
+    }
+
+    void FinishAttack()
+    {
+        m_attacking = false;
+        Debug.Log("Finished attack");
+        if (STATES.RANGED_ATTACK == currState)
+        {
+            // Spawn a projectile to be shot to the player
+            Vector3 toPlayer = (D_PLAYERTARGET.transform.position - heldWeapon.transform.position).normalized;
+            I_Projectile projectile = poolInstance.FetchObjectInPool(m_rangedWeapon.projectileID).GetComponent<I_Projectile>();
+            if (null == projectile)
+            {
+                Debug.LogWarning("Did not get any egg");
+                return;
+            }
+            projectile.Initialize(false);
+            projectile.Discharge(toPlayer * m_rangedWeapon.projectileMagnitude, transform.position +
+                (D_PLAYERTARGET.transform.position - transform.position).normalized * 1f);
+        }
+        else
+        {
+            // Deal damage to the player if the range is close enough
+            // Raycast to the player but with limited distance
+            RaycastHit hit;
+            Vector3 toPlayer = D_PLAYERTARGET.transform.position - heldWeapon.transform.position;
+            if (Physics.Raycast(heldWeapon.transform.position, toPlayer, out hit, m_meleeWeapon.attackRange))
+            {
+                Debug.DrawRay(heldWeapon.transform.position, toPlayer * hit.distance, Color.red);
+                if (null == hit.collider.gameObject.GetComponent<Player>())
+                    return;
+            }
+            else
+                return;
+            // Attack codes here
+            D_PLAYERTARGET.TakeDamage(m_meleeWeapon.weaponDamage);
         }
     }
 
@@ -237,9 +322,16 @@ public class FeralShopper : Enemy
                     ChangeState(STATES.SEARCH_WEAPON_MELEE);
                 break;
             case STATES.DEAD:
-                var rb = GetComponent<Rigidbody>();
-                rb.isKinematic = false;
-                rb.detectCollisions = true;
+                anim.enabled = false;
+                GetComponent<Collider>().enabled = false;
+                Rigidbody[] rigidBodies = GetComponentsInChildren<Rigidbody>();
+                foreach (Rigidbody rigidbody in rigidBodies)
+                {
+                    rigidbody.isKinematic = false;
+                    rigidbody.detectCollisions = true;
+                }
+                //rb.isKinematic = true;
+                //rb.detectCollisions = false;
                 m_countDown = 5f;
                 break;
             case STATES.SEARCH_WEAPON_RANGED:

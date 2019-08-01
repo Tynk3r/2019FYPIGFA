@@ -25,8 +25,8 @@ public class Enemy : AIManager
     {
         base.Start();
         m_buffList = new List<Buffable.Buff>();
-        if (null == buffCanvas)
-            Debug.LogError("There's not buff canvas attached to this enemy");
+        //if (null == buffCanvas)
+        //    Debug.LogError("There's no buff canvas attached to this enemy");
     }
 
     // Update is called once per frame
@@ -40,6 +40,7 @@ public class Enemy : AIManager
     {
         float trueDamage = Mathf.Clamp(_damage, 0, health);
         //Debug.Log(enemyType + " took " + trueDamage + " damage.");
+        Die();
         return (health -= trueDamage) <= 0f;
     }
     void UpdateBuffs()
