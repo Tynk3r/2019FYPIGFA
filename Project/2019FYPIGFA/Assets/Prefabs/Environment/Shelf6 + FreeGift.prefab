@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 6824358044775920829}
   - component: {fileID: 6824358044773053597}
   - component: {fileID: 6824358044774151773}
+  - component: {fileID: 4241902453746578767}
+  - component: {fileID: 3036963419726576335}
   m_Layer: 0
   m_Name: Shelf6 + FreeGift
   m_TagString: Untagged
@@ -77,3 +79,29 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!65 &4241902453746578767
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6824358044776081565}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.8470766, y: 0.8752453, z: 1.3002136}
+  m_Center: {x: -0.00000017726043, y: 0.000000044315122, z: -0.1802172}
+--- !u!65 &3036963419726576335
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6824358044776081565}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.48181903, y: 0.5194407, z: 0.31615013}
+  m_Center: {x: 0.01116887, y: -0.17790197, z: 0.63483435}
