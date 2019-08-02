@@ -13,6 +13,7 @@ public class GameController : MonoBehaviour
     [ReadOnly] public bool collectedAll = false;
     public List<SpawnPoint> spawnPoints = new List<SpawnPoint>();
 
+    [System.Serializable]
     public enum AGGRESSION_LEVELS
     {
         DOCILE,     // NIL - 1/4 
