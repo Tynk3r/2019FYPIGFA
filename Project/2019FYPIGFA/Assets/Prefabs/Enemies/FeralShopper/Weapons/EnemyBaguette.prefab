@@ -1,0 +1,68 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8254246549473130078
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2553454967056869731}
+  - component: {fileID: 1203587783618879736}
+  m_Layer: 0
+  m_Name: EnemyBaguette
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2553454967056869731
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8254246549473130078}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.0808758, y: 0.611, z: 0.75656736}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1203587783618879736
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8254246549473130078}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 255492a3fc9a2ca44a6e6d9c08874d32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemData:
+    weaponBuff:
+      buff: 0
+      duration: 0
+      magnitude: 0
+    skillType: 0
+    weaponType: 1
+    type: Baguette
+    mesh: {fileID: 4300000, guid: d20c2daee76ceff4eb767943ed41fac0, type: 3}
+    material: {fileID: 2100000, guid: 8b6e872fc85870248a2df7716e3f6181, type: 3}
+    heldPosition: {x: -0.3, y: 0, z: 0}
+    heldRotation: {x: 0, y: 0, z: 0}
+    shootOffset: 0.5
+    attackRate: 1
+    durability: 5
+    durabilityDecay: 1
+    weaponDamage: 5
+    attackRange: 2
+    impactEffect: {fileID: 0}
+    projectileID: -1
+    projectileMagnitude: 0
+    projectile: 
+    projectileName: 

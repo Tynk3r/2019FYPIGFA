@@ -79,7 +79,7 @@ public class ProjectilePool : MonoBehaviour
                 obj = pooledObjectsList[_index][0];
             else
                 obj = Instantiate(itemsToPool[_index].objectToPool); // Instantiate another game object
-            obj.GetComponent<I_Projectile>().Initialize();
+            obj.GetComponent<I_Projectile>().Initialize(false);
             obj.SetActive(false);
             obj.transform.parent = this.transform; // CHECK: this necessary?
             pooledObjectsList[_index].Add(obj); // Add to the list
@@ -122,7 +122,7 @@ public class ProjectilePool : MonoBehaviour
         for (int i = 0; i < item.amountToPool; ++i)
         {
             GameObject obj = Instantiate(item.objectToPool);
-            obj.GetComponent<I_Projectile>().Initialize();
+            obj.GetComponent<I_Projectile>().Initialize(false);
             obj.SetActive(false);
             obj.transform.parent = this.transform; // CHECK: this necessary?
             pooledObjects.Add(obj);

@@ -69,22 +69,27 @@ public class HeldWeapon : MonoBehaviour
 
     public bool Fire()
     {
-        RaycastHit hit;
         switch (itemData.weaponType)
         {
             case ItemData.WEAPON_TYPE.RAYCAST:
                 // attackrate = times per second can attack
                 // attacktimer = when zero, can attack
                 // attack timer set to (1 / attackrate) when attack
-                if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out hit, itemData.attackRange))
+                if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out RaycastHit hit, itemData.attackRange))
                 {
                     if (attackTimer > 0f)
                         return false;
 
-                    if (hit.collider.GetComponent<Enemy>() != null) // TODO: APPLY DEBUFF HERE
+                    if (hit.collider.GetComponent<Enemy>() != null) // TODO: OPTIMIZE IN CASE OF DEATH
                     {
                         Enemy enemy = hit.collider.GetComponent<Enemy>();
-                        enemy.health = Mathf.Clamp(enemy.health - itemData.weaponDamage, 0, enemy.maxHealth);
+                        enemy.TakeDamage(itemData.weaponDamage);
+                        switch (itemData.weaponBuff.buff)
+                        {
+                            case ItemData.BUFF_TYPE.HOT_SAUCE:
+                                enemy.ApplyBuff(Buffable.CHAR_BUFF.DEBUFF_BURN, ItemData.DURATION_BURN);
+                                break;
+                        }
                         attackTimer = 1 / itemData.attackRate;
                         itemData.durability = Mathf.Clamp(itemData.durability - itemData.durabilityDecay, 0, 100);
                         Debug.Log("Hit " + enemy.enemyType + " for " + itemData.weaponDamage + " damage with " + itemData.type + ". Durability Left: " + itemData.durability + "%");
@@ -108,6 +113,7 @@ public class HeldWeapon : MonoBehaviour
                 }
                 Vector3 projectilePosition = transform.position + player.yLookObject.transform.forward * itemData.shootOffset;
                 // TODO: based on itemdata's projectile force and not magick number
+                projectile.Initialize(true);
                 projectile.Discharge(player.yLookObject.transform.forward * itemData.projectileMagnitude, projectilePosition /*+ player.yLookObject.transform.forward*/);
                 
 
@@ -129,16 +135,28 @@ public class HeldWeapon : MonoBehaviour
         switch (itemData.skillType)
         {
             case ItemData.SKILL_TYPE.LUNGE:
-                player.AddExternalForce(Camera.main.transform.forward * 10f);
-                // Now add a collider in front of the main camera
-                GameObject attackCollider = projectilePoolInstance.FetchObjectInPool(itemData.projectileID);
-                Debug.Log("Spawned object " + attackCollider);
-                Vector3 scale = new Vector3(1f, 1f, 1f);
-                attackCollider.GetComponent<I_Projectile>().Initialize();
-                attackCollider.transform.localScale = scale;
-                attackCollider.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 0.3f;
-                attackCollider.transform.rotation = Camera.main.transform.rotation;
-                attackCollider.transform.parent = Camera.main.transform;
+                if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out RaycastHit hit2, itemData.attackRange))
+                {
+                    if (attackTimer > 0f)
+                        return false;
+
+                    if (hit2.collider.GetComponent<Enemy>() != null) // TODO: OPTIMIZE IN CASE OF DEATH
+                    {
+                        Enemy enemy = hit2.collider.GetComponent<Enemy>();
+                        attackTimer = 1 / itemData.attackRate;
+                        itemData.durability = Mathf.Clamp(itemData.durability - itemData.durabilityDecay, 0, 100);
+                        player.AddExternalForce(Camera.main.transform.forward * 10f);
+                        // Now add a collider in front of the main camera
+                        GameObject attackCollider = projectilePoolInstance.FetchObjectInPool(itemData.projectileID);
+                        Debug.Log("Spawned object " + attackCollider);
+                        Vector3 scale = new Vector3(1f, 1f, 1f);
+                        attackCollider.GetComponent<I_Projectile>().Initialize(true);
+                        attackCollider.transform.localScale = scale;
+                        attackCollider.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 0.3f;
+                        attackCollider.transform.rotation = Camera.main.transform.rotation;
+                        attackCollider.transform.parent = Camera.main.transform;
+                    }
+                }
                 break;
             case ItemData.SKILL_TYPE.MAYO_DRINK:
                 //player.ApplyBuff(Buffable.CHAR_BUFF.BUFF_SLOMO, 5f);

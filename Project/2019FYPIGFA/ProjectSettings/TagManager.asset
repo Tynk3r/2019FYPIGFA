@@ -7,6 +7,10 @@ TagManager:
   - Walls
   - Enemy
   - SpawnPoint
+  - Cashier
+  - Objective
+  - Interactable
+  - HealthPickup
   layers:
   - Default
   - TransparentFX
@@ -39,7 +43,7 @@ TagManager:
   - 
   - 
   - 
-  - 
+  - HLOD
   m_SortingLayers:
   - name: Default
     uniqueID: 0

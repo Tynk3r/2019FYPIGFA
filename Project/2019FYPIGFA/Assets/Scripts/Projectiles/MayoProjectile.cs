@@ -21,7 +21,7 @@ public class MayoProjectile : MonoBehaviour, I_Projectile
     string splashEffectName = "Mayo2";
 
     private Rigidbody m_rb = null;
-
+    private bool m_playerOwned;
     private void Awake()
     {
         m_rb = gameObject.GetComponent<Rigidbody>();
@@ -36,9 +36,10 @@ public class MayoProjectile : MonoBehaviour, I_Projectile
             Detonate();
     }
 
-    public void Initialize()
+    public void Initialize(bool _playerOwned = false)
     {
         m_countdown = maxLifetime;
+        m_playerOwned = _playerOwned;
     }
 
     public void Discharge(Vector3 _force, Vector3 _position)
@@ -62,18 +63,21 @@ public class MayoProjectile : MonoBehaviour, I_Projectile
         for (int i = 0; i < hitColliders.Length; ++i)
         {
             // Check if it's an enemy. If it is, it takes damage
-            Enemy enemyHit = hitColliders[i].GetComponent<Enemy>();
-            if (null == enemyHit)
-            {
-                continue;
-            }
-            if (enemyHit.TakeDamage(damage))
-            {
-                enemyHit.GetComponent<Rigidbody>().AddExplosionForce(detonateForce, transform.position, detonateRange);
-            }
+            Enemy enemyHit = null;
+            Player playerHit = null;
+            if (m_playerOwned)
+                playerHit = hitColliders[i].GetComponent<Player>();
             else
+                enemyHit = hitColliders[i].GetComponent<Enemy>();
+            if (null != enemyHit)
             {
+                if(enemyHit.TakeDamage(damage))
+                    enemyHit.GetComponent<Rigidbody>().AddExplosionForce(detonateForce, transform.position, detonateRange);
                 enemyHit.ApplyBuff(Buffable.CHAR_BUFF.DEBUFF_SLOW, duration);
+            }
+            else if (null != playerHit)
+            {
+                playerHit.TakeDamage(damage);
             }
         }
 
@@ -86,7 +90,7 @@ public class MayoProjectile : MonoBehaviour, I_Projectile
         I_Projectile splashProjectile = splashEffect.GetComponent<I_Projectile>();
         // Get the splash direction from contact point
         // Prevent animation from playing straight away
-        splashProjectile.Initialize();
+        splashProjectile.Initialize(true);
         // Play the animation at the right place
         splashProjectile.Discharge(new Vector3(), transform.position);
         gameObject.SetActive(false);

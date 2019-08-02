@@ -9,22 +9,37 @@ public class P_PizzaSlice : MonoBehaviour, I_Projectile
     public float EXPLOSIVE_RANGE = 5f;
     public float EXPLOSION_FORCE = 500f;
     public float rotationSpeed = 1f; // Only for aesthetics
-
+    public const float lingerTime = 3f;
+    private bool m_playerOwned;
     private float m_lifeTime;
     private Rigidbody m_rb;
 
+    private bool m_live; // To make sure trail finishes before unrendering
+
     // Update is called once per frame
-    public void Initialize()
+    public void Initialize(bool _playerOwned = false)
     {
         m_lifeTime = MAX_LIFETIME;
         m_rb = GetComponent<Rigidbody>();
+        m_playerOwned = _playerOwned;
+        m_live = true;
     }
     void Update()
     {
         transform.Rotate(0f, rotationSpeed, 0f, Space.Self);
         m_lifeTime -= Time.deltaTime;
-        if (m_lifeTime <= 0f)
-            Detonate();
+        if(m_live)
+        {
+            if (m_lifeTime <= 0f)
+                Detonate();
+        }
+        else
+        {
+            if (m_lifeTime <= 0f)
+            {
+                gameObject.SetActive(false);
+            }
+        }
     }
     public void Discharge(Vector3 _force, Vector3 _position)
     {
@@ -37,27 +52,45 @@ public class P_PizzaSlice : MonoBehaviour, I_Projectile
     public void Detonate(GameObject g)
     {
         // Check if it's an enemy. If it is, it takes damage
-        Enemy enemyHit = g.GetComponent<Enemy>();
-        if (enemyHit != null && enemyHit.TakeDamage(damage))
+        Debug.Log("Collided with an enemy");
+        Enemy enemyHit = null;
+        Player playerHit = null;
+        if (!m_playerOwned)
+            playerHit = g.GetComponent<Player>();
+        else
+            enemyHit = g.GetComponent<Enemy>();
+        if (enemyHit != null)
         {
-            // Apply force away from eggsplosion sorry i mean Pizzasplosion
-            enemyHit.GetComponent<Rigidbody>().AddExplosionForce(EXPLOSION_FORCE, transform.position, EXPLOSIVE_RANGE);
+            // Apply force away from eggsplosion sorry i mean Pizzasplosio
+            if (enemyHit.TakeDamage(damage))
+            {
+                Rigidbody[] rigidbodies = enemyHit.GetComponentsInChildren<Rigidbody>();
+                foreach (Rigidbody rigidbody in rigidbodies)
+                {
+                    rigidbody.AddExplosionForce(EXPLOSION_FORCE, transform.position, EXPLOSIVE_RANGE);
+                }
+            }
         }
-        gameObject.SetActive(false);
+        else if (playerHit != null)
+            playerHit.TakeDamage(damage);
+        Detonate();
     }
+    
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.tag != "Player")
+        if (m_live)
             Detonate(collision.gameObject);
     }
     private void OnTriggerEnter(Collider other)
     {
+        Debug.Log("trigger detected pizza");
         if (other.gameObject.tag != "Player")
             Detonate(other.gameObject);
     }
 
     public void Detonate()
     {
-        gameObject.SetActive(false);
+        m_live = false;
+        m_lifeTime = lingerTime;
     }
 }

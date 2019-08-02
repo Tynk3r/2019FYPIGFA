@@ -1,0 +1,231 @@
+fileFormatVersion: 2
+guid: 9f05501fabf5e2b41ad528041e5e2ded
+ModelImporter:
+  serializedVersion: 23
+  fileIDToRecycleName:
+    100000: Character1_RightHandIndex2
+    100002: Character1_RightHandIndex2 1
+    100004: Character1_RightHandIndex3
+    100006: Character1_RightHandIndex3 1
+    100008: Character1_RightHandIndex4
+    100010: Character1_RightHandIndex4 1
+    100012: Character1_RightHandMiddle2
+    100014: Character1_RightHandMiddle2 1
+    100016: Character1_RightHandMiddle3
+    100018: Character1_RightHandMiddle3 1
+    100020: Character1_RightHandMiddle4
+    100022: Character1_RightHandMiddle4 1
+    100024: Character1_RightHandPinky2
+    100026: Character1_RightHandPinky2 1
+    100028: Character1_RightHandPinky3
+    100030: Character1_RightHandPinky3 1
+    100032: Character1_RightHandPinky4
+    100034: Character1_RightHandPinky4 1
+    100036: Character1_RightHandRing2
+    100038: Character1_RightHandRing2 1
+    100040: Character1_RightHandRing3
+    100042: Character1_RightHandRing3 1
+    100044: Character1_RightHandRing4
+    100046: Character1_RightHandRing4 1
+    100048: Character1_RightHandThumb2
+    100050: Character1_RightHandThumb2 1
+    100052: Character1_RightHandThumb3
+    100054: Character1_RightHandThumb3 1
+    100056: Character1_RightHandThumb4
+    100058: Character1_RightHandThumb4 1
+    100060: Feral_Shopper
+    100062: //RootNode
+    100064: Head
+    100066: Hips
+    100068: L_arm
+    100070: L_elbow
+    100072: L_feet
+    100074: L_forearm
+    100076: L_hand
+    100078: L_index
+    100080: L_knee
+    100082: L_leg
+    100084: L_middle
+    100086: L_pinky
+    100088: L_ring
+    100090: L_shoulder
+    100092: L_thumb
+    100094: L_toe
+    100096: MC
+    100098: Neck
+    100100: R_arm
+    100102: R_elbow
+    100104: R_feet
+    100106: R_forearm
+    100108: R_hand
+    100110: R_index
+    100112: R_knee
+    100114: R_leg
+    100116: R_middle
+    100118: R_pinky
+    100120: R_ring
+    100122: R_shoulder
+    100124: R_thumb
+    100126: R_toe
+    100128: Spine
+    100130: Spine2
+    100132: Spine3
+    400000: Character1_RightHandIndex2
+    400002: Character1_RightHandIndex2 1
+    400004: Character1_RightHandIndex3
+    400006: Character1_RightHandIndex3 1
+    400008: Character1_RightHandIndex4
+    400010: Character1_RightHandIndex4 1
+    400012: Character1_RightHandMiddle2
+    400014: Character1_RightHandMiddle2 1
+    400016: Character1_RightHandMiddle3
+    400018: Character1_RightHandMiddle3 1
+    400020: Character1_RightHandMiddle4
+    400022: Character1_RightHandMiddle4 1
+    400024: Character1_RightHandPinky2
+    400026: Character1_RightHandPinky2 1
+    400028: Character1_RightHandPinky3
+    400030: Character1_RightHandPinky3 1
+    400032: Character1_RightHandPinky4
+    400034: Character1_RightHandPinky4 1
+    400036: Character1_RightHandRing2
+    400038: Character1_RightHandRing2 1
+    400040: Character1_RightHandRing3
+    400042: Character1_RightHandRing3 1
+    400044: Character1_RightHandRing4
+    400046: Character1_RightHandRing4 1
+    400048: Character1_RightHandThumb2
+    400050: Character1_RightHandThumb2 1
+    400052: Character1_RightHandThumb3
+    400054: Character1_RightHandThumb3 1
+    400056: Character1_RightHandThumb4
+    400058: Character1_RightHandThumb4 1
+    400060: Feral_Shopper
+    400062: //RootNode
+    400064: Head
+    400066: Hips
+    400068: L_arm
+    400070: L_elbow
+    400072: L_feet
+    400074: L_forearm
+    400076: L_hand
+    400078: L_index
+    400080: L_knee
+    400082: L_leg
+    400084: L_middle
+    400086: L_pinky
+    400088: L_ring
+    400090: L_shoulder
+    400092: L_thumb
+    400094: L_toe
+    400096: MC
+    400098: Neck
+    400100: R_arm
+    400102: R_elbow
+    400104: R_feet
+    400106: R_forearm
+    400108: R_hand
+    400110: R_index
+    400112: R_knee
+    400114: R_leg
+    400116: R_middle
+    400118: R_pinky
+    400120: R_ring
+    400122: R_shoulder
+    400124: R_thumb
+    400126: R_toe
+    400128: Spine
+    400130: Spine2
+    400132: Spine3
+    2100000: MCtexture
+    4300000: MC
+    7400000: Take 001
+    9500000: //RootNode
+    13700000: MC
+    2186277476908879412: ImportLogs
+  externalObjects: {}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 3
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    previousCalculatedGlobalScale: 10000
+    hasPreviousCalculatedGlobalScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 1
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

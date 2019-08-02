@@ -41,6 +41,7 @@ public class EnemyLootManager : MonoBehaviour
         float closest = float.MaxValue;
         _lootShelf = null;
         Vector3 closestPoint = new Vector3();
+        EnemyLoot loot;
         foreach (EnemyLoot lootShelf in m_lootShelves)
         {
             closestPoint = lootShelf.GetClosestPoint(_enemyPos);

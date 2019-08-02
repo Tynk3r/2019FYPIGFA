@@ -13,13 +13,18 @@ public class Minimap : MonoBehaviour
     [Header("Enemies")]
     public GameObject enemyArrow;
 
-    [Header("Spawn Points")]
-    public GameObject objectiveRepresentation;
+    [Header("Level")]
+    public GameObject objectivePrefab;
+    public GameObject cashierPrefab;
 
-    private void Awake()
+    private void Start()
     {
-        InitializeMiniMap();
+        foreach(GameObject go in FindObjectsOfType<GameObject>())
+        {
+            InitMinimapObject(go);
+        }
     }
+
     public void DestroyMinimapElements()
     {
         GameObject[] objects = FindObjectsOfType(typeof(GameObject)) as GameObject[];
@@ -35,78 +40,67 @@ public class Minimap : MonoBehaviour
             Destroy(obj.gameObject);
         }
     }
-    public void InitializeMiniMap()
+
+    public void InitMinimapObject(GameObject go)
     {
-        // Display Walls in Minimap
-        var walls = GameObject.FindGameObjectsWithTag("Walls");
-        foreach (GameObject realObject in walls)
+        switch (go.tag)
         {
-            GameObject wallObject = Instantiate(realObject, realObject.transform);
-            if (realObject.GetComponent<Collider>().GetType() == typeof(BoxCollider))
-            {
-                Destroy(wallObject.GetComponent<Collider>());
-                wallObject.transform.localPosition = realObject.GetComponent<BoxCollider>().center;
-                wallObject.transform.localScale = realObject.GetComponent<BoxCollider>().size;
-                wallObject.transform.rotation = realObject.transform.rotation;
-                wallObject.GetComponent<MeshFilter>().sharedMesh = cube;
-                wallObject.tag = "Untagged";
-                wallObject.layer = 9;
-            }
-            else
-            {
-                Debug.Log(realObject + " does not have a collider the game can parse as a wall. Collider Type: " + realObject.GetComponent<Collider>().GetType());
-                Destroy(wallObject);
-            }
-        }
-
-        // Display Enemies in Minimap
-        var enemies = GameObject.FindGameObjectsWithTag("Enemy");
-        foreach (GameObject realObject in enemies)
-        {
-            GameObject arrowObject = Instantiate(enemyArrow, realObject.transform);
-            arrowObject.tag = "Untagged";
-            arrowObject.layer = 9;
-        }
-
-        // Display Spawn Points in Minimap
-        var spawnPoints = FindObjectsOfType<SpawnPoint>();
-        foreach (SpawnPoint realObject in spawnPoints)
-        {
-            switch (realObject.GetPointType())
-            {
-                case SpawnPoint.POINT_TYPE.OBJECTIVE:
-                    GameObject objectiveRep = Instantiate(objectiveRepresentation, realObject.transform);
-                    objectiveRep.layer = 9;
-                    break;
-                case SpawnPoint.POINT_TYPE.WEAPON:
-                    GameObject weaponRep = Instantiate(realObject.gameObject, realObject.transform);
-
-                    bool componentsRemoved = false;
-                    while (!componentsRemoved)
+            case "Walls":
+                GameObject wallObject = Instantiate(go, go.transform);
+                if (go.GetComponent<Collider>().GetType() == typeof(BoxCollider))
+                {
+                    Destroy(wallObject.GetComponent<Collider>());
+                    wallObject.transform.localPosition = go.GetComponent<BoxCollider>().center;
+                    wallObject.transform.localScale = go.GetComponent<BoxCollider>().size;
+                    wallObject.transform.rotation = go.transform.rotation;
+                    wallObject.GetComponent<MeshFilter>().sharedMesh = cube;
+                    wallObject.tag = "Untagged";
+                    wallObject.layer = 9;
+                }
+                else
+                {
+                    Debug.Log(go + " does not have a collider the game can parse as a wall. Collider Type: " + go.GetComponent<Collider>().GetType());
+                    Destroy(wallObject);
+                }
+                break;
+            case "Enemy":
+                GameObject arrowObject = Instantiate(enemyArrow, go.transform);
+                arrowObject.tag = "Untagged";
+                arrowObject.layer = 9;
+                break;
+            case "Cashier":
+                GameObject cashierObject = Instantiate(cashierPrefab, go.transform);
+                cashierObject.tag = "Untagged";
+                cashierObject.layer = 9;
+                break;
+            case "Objective":
+                GameObject objectiveRep = Instantiate(objectivePrefab, go.transform);
+                objectiveRep.layer = 9;
+                break;
+            case "Interactable":
+                GameObject weaponRep = Instantiate(go, go.transform);
+                bool componentsRemoved = false;
+                while (!componentsRemoved)
+                {
+                    foreach (Component c in weaponRep.GetComponents(typeof(Component)))
                     {
-                        foreach (Component c in weaponRep.GetComponents(typeof(Component)))
+                        if (c.GetType() == typeof(Transform)
+                            || c.GetType() == typeof(MeshRenderer)
+                            || c.GetType() == typeof(MeshFilter))
+                            componentsRemoved = true;
+                        else
                         {
-                            if (c.GetType() == typeof(Transform)
-                                || c.GetType() == typeof(MeshRenderer)
-                                || c.GetType() == typeof(MeshFilter))
-                            {
-                                componentsRemoved = true;
-                            }
-                            else
-                            {
-                                DestroyImmediate(c);
-                                componentsRemoved = false;
-                            }
+                            DestroyImmediate(c);
+                            componentsRemoved = false;
                         }
                     }
-                    weaponRep.tag = "Untagged";
-                    weaponRep.layer = 9;
-                    weaponRep.transform.localPosition = Vector3.zero;
-
-                    break;
-                default:
-                    break;
-            }
+                }
+                weaponRep.tag = "Untagged";
+                weaponRep.layer = 9;
+                weaponRep.transform.localPosition = Vector3.zero;
+                break;
+            default:
+                break;
         }
     }
 

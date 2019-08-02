@@ -9,8 +9,20 @@ using Random = UnityEngine.Random;
 public class GameController : MonoBehaviour
 {
     [Header("Main")]
+    public Player player = null;
     [ReadOnly] public bool collectedAll = false;
     public List<SpawnPoint> spawnPoints = new List<SpawnPoint>();
+
+    [System.Serializable]
+    public enum AGGRESSION_LEVELS
+    {
+        DOCILE,     // NIL - 1/4 
+        ANGRY,      // 1/4 - 1/2
+        ENRAGED,    // 1/2 - 3/4
+        INSANE,     // 3/4 - ALL
+    }
+    [Header("Level Progression")]
+    public AGGRESSION_LEVELS aggressionLevel = AGGRESSION_LEVELS.DOCILE;
 
     [Header("Shopping List")]
     public int numberOfObjectives;
@@ -19,13 +31,19 @@ public class GameController : MonoBehaviour
     public AudioClip pickUpSound;
     public AudioClip submitSound;
     public AudioClip footstepSound;
+    public AudioClip hitSound;
+    public AudioClip healthSound;
+
+    [Header("Powerups")]
+    public int numberOfHealthPickups;
+    public Mesh healthPickupMesh;
+    public Material healthPickupMaterial;
 
     [Header("Weapons")]
     public int numberOfWeapons;
     public List<ItemTemplate> weaponsToSpawn = new List<ItemTemplate>();
 
-    // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         InitPoints();
         foreach (SpawnPoint pt in FindObjectsOfType<SpawnPoint>())
@@ -34,26 +52,6 @@ public class GameController : MonoBehaviour
                 shoppingListText.Add(pt.GetPointName());
         }
         UpdateShoppingList();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
-    public void UpdateShoppingList()
-    {
-        string s = "";
-        foreach (string ss in shoppingListText)
-        {
-                s += ("- " + ss + "\n");
-        }
-        if (s == "")
-        {
-            s = "You've completed your shopping list for this level! Head to the stairs to get the next level.";
-        }
-        shoppingList.text = s;
     }
 
     public void InitPoints()
@@ -102,12 +100,51 @@ public class GameController : MonoBehaviour
             }
         }
 
+        // Spawn Health Pickups
+        float healthPickupsSpawned = 0;
+        while (healthPickupsSpawned < numberOfHealthPickups)
+        {
+            int rand = Random.Range(0, spawnPoints.Count);
+            SpawnPoint healthPickup = spawnPoints[rand];
+            if (healthPickup.GetPointType() == SpawnPoint.POINT_TYPE.EMPTY)
+            {
+                healthPickup.GetComponent<MeshFilter>().mesh = healthPickupMesh;
+                healthPickup.GetComponent<MeshRenderer>().material = healthPickupMaterial;
+                healthPickup.SetPointTo(SpawnPoint.POINT_TYPE.HEALTH);
+                healthPickupsSpawned++;
+            }
+        }
+
         // Clear Unused Spawn Points
         foreach (SpawnPoint s in FindObjectsOfType<SpawnPoint>())
         {
             if (s.GetPointType() == SpawnPoint.POINT_TYPE.EMPTY)
                 s.gameObject.SetActive(false);
         }
+    }
+
+    public void UpdateShoppingList()
+    {
+        string s = "";
+        foreach (var ss in shoppingListText)
+        {
+            s += "- " + ss + "\n";
+        }
+        s += "Held Items: \n";
+        int i = 0;
+        foreach (string ss in player.heldObjectives)
+        {
+            i++;
+            if (i >= player.heldObjectives.Count)
+                s += ss;
+            else
+                s += ss + ", ";
+        }
+        if (s == "")
+        {
+            s = "You've completed your shopping list for this level! Head to the stairs to get the next level.";
+        }
+        shoppingList.text = s;
     }
 
     public void PrintShoppingList()

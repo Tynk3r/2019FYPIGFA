@@ -1,132 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &436309471
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 436309472}
-  - component: {fileID: 436309473}
-  m_Layer: 0
-  m_Name: FootstepsAudio
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &436309472
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 436309471}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 6213084866487779253}
-  m_RootOrder: 4
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!82 &436309473
-AudioSource:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 436309471}
-  m_Enabled: 1
-  serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 4ec979fe23efe1c4b97b988ddd821a5d, type: 3}
-  m_PlayOnAwake: 1
-  m_Volume: 1
-  m_Pitch: 1
-  Loop: 1
-  Mute: 0
-  Spatialize: 0
-  SpatializePostEffects: 0
-  Priority: 128
-  DopplerLevel: 1
-  MinDistance: 1
-  MaxDistance: 500
-  Pan2D: 0
-  rolloffMode: 0
-  BypassEffects: 0
-  BypassListenerEffects: 0
-  BypassReverbZones: 0
-  rolloffCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  panLevelCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  spreadCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  reverbZoneMixCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
 --- !u!1 &790408650
 GameObject:
   m_ObjectHideFlags: 0
@@ -140,7 +13,7 @@ GameObject:
   - component: {fileID: 790408653}
   - component: {fileID: 790408652}
   m_Layer: 5
-  m_Name: TextMeshPro Text
+  m_Name: Tiemr
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -300,7 +173,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7634b701ef36b4b4aa1a607f5f8775b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &967740686
+--- !u!1 &1754538937
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -308,22 +181,22 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 967740687}
-  - component: {fileID: 967740688}
+  - component: {fileID: 1754538939}
+  - component: {fileID: 1754538938}
   m_Layer: 0
-  m_Name: SFX Player
+  m_Name: EFXSource
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &967740687
+--- !u!4 &1754538939
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 967740686}
+  m_GameObject: {fileID: 1754538937}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -331,13 +204,13 @@ Transform:
   m_Father: {fileID: 6213084866487779253}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!82 &967740688
+--- !u!82 &1754538938
 AudioSource:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 967740686}
+  m_GameObject: {fileID: 1754538937}
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
@@ -953,8 +826,7 @@ Transform:
   - {fileID: 8798733369783488852}
   - {fileID: 6213084866414692710}
   - {fileID: 7891749105149901985}
-  - {fileID: 967740687}
-  - {fileID: 436309472}
+  - {fileID: 1754538939}
   m_Father: {fileID: 6213084867027212611}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -990,10 +862,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameMode: 0
   gameController: {fileID: 6213084866986106099}
-  footstepsSource: {fileID: 436309473}
   maxHealth: 100
   maxStamina: 10
-  staminaRegenMultiplier: 1
+  staminaRegenMultiplier: 5
+  healthPickupValue: 100
+  doubleJumpCost: 3
   staminaBarOutline: {fileID: 6213084866506035300}
   staminaBar: {fileID: 6213084867698177921}
   staminaBarPosition: {x: -600, y: -480}
@@ -1035,6 +908,8 @@ MonoBehaviour:
   weaponInventory: {fileID: 6213084866487779252}
   currentWeapon: {fileID: 6213084867399457385}
   inventoryPanel: {fileID: 6213084866733776714}
+  floorWeapon: {fileID: 0}
+  hitColliders: []
   pickupInfoText: {fileID: 207713591559986089}
   submittedObjectives: []
   heldObjectives: []
@@ -1255,14 +1130,14 @@ MonoBehaviour:
   m_outlineColor:
     serializedVersion: 2
     rgba: 4278190080
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 30
+  m_fontSizeBase: 30
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 1
-  m_textAlignment: 514
+  m_textAlignment: 513
   m_isAlignmentEnumConverted: 1
   m_characterSpacing: 0
   m_wordSpacing: 0
@@ -1301,7 +1176,7 @@ MonoBehaviour:
     spaceCount: 16
     wordCount: 17
     linkCount: 0
-    lineCount: 4
+    lineCount: 3
     pageCount: 1
     materialCount: 1
   m_havePropertiesChanged: 0
@@ -1899,15 +1774,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 86fd90d8b77557e46a71a5c61fb2cd50, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  player: {fileID: 6213084866487779255}
   collectedAll: 0
   spawnPoints: []
-  numberOfObjectives: 3
+  aggressionLevel: 0
+  numberOfObjectives: 8
   shoppingListText: []
   shoppingList: {fileID: 6213084866537641075}
   pickUpSound: {fileID: 8300000, guid: 02f139a2026a464419a00a02c90e9786, type: 3}
   submitSound: {fileID: 8300000, guid: e62c2d3e04e0672499fe684d297708a9, type: 3}
   footstepSound: {fileID: 8300000, guid: 4ec979fe23efe1c4b97b988ddd821a5d, type: 3}
-  numberOfWeapons: 3
+  hitSound: {fileID: 8300000, guid: 03cec12859de4884bb0ec719d4bce181, type: 3}
+  healthSound: {fileID: 8300000, guid: 743882d6a3e450b40bbe6295ddfac978, type: 3}
+  numberOfHealthPickups: 3
+  healthPickupMesh: {fileID: 4300000, guid: 84db0265ad345734089b82ff983127ec, type: 2}
+  healthPickupMaterial: {fileID: 2100000, guid: 5195427c0d27644ed90d87ebe86d468a,
+    type: 2}
+  numberOfWeapons: 6
   weaponsToSpawn:
   - {fileID: 4973895901848710586, guid: 69cc83631a583ef4f802b4992c178502, type: 3}
   - {fileID: 2450031967068687964, guid: 7504cc1304328454e84f5d5096d91a53, type: 3}
@@ -1949,7 +1832,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f363209387eadc9428530d11d8b04452, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  efxSource: {fileID: 967740688}
+  efxSource: {fileID: 1754538938}
   musicSource: {fileID: 0}
   lowPitchRange: 0.95
   highPitchRange: 1.05
@@ -2542,7 +2425,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 8
   m_IsActive: 1
 --- !u!4 &6213084867399457366
 Transform:
@@ -2616,6 +2499,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemData:
+    weaponBuff:
+      buff: 0
+      duration: 0
+      magnitude: 0
     skillType: 0
     weaponType: 0
     type: 
@@ -3359,7 +3246,9 @@ MonoBehaviour:
   cube: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   enemyArrow: {fileID: 7107635591393733613, guid: 750551075a57cf24d8960aeddcccef9b,
     type: 3}
-  objectiveRepresentation: {fileID: 2803828222068127696, guid: 381ece6ae1ab64244bafe88b0195bd74,
+  objectivePrefab: {fileID: 6012941708080061826, guid: c15c0c818bd64b24897491d3f53b0f40,
+    type: 3}
+  cashierPrefab: {fileID: 2803828222068127696, guid: 7ca1749ef1aad414d894cbe06be7310a,
     type: 3}
 --- !u!1 &7891749104356227642
 GameObject:
@@ -3377,7 +3266,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 8
   m_IsActive: 1
 --- !u!224 &7891749104356227643
 RectTransform:
@@ -3620,13 +3509,13 @@ GameObject:
   - component: {fileID: 6798436069360163643}
   - component: {fileID: 7146520269586711324}
   - component: {fileID: 6464199145846098257}
-  - component: {fileID: 1339790056}
+  - component: {fileID: 4235278014052419275}
   m_Layer: 0
   m_Name: ObjectiveFloater
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 8
   m_IsActive: 1
 --- !u!4 &6798436069360163643
 Transform:
@@ -3687,7 +3576,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!114 &1339790056
+--- !u!114 &4235278014052419275
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3696,9 +3585,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 7924664176646800296}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0435cc8dc32bfbb4ea2eae858777dbdd, type: 3}
+  m_Script: {fileID: 11500000, guid: 4485aae6b2d28c34788d7896e0f14bef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bounce: 1
+  spin: 1
+  spinRate: 1
 --- !u!1001 &4591213173210997119
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3710,6 +3602,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Player Minimap Arrow
+      objectReference: {fileID: 0}
+    - target: {fileID: 5020428845799468043, guid: 3163eb08f30e1974780d19f83728bbbb,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 5020428845799960619, guid: 3163eb08f30e1974780d19f83728bbbb,
         type: 3}
@@ -3784,6 +3681,10 @@ PrefabInstance:
     - target: {fileID: 100000, guid: faed772a7bf35d242b86110d36a81c2c, type: 3}
       propertyPath: m_Name
       value: Main Character
+      objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: faed772a7bf35d242b86110d36a81c2c, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: faed772a7bf35d242b86110d36a81c2c, type: 3}
       propertyPath: m_LocalPosition.x

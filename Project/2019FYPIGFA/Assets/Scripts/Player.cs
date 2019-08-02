@@ -9,7 +9,6 @@ using static SpawnPoint;
 [RequireComponent(typeof(CharacterController))]
 public class Player : MonoBehaviour
 {
-
     public enum OBJECTIVE_PROGRESSION
     {
         LINEAR,
@@ -22,12 +21,13 @@ public class Player : MonoBehaviour
     private Vector3 externalForce;
     private bool hasExternalForce;
     private List<Buffable.Buff> buffList;
-    public AudioSource footstepsSource;
 
     [Header("Stats")]
     public float maxHealth = 100f;
     public float maxStamina = 100f;
     public float staminaRegenMultiplier = 1f;
+    public float healthPickupValue = 50f;
+    public float doubleJumpCost = 10f;
     private float stamRegenTimer = 0f;
     private bool stamRegenTimerDone = true;
     private float staminaDecayMultiplier = 1f;
@@ -103,7 +103,10 @@ public class Player : MonoBehaviour
     public Inventory weaponInventory;
     public HeldWeapon currentWeapon;
     public RectTransform inventoryPanel;
-    private GameObject floorWeapon = null;
+    [ReadOnly]
+    public GameObject floorWeapon = null;
+    [ReadOnly]
+    public Collider[] hitColliders;
     public GameObject pickupInfoText;
 
     [Header("Objective")]
@@ -111,6 +114,7 @@ public class Player : MonoBehaviour
     public List<string> heldObjectives = new List<string>();
     private Transform nextObjective = null;
     private bool walkingSound = false;
+    private bool sprinting;
 
     ref CharacterController GetCharacterController()
     {
@@ -147,30 +151,13 @@ public class Player : MonoBehaviour
         UpdatePickup();
         UpdateWeapon();
         UpdateInventory();
-        UpdateSound();
         UpdateUI();
-    }
-
-    void UpdateSound()
-    {
-        if ((Input.GetAxis("Vertical") != 0f || Input.GetAxis("Horizontal") != 0f)
-            && characterController.isGrounded
-            && !walkingSound)
-        {
-            footstepsSource.volume = 0.1f;
-            walkingSound = true;
-        }
-        else if (walkingSound)
-        {
-            footstepsSource.volume = 0f;
-            walkingSound = false;
-        }
     }
 
     void UpdateLook()
     {
         // FOV Change Whilst Sprintng
-        if (Input.GetButton("Sprint") && Input.GetAxis("Vertical") > 0f && !staminaRecovering)
+        if (sprinting)
             Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView + (Time.deltaTime * FOVDeltaChange), defaultFOV, maxFOV);
         else
             Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView - (Time.deltaTime * FOVDeltaChange), defaultFOV, Camera.main.fieldOfView);
@@ -245,19 +232,26 @@ public class Player : MonoBehaviour
     {
         if (characterController.isGrounded)
         {
+            float walkModifier = 1f;
             doubleJump = false;
             // moveDirection = (transform.right * Input.GetAxis("Horizontal")) + (Vector3.ProjectOnPlane(transform.forward, new Vector3(0, 1, 0)) * Input.GetAxis("Vertical")); // deprecated movement that ignored y look
-            if (Input.GetButton("Sprint") && Input.GetAxis("Vertical") > 0f && !staminaRecovering)
-            {
-                stamina = Mathf.Max(stamina - (Time.deltaTime * staminaDecayMultiplier), 0f);
-                moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed * sprintSpeedModifier) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
-            }
-            else if (Input.GetAxis("Vertical") < 0f)
-                moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed * retreatSpeedModifier) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
+            if (Input.GetButton("Sprint")
+                && Input.GetAxis("Vertical") > 0f
+                && !staminaRecovering)
+                sprinting = true;
             else
-            {
-                moveDirection = (transform.forward * Input.GetAxis("Vertical") * walkSpeed) + (transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier);
-            }                
+                sprinting = false;
+
+            if (sprinting)
+                walkModifier = sprintSpeedModifier;
+            else if (Input.GetAxis("Vertical") < 0f)
+                walkModifier = retreatSpeedModifier;
+            else
+                walkModifier = 1f;
+
+            moveDirection = 
+                transform.forward * Input.GetAxis("Vertical") * walkSpeed * walkModifier
+                + transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier;
 
             if (Input.GetButton("Jump"))
             {
@@ -269,13 +263,13 @@ public class Player : MonoBehaviour
         }
         else
         {
-            if (Input.GetButton("Sprint") && Input.GetAxis("Vertical") > 0f && !staminaRecovering)
-                stamina = Mathf.Max(stamina - (Time.deltaTime * staminaDecayMultiplier), 0f);
-
-            if (doubleJump && Input.GetButtonDown("Jump"))
+            if (doubleJump 
+                && Input.GetButtonDown("Jump")
+                && !staminaRecovering)
             {
                 doubleJump = false;
                 moveDirection.y = jumpSpeed;
+                stamina = Mathf.Max(stamina - doubleJumpCost, 0f);
             }
             if (smoothWeaponLandingDistanceMultiplier != 1)
                 smoothWeaponLandingDistanceMultiplier = 1;
@@ -287,26 +281,40 @@ public class Player : MonoBehaviour
     void UpdatePickup()
     {
         // Check what colliders in range
-        Collider[] hitColliders = Physics.OverlapCapsule(
+        hitColliders = Physics.OverlapCapsule(
             transform.position + new Vector3(0f, characterController.height, 0f),
             transform.position - new Vector3(0f, characterController.height, 0f),
             characterController.radius);
+        floorWeapon = null;
         foreach (Collider c in hitColliders)
         {
             GameObject g = c.gameObject;
 
             // Update closest weapon
-            floorWeapon = null;
             if (g.GetComponent<Interactable>() != null)
                 if (floorWeapon == null 
                     || (g.transform.position - transform.position).magnitude <= (floorWeapon.transform.position - transform.position).magnitude)
                     floorWeapon = g;
 
-            // Pick up objectives on collide; if less than one objective held or can pickup multiple objectives
-            if (g.GetComponent<SpawnPoint>() != null
-                && g.GetComponent<SpawnPoint>().GetPointType() == POINT_TYPE.OBJECTIVE
-                && (heldObjectives.Count < 1 || gameMode == OBJECTIVE_PROGRESSION.LINEAR))
-                StartCoroutine(PickUpObjective(g.GetComponent<SpawnPoint>()));
+            // Pick Up SpawnPoint
+            SpawnPoint pt = g.GetComponent<SpawnPoint>();
+            if (pt != null)
+                switch (pt.GetPointType())
+                {
+                    case POINT_TYPE.OBJECTIVE: 
+                        // if less than one objective held or can pickup multiple objectives
+                        if (heldObjectives.Count < 1 || gameMode == OBJECTIVE_PROGRESSION.LINEAR)
+                            StartCoroutine(PickUpObjective(pt));
+                        break;
+                    case POINT_TYPE.HEALTH:
+                        if (health < maxHealth)
+                        {
+                            gameController.RemovePoint(pt);
+                            health = Mathf.Clamp(health + healthPickupValue, 0, maxHealth);
+                            soundController.PlaySingle(gameController.healthSound);
+                        }
+                        break;
+                }
 
             // Stairs trigger
             if (g.GetComponent<LevelTrigger>() != null
@@ -339,7 +347,12 @@ public class Player : MonoBehaviour
             if (weaponInventory.itemList.Count >= 3)
                 Debug.Log("No Space Left in Inventory");
             else
+            {
                 floorWeapon.GetComponent<Interactable>().OnPickedUp(this.gameObject);
+                if (floorWeapon.GetComponent<SpawnPoint>() != null)
+                    gameController.RemovePoint(floorWeapon.GetComponent<SpawnPoint>());
+
+            }
         }
     }
 
@@ -415,7 +428,6 @@ public class Player : MonoBehaviour
             }
             if (ItemData.BUFF_TYPE.NONE != currentWeapon.itemData.weaponBuff.buff)
             {
-                Debug.unityLogger.Log(currentWeapon.itemData.weaponBuff);
                 currentWeapon.itemData.weaponBuff.duration -= Time.deltaTime;
                 if (currentWeapon.itemData.weaponBuff.duration <= 0f)
                 {
@@ -523,7 +535,7 @@ public class Player : MonoBehaviour
                 objectiveFloaterParent.gameObject.SetActive(true);
             objectiveFloaterParent.position = nextObjective.position + new Vector3(
                 0f, 
-                (objectiveFloaterParent.GetComponentInChildren<ObjectiveFloater>().transform.localScale.y + nextObjective.localScale.y) * 0.5f, 
+                nextObjective.localScale.y * 0.5f, 
                 0f);
         }
         else
@@ -564,8 +576,12 @@ public class Player : MonoBehaviour
         {
             stamRegenTimer -= Time.deltaTime;
         }
-        if (stamRegenTimerDone)
+
+        if (sprinting)
+            stamina = Mathf.Max(stamina - (Time.deltaTime * staminaDecayMultiplier), 0f);
+        else if (stamRegenTimerDone)
             stamina = Mathf.Min(stamina + (Time.deltaTime * 0.5f * staminaRegenMultiplier), maxStamina);
+
         staminaBar.GetComponent<RectTransform>().localScale = new Vector3(stamina / maxStamina, staminaBar.transform.localScale.y, staminaBar.transform.localScale.z);
 
         // Health
@@ -574,7 +590,13 @@ public class Player : MonoBehaviour
         if (healthBar.GetComponent<RectTransform>().localScale != new Vector3(health / maxHealth, healthBar.transform.localScale.y, healthBar.transform.localScale.z))
             healthBar.GetComponent<RectTransform>().localScale = new Vector3(health / maxHealth, healthBar.transform.localScale.y, healthBar.transform.localScale.z);
         if (health == 0)
+        {
+#if UNITY_EDITOR
             EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
+        }
 
         // Target Info
         if (enemyName.GetComponent<RectTransform>().localPosition != new Vector3(enemyHealthBarPosition.x, enemyHealthBarPosition.y, 0))
@@ -702,6 +724,7 @@ public class Player : MonoBehaviour
         float trueDamage = Mathf.Clamp(_damage, 0, health);
         Debug.Log("Player took " + trueDamage + " damage.");
         health -= trueDamage;
+        soundController.PlaySingle(gameController.hitSound);
         return trueDamage <= 0f;
     }
 

@@ -1,0 +1,202 @@
+fileFormatVersion: 2
+guid: 8b6e872fc85870248a2df7716e3f6181
+ModelImporter:
+  serializedVersion: 23
+  fileIDToRecycleName:
+    100000: //RootNode
+    100002: AHMA_mesh
+    100004: AHMAZ
+    100006: Belly
+    100008: Chest
+    100010: Granny_rig
+    100012: Head
+    100014: Hip
+    100016: L_arm
+    100018: L_bag_Weapon
+    100020: L_bagjoin3
+    100022: L_bagjoint
+    100024: L_bagjoint2
+    100026: L_Bagmesh
+    100028: L_clavicle
+    100030: L_elbow
+    100032: L_eye_inside
+    100034: L_eye_mid
+    100036: L_eye_out
+    100038: L_feet
+    100040: L_forearm
+    100042: L_knee
+    100044: L_mouthcorner
+    100046: L_thigh
+    100048: L_toe
+    100050: L_wrist
+    100052: Lower_mouth
+    100054: Neck
+    100056: Necklae
+    100058: Offset_can_be_moved
+    100060: Offset_can_be_moved 1
+    100062: R_arm
+    100064: R_bag_Weapon
+    100066: R_bagjoint
+    100068: R_bagjoint2
+    100070: R_bagjoint3
+    100072: R_Bagmesh
+    100074: R_clavicle
+    100076: R_elbow
+    100078: R_eye_inside
+    100080: R_eye_mid
+    100082: R_eye_out
+    100084: R_feet
+    100086: R_forearm
+    100088: R_knee
+    100090: R_mouthcorner
+    100092: R_thigh
+    100094: R_toe
+    100096: R_wrist
+    100098: Top
+    100100: Upper_mouth
+    400000: //RootNode
+    400002: AHMA_mesh
+    400004: AHMAZ
+    400006: Belly
+    400008: Chest
+    400010: Granny_rig
+    400012: Head
+    400014: Hip
+    400016: L_arm
+    400018: L_bag_Weapon
+    400020: L_bagjoin3
+    400022: L_bagjoint
+    400024: L_bagjoint2
+    400026: L_Bagmesh
+    400028: L_clavicle
+    400030: L_elbow
+    400032: L_eye_inside
+    400034: L_eye_mid
+    400036: L_eye_out
+    400038: L_feet
+    400040: L_forearm
+    400042: L_knee
+    400044: L_mouthcorner
+    400046: L_thigh
+    400048: L_toe
+    400050: L_wrist
+    400052: Lower_mouth
+    400054: Neck
+    400056: Necklae
+    400058: Offset_can_be_moved
+    400060: Offset_can_be_moved 1
+    400062: R_arm
+    400064: R_bag_Weapon
+    400066: R_bagjoint
+    400068: R_bagjoint2
+    400070: R_bagjoint3
+    400072: R_Bagmesh
+    400074: R_clavicle
+    400076: R_elbow
+    400078: R_eye_inside
+    400080: R_eye_mid
+    400082: R_eye_out
+    400084: R_feet
+    400086: R_forearm
+    400088: R_knee
+    400090: R_mouthcorner
+    400092: R_thigh
+    400094: R_toe
+    400096: R_wrist
+    400098: Top
+    400100: Upper_mouth
+    2100000: Granny_texture
+    4300000: R_Bagmesh
+    4300002: L_Bagmesh
+    4300004: AHMAZ
+    7400000: Take 001
+    9500000: //RootNode
+    13700000: AHMAZ
+    13700002: L_Bagmesh
+    13700004: R_Bagmesh
+  externalObjects: {}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 20
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    previousCalculatedGlobalScale: 0.01
+    hasPreviousCalculatedGlobalScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
