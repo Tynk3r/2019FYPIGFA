@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 8133599922356083106}
   - component: {fileID: 4292757742731819337}
   - component: {fileID: 4076973829790854241}
+  - component: {fileID: 8252335030810985126}
   m_Layer: 0
   m_Name: CombinedMeshes_prop_2_final1_StingrayPBS5_-2304130
   m_TagString: Untagged
@@ -77,6 +78,19 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!65 &8252335030810985126
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3100364297779174252}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1.5044878, y: 1.7211092, z: 6.5986614}
+  m_Center: {x: 0.577, y: 0.8592242, z: -6.107847}
 --- !u!1 &4582741412362232385
 GameObject:
   m_ObjectHideFlags: 0
@@ -87,7 +101,7 @@ GameObject:
   m_Component:
   - component: {fileID: 405003408856126770}
   m_Layer: 0
-  m_Name: CombinedMeshes_bottleshelf2
+  m_Name: BottleShelf2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
