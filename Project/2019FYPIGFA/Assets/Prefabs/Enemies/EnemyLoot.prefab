@@ -1,0 +1,177 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &5154463922088628613
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5154463922088628612}
+  m_Layer: 0
+  m_Name: LootShelfTriggers
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5154463922088628612
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5154463922088628613}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 4.737237, y: 1.0055412, z: -18.268854}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 2424070828018455298}
+  m_Father: {fileID: 5154463922178883429}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &5154463922178883431
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5154463922178883429}
+  - component: {fileID: 5154463922178883430}
+  m_Layer: 0
+  m_Name: EnemyLoot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5154463922178883429
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5154463922178883431}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -4.737237, y: -1.0055412, z: 18.268854}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 5154463922088628612}
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5154463922178883430
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5154463922178883431}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8882c17f16460a4da68d37f8e848cb7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseWeaponList:
+  - {fileID: 4973895901848710587, guid: 69cc83631a583ef4f802b4992c178502, type: 3}
+  - {fileID: 468416943832491704, guid: 8c0a0bd43f629074b83c72d5d262def9, type: 3}
+  - {fileID: 2391678076794629462, guid: 7504cc1304328454e84f5d5096d91a53, type: 3}
+  - {fileID: 2391678076794629462, guid: c3871ad61ff974c40ba053e012555853, type: 3}
+--- !u!1001 &481988557358386948
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 5154463922088628612}
+    m_Modifications:
+    - target: {fileID: 8052590250444134438, guid: 457fcff9a42a0bb4199555759f8b00eb,
+        type: 3}
+      propertyPath: m_Name
+      value: LootShelfTrigger
+      objectReference: {fileID: 0}
+    - target: {fileID: 2815974181438168070, guid: 457fcff9a42a0bb4199555759f8b00eb,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -15.27
+      objectReference: {fileID: 0}
+    - target: {fileID: 2815974181438168070, guid: 457fcff9a42a0bb4199555759f8b00eb,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 2815974181438168070, guid: 457fcff9a42a0bb4199555759f8b00eb,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 15.51
+      objectReference: {fileID: 0}
+    - target: {fileID: 2815974181438168070, guid: 457fcff9a42a0bb4199555759f8b00eb,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2815974181438168070, guid: 457fcff9a42a0bb4199555759f8b00eb,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2815974181438168070, guid: 457fcff9a42a0bb4199555759f8b00eb,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2815974181438168070, guid: 457fcff9a42a0bb4199555759f8b00eb,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2815974181438168070, guid: 457fcff9a42a0bb4199555759f8b00eb,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2815974181438168070, guid: 457fcff9a42a0bb4199555759f8b00eb,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2815974181438168070, guid: 457fcff9a42a0bb4199555759f8b00eb,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2815974181438168070, guid: 457fcff9a42a0bb4199555759f8b00eb,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3174385438497651735, guid: 457fcff9a42a0bb4199555759f8b00eb,
+        type: 3}
+      propertyPath: m_Size.x
+      value: 24.41979
+      objectReference: {fileID: 0}
+    - target: {fileID: 3174385438497651735, guid: 457fcff9a42a0bb4199555759f8b00eb,
+        type: 3}
+      propertyPath: m_Center.x
+      value: 0.6407118
+      objectReference: {fileID: 0}
+    - target: {fileID: 3174385438497651735, guid: 457fcff9a42a0bb4199555759f8b00eb,
+        type: 3}
+      propertyPath: m_Size.y
+      value: 1.6306276
+      objectReference: {fileID: 0}
+    - target: {fileID: 3174385438497651735, guid: 457fcff9a42a0bb4199555759f8b00eb,
+        type: 3}
+      propertyPath: m_Center.y
+      value: -0.2529273
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 457fcff9a42a0bb4199555759f8b00eb, type: 3}
+--- !u!4 &2424070828018455298 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2815974181438168070, guid: 457fcff9a42a0bb4199555759f8b00eb,
+    type: 3}
+  m_PrefabInstance: {fileID: 481988557358386948}
+  m_PrefabAsset: {fileID: 0}

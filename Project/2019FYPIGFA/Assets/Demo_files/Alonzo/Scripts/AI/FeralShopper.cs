@@ -390,7 +390,8 @@ public class FeralShopper : Enemy
     }
     private void OnTriggerEnter(Collider other)
     {
-        if (STATES.SEARCH_WEAPON_MELEE != currState || STATES.SEARCH_WEAPON_RANGED != currState)
+        Debug.Log("It's there");
+        if (STATES.SEARCH_WEAPON_MELEE != currState && STATES.SEARCH_WEAPON_RANGED != currState)
             return;
         EnemyLoot loot = other.gameObject.GetComponent<EnemyLoot>();
         if (null == loot)
@@ -404,6 +405,7 @@ public class FeralShopper : Enemy
             m_meleeWeapon = lootManager.GetWeapon(false);
         }
         ChangeState(STATES.HOSTILE_CLOSE_GAP);
+        anim.SetTrigger("attack");
     }
 
     public override bool TakeDamage(float _damage)

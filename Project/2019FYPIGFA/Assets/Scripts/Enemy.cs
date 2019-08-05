@@ -32,6 +32,7 @@ public class Enemy : AIManager
     // Update is called once per frame
     public virtual void Update()
     {
+
         health = Mathf.Clamp(health, 0, maxHealth);
         UpdateBuffs();
     }
