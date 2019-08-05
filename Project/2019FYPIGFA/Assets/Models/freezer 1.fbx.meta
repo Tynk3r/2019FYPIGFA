@@ -75,7 +75,17 @@ ModelImporter:
     3300014: polySurface4192_LOD7
     4300000: polySurface4192
     20500000: //RootNode
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: prop_2_final1_StingrayPBS17
+    second: {fileID: 2100000, guid: 5dc7584ad83929d4cb727ed0d197f4a9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: prop_2_final1_blinn1
+    second: {fileID: 2100000, guid: d8a1be1eec3e8d74da665c9a181baf07, type: 2}
   materials:
     importMaterials: 1
     materialName: 0
@@ -114,7 +124,7 @@ ModelImporter:
     - 0.015625
     - 0.0078125
     - 0.01
-    globalScale: 75
+    globalScale: 100
     meshCompression: 0
     addColliders: 0
     useSRGBMaterialColor: 1

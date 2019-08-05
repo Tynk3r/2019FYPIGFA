@@ -48,7 +48,12 @@ ModelImporter:
     3300014: side6_LOD7
     4300000: side6
     20500000: //RootNode
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: lambert1
+    second: {fileID: 2100000, guid: ebe47442076578f448fe5679e930f7a1, type: 2}
   materials:
     importMaterials: 1
     materialName: 0

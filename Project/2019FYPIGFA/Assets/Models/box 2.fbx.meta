@@ -42,7 +42,12 @@ ModelImporter:
     3300014: polySurface8078_LOD7
     4300000: polySurface8078
     20500000: //RootNode
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: proptestbackup3_StingrayPBS1
+    second: {fileID: 2100000, guid: 9db71bde4166edd4a8b9cbb1c041ff91, type: 2}
   materials:
     importMaterials: 1
     materialName: 0
