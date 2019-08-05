@@ -780,6 +780,23 @@ public class Player : MonoBehaviour
         heldObjectives.Add(objective);
         soundController.PlaySingle(gameController.pickUpSound);
         yield return 0;
+        float percentageObjectsCollected = (float)(submittedObjectives.Count + heldObjectives.Count) / (float)(gameController.numberOfObjectives);
+        Debug.Log(submittedObjectives.Count + " submitted " + heldObjectives.Count + " held " + gameController.shoppingListText.Count + " left " + (int)(percentageObjectsCollected * 100) + "% Collected");
+
+        if (percentageObjectsCollected < 0.25f 
+            && gameController.aggressionLevel != GameController.AGGRESSION_LEVELS.DOCILE)
+            gameController.aggressionLevel = GameController.AGGRESSION_LEVELS.DOCILE;
+        else if (percentageObjectsCollected >= 0.25f && percentageObjectsCollected < 0.5f
+            && gameController.aggressionLevel != GameController.AGGRESSION_LEVELS.ANGRY)
+            gameController.aggressionLevel = GameController.AGGRESSION_LEVELS.ANGRY;
+        else if (percentageObjectsCollected >= 0.5f && percentageObjectsCollected < 0.75f
+            && gameController.aggressionLevel != GameController.AGGRESSION_LEVELS.ENRAGED)
+            gameController.aggressionLevel = GameController.AGGRESSION_LEVELS.ENRAGED;
+        else if (percentageObjectsCollected >= 0.75f
+            && gameController.aggressionLevel != GameController.AGGRESSION_LEVELS.INSANE)
+            gameController.aggressionLevel = GameController.AGGRESSION_LEVELS.INSANE;
+
+        Debug.Log(gameController.aggressionLevel);
         gameController.UpdateShoppingList();
     }
 
