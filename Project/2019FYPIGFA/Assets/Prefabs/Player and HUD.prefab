@@ -888,7 +888,7 @@ MonoBehaviour:
   strafeSpeedModifier: 0.9
   retreatSpeedModifier: 0.5
   FOVDeltaChange: 60
-  jumpSpeed: 6
+  jumpSpeed: 5.5
   gravity: 25
   mouseXSpeed: 3
   mouseYSpeed: 3
@@ -1778,7 +1778,7 @@ MonoBehaviour:
   collectedAll: 0
   spawnPoints: []
   aggressionLevel: 0
-  numberOfObjectives: 8
+  numberOfObjectives: 12
   shoppingListText: []
   shoppingList: {fileID: 6213084866537641075}
   pickUpSound: {fileID: 8300000, guid: 02f139a2026a464419a00a02c90e9786, type: 3}
@@ -1786,11 +1786,11 @@ MonoBehaviour:
   footstepSound: {fileID: 8300000, guid: 4ec979fe23efe1c4b97b988ddd821a5d, type: 3}
   hitSound: {fileID: 8300000, guid: 03cec12859de4884bb0ec719d4bce181, type: 3}
   healthSound: {fileID: 8300000, guid: 743882d6a3e450b40bbe6295ddfac978, type: 3}
-  numberOfHealthPickups: 3
+  numberOfHealthPickups: 4
   healthPickupMesh: {fileID: 4300000, guid: 84db0265ad345734089b82ff983127ec, type: 2}
   healthPickupMaterial: {fileID: 2100000, guid: 5195427c0d27644ed90d87ebe86d468a,
     type: 2}
-  numberOfWeapons: 6
+  numberOfWeapons: 8
   weaponsToSpawn:
   - {fileID: 4973895901848710586, guid: 69cc83631a583ef4f802b4992c178502, type: 3}
   - {fileID: 2450031967068687964, guid: 7504cc1304328454e84f5d5096d91a53, type: 3}
