@@ -38,7 +38,12 @@ ModelImporter:
     3300014: shelf 3_LOD7
     4300000: polySurface7065
     20500000: //RootNode
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: prop_2_final1_StingrayPBS5
+    second: {fileID: 2100000, guid: 89022dd109126b042a7ba71e12a46213, type: 2}
   materials:
     importMaterials: 1
     materialName: 0
