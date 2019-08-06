@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 7064881773114701218}
   - component: {fileID: 7064881773114701219}
   m_Layer: 0
-  m_Name: FeralShopper
+  m_Name: FeralShopper2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -8,7 +8,7 @@ public class AIManager : MonoBehaviour
 {
     [HideInInspector]
     public NavMeshAgent agent;
-    public Transform target;
+    public Transform target = null;
     
     // Start is called before the first frame update
     public virtual void Start()

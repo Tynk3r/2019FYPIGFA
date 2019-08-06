@@ -15,6 +15,8 @@ public class Player : MonoBehaviour
         CIRCUITOUS
     }
     public OBJECTIVE_PROGRESSION gameMode = OBJECTIVE_PROGRESSION.LINEAR;
+    [DrawIf("gameMode", OBJECTIVE_PROGRESSION.CIRCUITOUS)]
+    public float maxHeldObjectives = 6969f;
     private CharacterController characterController;
     private SoundManager soundController;
     public GameController gameController;
@@ -113,6 +115,7 @@ public class Player : MonoBehaviour
     public List<string> submittedObjectives = new List<string>();
     public List<string> heldObjectives = new List<string>();
     private Transform nextObjective = null;
+    private bool floorObjective = false;
     private bool walkingSound = false;
     private bool sprinting;
 
@@ -136,6 +139,8 @@ public class Player : MonoBehaviour
         characterController.detectCollisions = false;
         hasExternalForce = false;
         heldObjectives.Clear();
+        if (maxHeldObjectives == 6969f)
+            maxHeldObjectives = 0.25f * (float)gameController.numberOfObjectives;
         // Misc QOL Stuff
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -249,7 +254,7 @@ public class Player : MonoBehaviour
             else
                 walkModifier = 1f;
 
-            moveDirection = 
+            moveDirection =
                 transform.forward * Input.GetAxis("Vertical") * walkSpeed * walkModifier
                 + transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier;
 
@@ -263,7 +268,7 @@ public class Player : MonoBehaviour
         }
         else
         {
-            if (doubleJump 
+            if (doubleJump
                 && Input.GetButtonDown("Jump")
                 && !staminaRecovering)
             {
@@ -286,13 +291,14 @@ public class Player : MonoBehaviour
             transform.position - new Vector3(0f, characterController.height, 0f),
             characterController.radius);
         floorWeapon = null;
+        floorObjective = false;
         foreach (Collider c in hitColliders)
         {
             GameObject g = c.gameObject;
 
             // Update closest weapon
             if (g.GetComponent<Interactable>() != null)
-                if (floorWeapon == null 
+                if (floorWeapon == null
                     || (g.transform.position - transform.position).magnitude <= (floorWeapon.transform.position - transform.position).magnitude)
                     floorWeapon = g;
 
@@ -301,10 +307,12 @@ public class Player : MonoBehaviour
             if (pt != null)
                 switch (pt.GetPointType())
                 {
-                    case POINT_TYPE.OBJECTIVE: 
+                    case POINT_TYPE.OBJECTIVE:
                         // if less than one objective held or can pickup multiple objectives
-                        if (heldObjectives.Count < 1 || gameMode == OBJECTIVE_PROGRESSION.LINEAR)
+                        if (gameMode == OBJECTIVE_PROGRESSION.LINEAR
+                            || (gameMode == OBJECTIVE_PROGRESSION.CIRCUITOUS && heldObjectives.Count < maxHeldObjectives))
                             StartCoroutine(PickUpObjective(pt));
+                        floorObjective = true;
                         break;
                     case POINT_TYPE.HEALTH:
                         if (health < maxHealth)
@@ -506,16 +514,21 @@ public class Player : MonoBehaviour
             string s = "Press [E] to pick up " + floorWeapon.GetComponent<Interactable>().itemData.type;
             pickupInfoText.GetComponent<TextMeshProUGUI>().text = s;
         }
+        else if (floorObjective && gameMode == OBJECTIVE_PROGRESSION.CIRCUITOUS && heldObjectives.Count >= maxHeldObjectives)
+        {
+            if (!pickupInfoText.activeSelf)
+                pickupInfoText.SetActive(true);
+            string s = "You can't carry any more objectives! Check some out to free space.";
+            pickupInfoText.GetComponent<TextMeshProUGUI>().text = s;
+        }
         else
             pickupInfoText.SetActive(false);
 
         // Objective Arrow (MAYBE INEFFICIENT CONSIDER REDOING)
         GameObject pt = null;
         if (arrowLocationType == POINT_TYPE.OBJECTIVE
-         && gameMode == OBJECTIVE_PROGRESSION.CIRCUITOUS
-         && heldObjectives.Count > 0
-         || (gameMode == OBJECTIVE_PROGRESSION.LINEAR 
-            && heldObjectives.Count + submittedObjectives.Count >= gameController.numberOfObjectives))
+            && (gameMode == OBJECTIVE_PROGRESSION.CIRCUITOUS && heldObjectives.Count >= maxHeldObjectives
+                || (gameMode == OBJECTIVE_PROGRESSION.LINEAR && heldObjectives.Count + submittedObjectives.Count >= gameController.numberOfObjectives)))
             pt = ((Cashier)FindObjectOfType(typeof(Cashier))).gameObject;
         if (submittedObjectives.Count == gameController.numberOfObjectives)
             pt = ((LevelTrigger)FindObjectOfType(typeof(LevelTrigger))).gameObject;
@@ -534,8 +547,8 @@ public class Player : MonoBehaviour
             if (!objectiveFloaterParent.gameObject.activeSelf)
                 objectiveFloaterParent.gameObject.SetActive(true);
             objectiveFloaterParent.position = nextObjective.position + new Vector3(
-                0f, 
-                nextObjective.localScale.y * 0.5f, 
+                0f,
+                nextObjective.localScale.y * 0.5f,
                 0f);
         }
         else
@@ -783,7 +796,7 @@ public class Player : MonoBehaviour
         float percentageObjectsCollected = (float)(submittedObjectives.Count + heldObjectives.Count) / (float)(gameController.numberOfObjectives);
         Debug.Log(submittedObjectives.Count + " submitted " + heldObjectives.Count + " held " + gameController.shoppingListText.Count + " left " + (int)(percentageObjectsCollected * 100) + "% Collected");
 
-        if (percentageObjectsCollected < 0.25f 
+        if (percentageObjectsCollected < 0.25f
             && gameController.aggressionLevel != GameController.AGGRESSION_LEVELS.DOCILE)
             gameController.aggressionLevel = GameController.AGGRESSION_LEVELS.DOCILE;
         else if (percentageObjectsCollected >= 0.25f && percentageObjectsCollected < 0.5f

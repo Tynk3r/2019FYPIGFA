@@ -860,7 +860,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88d736a7d8456e74c8db50a4f8ea6cd4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameMode: 0
+  gameMode: 1
+  maxHeldObjectives: 6969
   gameController: {fileID: 6213084866986106099}
   maxHealth: 100
   maxStamina: 10
@@ -1778,6 +1779,7 @@ MonoBehaviour:
   collectedAll: 0
   spawnPoints: []
   aggressionLevel: 0
+  enemyList: []
   numberOfObjectives: 12
   shoppingListText: []
   shoppingList: {fileID: 6213084866537641075}
