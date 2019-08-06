@@ -12,7 +12,6 @@ public class FeralShopper : Enemy
     public float normalMoveSpeed = 3.5f;
     public float meleeRange = 4f;
     public float meleeStoppingDistance = 1;
-    public Player D_PLAYERTARGET;
     private bool m_attacking;
     private Rigidbody rb;
     private Animator anim;
@@ -64,7 +63,7 @@ public class FeralShopper : Enemy
 
         m_meleeWeapon.weaponType = ItemData.WEAPON_TYPE.NONE;
         m_rangedWeapon.weaponType = ItemData.WEAPON_TYPE.NONE;
-        D_PLAYERTARGET = FindObjectOfType<Player>();
+        target = FindObjectOfType<Player>().transform;
         if (null == heldWeapon)
             Debug.LogError("Missing the held weapon gameObject");
         //else if (null == heldWeapon.GetComponent<MeshFilter>() || null == heldWeapon.GetComponent<MeshRenderer>())
@@ -84,7 +83,6 @@ public class FeralShopper : Enemy
         rb = GetComponent<Rigidbody>();
         rb.isKinematic = true;
         rb.detectCollisions = true;
-        D_PLAYERTARGET = (Player)FindObjectOfType(typeof(Player));
         alive = true;
     }
 
@@ -106,20 +104,20 @@ public class FeralShopper : Enemy
         switch (currState)
         {
             case STATES.HOSTILE_CLOSE_GAP:
-                MoveToPosition(D_PLAYERTARGET.transform.position);
-                if ((transform.position - D_PLAYERTARGET.transform.position).sqrMagnitude <= rangedAttackRange * rangedAttackRange)
+                MoveToPosition(target.position);
+                if ((transform.position - target.position).sqrMagnitude <= rangedAttackRange * rangedAttackRange)
                 {
                     // TODO: raycast for covers
                     //int layerMask = 1 << 9; // For now it's just enemy
                     //RaycastHit hit;
-                    if (Physics.Raycast(transform.position, (D_PLAYERTARGET.transform.position -
+                    if (Physics.Raycast(transform.position, (target.position -
                         transform.position), rangedAttackRange) && m_attackCooldown <= 0f)
                         ChangeState(STATES.RANGED_ATTACK);
                 }
                 break;
             case STATES.RANGED_ATTACK:
                 {
-                    Vector3 newView = D_PLAYERTARGET.transform.position - transform.position;
+                    Vector3 newView = target.position - transform.position;
                     newView.y = 0;
                     newView.Normalize();
                     Quaternion newRotation = new Quaternion();
@@ -139,19 +137,19 @@ public class FeralShopper : Enemy
                             FinishAttack();
                         break;
                     }
-                    else if ((transform.position - D_PLAYERTARGET.transform.position).sqrMagnitude > rangedAttackRange * rangedAttackRange || m_attackCooldown > 0f)
+                    else if ((transform.position - target.position).sqrMagnitude > rangedAttackRange * rangedAttackRange || m_attackCooldown > 0f)
                     {
                         ChangeState(STATES.HOSTILE_CLOSE_GAP);
                         break;
                     }
-                    else if ((transform.position - D_PLAYERTARGET.transform.position).sqrMagnitude < meleeStartDistThreshold * meleeStartDistThreshold)
+                    else if ((transform.position - target.position).sqrMagnitude < meleeStartDistThreshold * meleeStartDistThreshold)
                     {
                         ChangeState(STATES.MELEE_ATTACK);
                     }
                     //if (0 < m_attackCooldown)
                     //    break;
                     if (!BeginAttack()) // If can't attack because of obstacle
-                        MoveToPosition(D_PLAYERTARGET.transform.position);
+                        MoveToPosition(target.position);
                     else
                     {
                         MoveToPosition(transform.position);
@@ -173,13 +171,13 @@ public class FeralShopper : Enemy
                 break;
             case STATES.MELEE_ATTACK:
                 {
-                    Vector3 newView = D_PLAYERTARGET.transform.position - transform.position;
+                    Vector3 newView = target.position - transform.position;
                     newView.y = 0;
                     newView.Normalize();
                     Quaternion newRotation = new Quaternion();
                     newRotation.SetLookRotation(newView);
                     transform.rotation = Quaternion.RotateTowards(transform.rotation, newRotation, Time.deltaTime * TURNING_SPEED);
-                    MoveToPosition(D_PLAYERTARGET.transform.position);
+                    MoveToPosition(target.position);
                     if (ItemData.WEAPON_TYPE.NONE == m_meleeWeapon.weaponType)
                     {
                         ChangeState(STATES.SEARCH_WEAPON_MELEE);
@@ -194,14 +192,14 @@ public class FeralShopper : Enemy
                             FinishAttack();
                         break;
                     }
-                    else if ((D_PLAYERTARGET.transform.position - transform.position).sqrMagnitude < meleeRange * meleeRange && m_attackCooldown <= 0f)
+                    else if ((target.position - transform.position).sqrMagnitude < meleeRange * meleeRange && m_attackCooldown <= 0f)
                     {
                         // Attack the player here
                     
                         if (BeginAttack())
                             m_attackCooldown += RATE_OF_FIRE;
                     }
-                    else if ((D_PLAYERTARGET.transform.position - transform.position).sqrMagnitude > meleeEndDistThreshold * meleeEndDistThreshold)
+                    else if ((target.position - transform.position).sqrMagnitude > meleeEndDistThreshold * meleeEndDistThreshold)
                     {
                         ChangeState(STATES.HOSTILE_CLOSE_GAP);
                     }
@@ -216,7 +214,7 @@ public class FeralShopper : Enemy
     bool BeginAttack()
     {
         {
-            Vector3 newView = D_PLAYERTARGET.transform.position - transform.position;
+            Vector3 newView = target.position - transform.position;
             newView.y = 0;
             newView.Normalize();
             Quaternion newRotation = new Quaternion();
@@ -227,7 +225,7 @@ public class FeralShopper : Enemy
             {
             // RayCast to the player and if they are not in sight, move closer
             RaycastHit hit;
-            Vector3 toPlayer = (D_PLAYERTARGET.transform.position - heldWeapon.transform.position).normalized;
+            Vector3 toPlayer = (target.position - heldWeapon.transform.position).normalized;
             if (Physics.Raycast(heldWeapon.transform.position, toPlayer, out hit, Mathf.Infinity))
             {
                 Debug.DrawRay(heldWeapon.transform.position, toPlayer * hit.distance, Color.red);
@@ -246,7 +244,7 @@ public class FeralShopper : Enemy
         {
             // Raycast to the player but with limited distance
             RaycastHit hit;
-            Vector3 toPlayer = D_PLAYERTARGET.transform.position - heldWeapon.transform.position;
+            Vector3 toPlayer = target.position - heldWeapon.transform.position;
             if (Physics.Raycast(heldWeapon.transform.position, toPlayer, out hit, m_meleeWeapon.attackRange))
             {
                 Debug.DrawRay(heldWeapon.transform.position, toPlayer * hit.distance, Color.red);
@@ -269,7 +267,7 @@ public class FeralShopper : Enemy
         if (STATES.RANGED_ATTACK == currState)
         {
             // Spawn a projectile to be shot to the player
-            Vector3 toPlayer = (D_PLAYERTARGET.transform.position - heldWeapon.transform.position).normalized;
+            Vector3 toPlayer = (target.position - heldWeapon.transform.position).normalized;
             I_Projectile projectile = poolInstance.FetchObjectInPool(m_rangedWeapon.projectileID).GetComponent<I_Projectile>();
             if (null == projectile)
             {
@@ -278,14 +276,14 @@ public class FeralShopper : Enemy
             }
             projectile.Initialize(false);
             projectile.Discharge(toPlayer * m_rangedWeapon.projectileMagnitude, transform.position +
-                (D_PLAYERTARGET.transform.position - transform.position).normalized * 1f);
+                (target.position - transform.position).normalized * 1f);
         }
         else
         {
             // Deal damage to the player if the range is close enough
             // Raycast to the player but with limited distance
             RaycastHit hit;
-            Vector3 toPlayer = D_PLAYERTARGET.transform.position - heldWeapon.transform.position;
+            Vector3 toPlayer = target.position - heldWeapon.transform.position;
             if (Physics.Raycast(heldWeapon.transform.position, toPlayer, out hit, m_meleeWeapon.attackRange))
             {
                 Debug.DrawRay(heldWeapon.transform.position, toPlayer * hit.distance, Color.red);
@@ -295,7 +293,10 @@ public class FeralShopper : Enemy
             else
                 return;
             // Attack codes here
-            D_PLAYERTARGET.TakeDamage(m_meleeWeapon.weaponDamage);
+            if (target.GetComponent<Player>() != null)
+                target.GetComponent<Player>().TakeDamage(m_meleeWeapon.weaponDamage * 0.5f);
+            else if (target.GetComponent<Enemy>() != null)
+                target.GetComponent<Enemy>().TakeDamage(m_meleeWeapon.weaponDamage * 0.5f);
         }
     }
 
@@ -423,5 +424,6 @@ public class FeralShopper : Enemy
         base.Die();
         m_countDown = 500f;
         ChangeState(STATES.DEAD);
+        StartCoroutine(DeathAnimation());
     }
 }

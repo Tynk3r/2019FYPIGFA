@@ -8,6 +8,7 @@ public class AIManager : MonoBehaviour
 {
     [HideInInspector]
     public NavMeshAgent agent;
+    public Transform target;
     
     // Start is called before the first frame update
     public virtual void Start()
@@ -29,6 +30,7 @@ public class AIManager : MonoBehaviour
     public void MoveToTarget(Transform _targetTransform)
     {
         agent.SetDestination(_targetTransform.position);
+        target = _targetTransform;
     }
     /// <summary>
     /// Changes the speed of the navmesh agent
