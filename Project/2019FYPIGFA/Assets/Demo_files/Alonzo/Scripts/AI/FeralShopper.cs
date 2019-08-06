@@ -188,7 +188,7 @@ public class FeralShopper : Enemy
                     else if (m_attacking)
                     {
                         // Check if animation finished
-                        var stateInfo = anim.GetCurrentAnimatorStateInfo(0);
+                        AnimatorStateInfo stateInfo = anim.GetCurrentAnimatorStateInfo(0);
                         // If it has, deal damage
                         if (stateInfo.IsName("attack"))
                             FinishAttack();
