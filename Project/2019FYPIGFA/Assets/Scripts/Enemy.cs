@@ -1,9 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static GameController.AGGRESSION_LEVELS;
 
 public class Enemy : AIManager
 {
+    public GameController gameController;
+    public Player player;
     const float BURN_DAMAGE_MULT = 0.03f;
     public enum ENEMY_TYPE
     {
@@ -24,26 +27,33 @@ public class Enemy : AIManager
     public virtual void Start()
     {
         base.Start();
+        gameController = FindObjectOfType<GameController>();
+        player = FindObjectOfType<Player>();
         m_buffList = new List<Buffable.Buff>();
-        //if (null == buffCanvas)
-        //    Debug.LogError("There's no buff canvas attached to this enemy");
+
+        SwitchTarget();
     }
 
     // Update is called once per frame
     public virtual void Update()
     {
-
-        health = Mathf.Clamp(health, 0, maxHealth);
+        if (target == null)
+            SwitchTarget();
         UpdateBuffs();
     }
 
     public virtual bool TakeDamage(float _damage)
     {
         float trueDamage = Mathf.Clamp(_damage, 0, health);
-        //Debug.Log(enemyType + " took " + trueDamage + " damage.");
-        Die();
-        return (health -= trueDamage) <= 0f;
+        health -= trueDamage;
+        if (health <= 0f)
+        {
+            Die();
+            return true;
+        }
+        return false;
     }
+
     void UpdateBuffs()
     {
         for (int i = 0; i < m_buffList.Count; ++i)
@@ -118,19 +128,81 @@ public class Enemy : AIManager
 
     public IEnumerator DeathAnimation()
     {
-        yield return new WaitForSecondsRealtime(2f);
-        while(GetComponent<Rigidbody>().velocity.magnitude > 0.001f)
-        {
-            yield return null;
-        }
+        yield return new WaitForSecondsRealtime(5f);
         if (GetComponent<Rigidbody>() != null)
             GetComponent<Rigidbody>().isKinematic = true;
-        while (transform.position.y > -transform.localScale.y)
+        while (transform.position.y > -5f)
         {
             transform.Translate(new Vector3(0f, -0.5f * Time.deltaTime, 0f), Space.World);
             yield return null;
         }
         Destroy(this.gameObject);
+    }
+
+    public IEnumerator CheckAggressionLevel()
+    {
+        while (true)
+        {
+            int rand = Random.Range(1, 11);
+            if (rand == 1)
+                SwitchTarget();
+            yield return new WaitForSecondsRealtime(1f);
+        }
+    }
+
+    public void SwitchTarget()
+    {
+        int rand1 = Random.Range(0, gameController.enemyList.Count);
+        int rand2 = Random.Range(1, 11);
+        switch (gameController.aggressionLevel)
+        {
+            case DOCILE:
+                switch (rand2)
+                {
+                    case 1:
+                        target = player.transform;
+                        break;
+                    default:
+                        target = gameController.enemyList[rand1].transform;
+                        break;
+                }
+                break;
+            case ANGRY:
+                switch (rand2)
+                {
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                        target = gameController.enemyList[rand1].transform;
+                        break;
+                    default:
+                        target = player.transform;
+                        break;
+                }
+                break;
+            case ENRAGED:
+                switch (rand2)
+                {
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                        target = player.transform;
+                        break;
+                    default:
+                        target = gameController.enemyList[rand1].transform;
+                        break;
+                }
+                break;
+            case INSANE:
+                target = player.transform;
+                break;
+            default:
+                target = player.transform;
+                break;
+        }
+        Debug.Log(target);
     }
 
     public virtual void ChangeSpeedMultiplier(float _newMult)
@@ -147,6 +219,7 @@ public class Enemy : AIManager
     public override void Die()
     {
         base.Die();
+        gameController.enemyList.Remove(this);
         alive = false;
     }
 }

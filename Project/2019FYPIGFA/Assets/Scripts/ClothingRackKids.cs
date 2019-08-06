@@ -20,7 +20,6 @@ public class ClothingRackKids : Enemy
     }
 
     public STATES currentState = STATES.ORIENTING;
-    public Transform target = null;
     [ReadOnly]
     public Vector3 lastKnownPosition = Vector3.zero;
     private Quaternion _lookRotation = Quaternion.identity;
@@ -58,9 +57,6 @@ public class ClothingRackKids : Enemy
     // Start is called before the first frame update
     public override void Start()
     {
-        base.Start();
-        if (target == null)
-            target = GameObject.FindGameObjectWithTag("Player").transform;
         base.Start();
         enemyType = ENEMY_TYPE.CLOTHING_RACK_KIDS;
         ChangeSpeed(1f, 1f);
