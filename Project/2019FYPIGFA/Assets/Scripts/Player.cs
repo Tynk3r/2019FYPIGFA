@@ -140,7 +140,6 @@ public class Player : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         buffList = new List<Buffable.Buff>();
-        currentWeapon.m_animator = (Animator)GetComponentInChildren(typeof(Animator));
     }
 
     void Update()
@@ -359,7 +358,6 @@ public class Player : MonoBehaviour
 
     void UpdateWeapon()
     {
-        currentWeapon.UpdateAttack();
         if (currentWeapon && currentWeapon.itemData != null && currentWeapon.itemData.weaponType != ItemData.WEAPON_TYPE.NONE)
         {
             if (Input.GetButtonDown("Fire1"))

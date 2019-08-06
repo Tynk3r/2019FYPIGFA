@@ -13,7 +13,6 @@ public class AhMa : Enemy
     public float acceleration = 60f;
     public float attackRangeSquared = 4f;
     
-    public Player D_PLAYERTARGET;
     private Rigidbody rb;
     enum STATES
     {
@@ -42,7 +41,6 @@ public class AhMa : Enemy
         rb = GetComponent<Rigidbody>();
         rb.isKinematic = true;
         rb.detectCollisions = true;
-        D_PLAYERTARGET = (Player)FindObjectOfType(typeof(Player));
         alive = true;
     }
 
@@ -61,14 +59,14 @@ public class AhMa : Enemy
         switch (currState)
         {
             case STATES.ENRAGED:
-                if ((D_PLAYERTARGET.transform.position - transform.position).sqrMagnitude < attackRangeSquared && m_countDown == 0f)
+                if ((target.position - transform.position).sqrMagnitude < attackRangeSquared && m_countDown == 0f)
                 {
                     ChangeState(STATES.ATTACK);
                 }
                 else
                 {
                     agent.updatePosition = true;
-                    MoveToPosition(D_PLAYERTARGET.transform.position);
+                    MoveToPosition(target.position);
                 }
                 //if ((D_PLAYERTARGET.transform.position - transform.position).sqrMagnitude < attackRangeSquared && m_countDown == 0f)
                 //{
@@ -79,14 +77,14 @@ public class AhMa : Enemy
             case STATES.HOSTILE:
                 if (health <= enragedHealthThreshold)
                     ChangeState(STATES.ENRAGED);
-                if ((D_PLAYERTARGET.transform.position - transform.position).sqrMagnitude < attackRangeSquared && m_countDown == 0f)
+                if ((target.position - transform.position).sqrMagnitude < attackRangeSquared && m_countDown == 0f)
                 {
                     ChangeState(STATES.ATTACK);
                 }
                 else
                 {
                     agent.updatePosition = true;
-                    MoveToPosition(D_PLAYERTARGET.transform.position);
+                    MoveToPosition(target.position);
                 }
                 //if ((D_PLAYERTARGET.transform.position - transform.position).sqrMagnitude < attackRangeSquared && m_countDown == 0f)
                 //{
@@ -95,12 +93,12 @@ public class AhMa : Enemy
                 //}
                 break;
             case STATES.ATTACK:
-                if ((D_PLAYERTARGET.transform.position - transform.position).sqrMagnitude < attackRangeSquared)
+                if ((target.position - transform.position).sqrMagnitude < attackRangeSquared)
                 {
                     // Stop moving,
                     agent.updatePosition = false;
                     // Look at the player
-                    Vector3 positionToLook = D_PLAYERTARGET.transform.position;
+                    Vector3 positionToLook = target.position;
                     positionToLook.y = transform.position.y;
                     transform.LookAt(positionToLook, new Vector3(0f, 1f, 0f));
                     // Attack
@@ -124,7 +122,13 @@ public class AhMa : Enemy
         // Play the attack animation
         Animator anim = GetComponentInChildren<Animator>();
         anim.SetTrigger("attack");
-        D_PLAYERTARGET.TakeDamage(5f);
+        if (target.GetComponent<Player>() != null)
+            target.GetComponent<Player>().TakeDamage(5f);
+        else if (target.GetComponent<Enemy>() != null)
+        {
+            if (target.GetComponent<Enemy>().TakeDamage(1f))
+                SwitchTarget();
+        }
         return false;
     }
 
@@ -163,13 +167,7 @@ public class AhMa : Enemy
 
     public override bool TakeDamage(float _damage)
     {
-        Debug.Log("Took damage in AhMa.cs");
-        if ((health -= _damage) <= 0f)
-        {
-            Die();
-            return true;
-        }
-        return false;
+        return base.TakeDamage(_damage);
     }
 
     public override void Die()
@@ -177,6 +175,7 @@ public class AhMa : Enemy
         base.Die();
         m_countDown = 5f;
         ChangeState(STATES.DEAD);
+        StartCoroutine(DeathAnimation());
     }
     
 }
