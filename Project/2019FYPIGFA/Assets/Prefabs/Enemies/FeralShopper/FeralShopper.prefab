@@ -54,7 +54,7 @@ NavMeshAgent:
   m_AutoBraking: 1
   m_AutoRepath: 1
   m_Height: 1.05
-  m_BaseOffset: 0
+  m_BaseOffset: 0.0001
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
 --- !u!114 &7064881773114701217
@@ -70,6 +70,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   agent: {fileID: 0}
+  target: {fileID: 0}
+  gameController: {fileID: 0}
+  player: {fileID: 0}
   buffCanvas: {fileID: 0}
   enemyType: 2
   health: 1
@@ -82,7 +85,6 @@ MonoBehaviour:
   normalMoveSpeed: 3.5
   meleeRange: 4
   meleeStoppingDistance: 1
-  D_PLAYERTARGET: {fileID: 0}
   m_rangedWeapon:
     weaponBuff:
       buff: 0
@@ -2672,7 +2674,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: de5d82bd8c686ff46a18c1d420cb2b9c, type: 2}
+  - {fileID: 2100000, guid: c3a6dfa6f24af4e46abb585c4fe2c56c, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
