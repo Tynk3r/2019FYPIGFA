@@ -21,8 +21,9 @@ public class GameController : MonoBehaviour
         ENRAGED,    // 1/2 - 3/4
         INSANE,     // 3/4 - ALL
     }
-    [Header("Level Progression")]
+    [Header("Enemy")]
     public AGGRESSION_LEVELS aggressionLevel = AGGRESSION_LEVELS.DOCILE;
+    public List<Enemy> enemyList = new List<Enemy>();
 
     [Header("Shopping List")]
     public int numberOfObjectives;
@@ -46,6 +47,7 @@ public class GameController : MonoBehaviour
     void Awake()
     {
         InitPoints();
+        InitEnemyList();
         foreach (SpawnPoint pt in FindObjectsOfType<SpawnPoint>())
         {
             if (pt.GetPointType() == SpawnPoint.POINT_TYPE.OBJECTIVE)
@@ -121,6 +123,12 @@ public class GameController : MonoBehaviour
             if (s.GetPointType() == SpawnPoint.POINT_TYPE.EMPTY)
                 s.gameObject.SetActive(false);
         }
+    }
+
+    public void InitEnemyList()
+    {
+        foreach (Enemy s in FindObjectsOfType<Enemy>())
+            enemyList.Add(s);
     }
 
     public void UpdateShoppingList()
