@@ -76240,26 +76240,6 @@ PrefabInstance:
       propertyPath: m_isInputParsingRequired
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 6213084866911380384, guid: 029862c00d6c5d0469c8c4c29b0a9dc4,
-        type: 3}
-      propertyPath: m_havePropertiesChanged
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6213084866911380384, guid: 029862c00d6c5d0469c8c4c29b0a9dc4,
-        type: 3}
-      propertyPath: m_isInputParsingRequired
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6213084868059093354, guid: 029862c00d6c5d0469c8c4c29b0a9dc4,
-        type: 3}
-      propertyPath: m_havePropertiesChanged
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6213084868059093354, guid: 029862c00d6c5d0469c8c4c29b0a9dc4,
-        type: 3}
-      propertyPath: m_isInputParsingRequired
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 6213084866537641075, guid: 029862c00d6c5d0469c8c4c29b0a9dc4,
         type: 3}
       propertyPath: m_havePropertiesChanged
@@ -76285,6 +76265,26 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 790408653, guid: 029862c00d6c5d0469c8c4c29b0a9dc4, type: 3}
+      propertyPath: m_isInputParsingRequired
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5634224881115900986, guid: 029862c00d6c5d0469c8c4c29b0a9dc4,
+        type: 3}
+      propertyPath: m_havePropertiesChanged
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5634224881115900986, guid: 029862c00d6c5d0469c8c4c29b0a9dc4,
+        type: 3}
+      propertyPath: m_isInputParsingRequired
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5850349448359720406, guid: 029862c00d6c5d0469c8c4c29b0a9dc4,
+        type: 3}
+      propertyPath: m_havePropertiesChanged
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5850349448359720406, guid: 029862c00d6c5d0469c8c4c29b0a9dc4,
+        type: 3}
       propertyPath: m_isInputParsingRequired
       value: 1
       objectReference: {fileID: 0}

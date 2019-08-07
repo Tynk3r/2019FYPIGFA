@@ -5,6 +5,7 @@ using System;
 using TMPro;
 using UnityEditor;
 using static SpawnPoint;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(CharacterController))]
 public class Player : MonoBehaviour
@@ -37,18 +38,14 @@ public class Player : MonoBehaviour
     private bool staminaRecovering;
 
     [Header("UI")]
-    public GameObject staminaBarOutline;
     public GameObject staminaBar;
-    public Vector2 staminaBarPosition;
-    public GameObject healthBarOutline;
     public GameObject healthBar;
-    public Vector2 healthBarPosition;
     public GameObject enemyName;
+    public GameObject enemyNameFrame;
     public GameObject enemyHealthBarOutline;
     public GameObject enemyHealthBar;
-    public Vector2 enemyHealthBarPosition;
+    public GameObject objectivePanel;
     private Enemy currTarget = null;
-    public GameObject shoppingList;
     public GameObject objectiveArrow;
     public SpawnPoint.POINT_TYPE arrowLocationType;
     public Transform objectiveFloaterParent;
@@ -104,7 +101,6 @@ public class Player : MonoBehaviour
     [Header("Inventory")]
     public Inventory weaponInventory;
     public HeldWeapon currentWeapon;
-    public RectTransform inventoryPanel;
     [ReadOnly]
     public GameObject floorWeapon = null;
     [ReadOnly]
@@ -133,8 +129,6 @@ public class Player : MonoBehaviour
         characterController = GetComponent<CharacterController>();
         soundController = gameController.GetComponent<SoundManager>();
         smoothWeaponLandingDistanceMultiplier = weaponLandingDistanceMultiplier;
-        inventoryPanel.gameObject.SetActive(false);
-        shoppingList.SetActive(false);
         externalForce = new Vector3(0f, 0f, 0f);
         characterController.detectCollisions = false;
         hasExternalForce = false;
@@ -478,21 +472,12 @@ public class Player : MonoBehaviour
 
     void UpdateUI()
     {
-        // Inventory
-        if (Input.GetKeyDown(KeyCode.U))
-        {
-            inventoryPanel.gameObject.SetActive(!inventoryPanel.gameObject.activeSelf);
-            if (inventoryPanel.gameObject.activeSelf)
-                shoppingList.SetActive(false);
-        }
-
         // Check Objectives
-        if (Input.GetKeyDown(KeyCode.O))
+        if (objectivePanel.activeSelf != Input.GetKey(KeyCode.Tab))
+            objectivePanel.SetActive(Input.GetKey(KeyCode.Tab));
+        if (objectivePanel.activeSelf)
         {
             gameController.UpdateShoppingList();
-            shoppingList.SetActive(!shoppingList.activeSelf);
-            if (shoppingList.gameObject.activeSelf)
-                inventoryPanel.gameObject.SetActive(false);
             string s = "Collected Items: ";
             int i = 0;
             foreach (string ss in submittedObjectives)
@@ -503,7 +488,6 @@ public class Player : MonoBehaviour
                 else
                     s += ss + ", ";
             }
-            Debug.Log(s);
         }
 
         // Update Pickup Info
@@ -566,11 +550,9 @@ public class Player : MonoBehaviour
             minimapCamera.orthographicSize = minimapZoom;
 
         // Stamina
-        if (staminaBarOutline.GetComponent<RectTransform>().localPosition != new Vector3(staminaBarPosition.x, staminaBarPosition.y, 0))
-            staminaBarOutline.GetComponent<RectTransform>().localPosition = new Vector3(staminaBarPosition.x, staminaBarPosition.y, 0);
         if (GetStam() <= 0f && !staminaRecovering && stamRegenTimerDone)
         {
-            staminaBarOutline.GetComponentInChildren<Blink>().StartBlink();
+            staminaBar.GetComponentInChildren<Blink>().StartBlink();
             stamRegenTimer = 2f;
             stamRegenTimerDone = false;
             staminaRecovering = true;
@@ -583,7 +565,7 @@ public class Player : MonoBehaviour
         else if (GetStam() >= 1f && staminaRecovering)
         {
             staminaRecovering = false;
-            staminaBarOutline.GetComponentInChildren<Blink>().StopBlink();
+            staminaBar.GetComponentInChildren<Blink>().StopBlink();
         }
         else
         {
@@ -598,22 +580,17 @@ public class Player : MonoBehaviour
         staminaBar.GetComponent<RectTransform>().localScale = new Vector3(stamina / maxStamina, staminaBar.transform.localScale.y, staminaBar.transform.localScale.z);
 
         // Health
-        if (healthBarOutline.GetComponent<RectTransform>().localPosition != new Vector3(healthBarPosition.x, healthBarPosition.y, 0))
-            healthBarOutline.GetComponent<RectTransform>().localPosition = new Vector3(healthBarPosition.x, healthBarPosition.y, 0);
         if (healthBar.GetComponent<RectTransform>().localScale != new Vector3(health / maxHealth, healthBar.transform.localScale.y, healthBar.transform.localScale.z))
             healthBar.GetComponent<RectTransform>().localScale = new Vector3(health / maxHealth, healthBar.transform.localScale.y, healthBar.transform.localScale.z);
         if (health == 0)
         {
-#if UNITY_EDITOR
-            EditorApplication.isPlaying = false;
-#else
-        Application.Quit();
-#endif
+            // GOTO LOSE SCREEN
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+            SceneManager.LoadScene(3, LoadSceneMode.Single);
         }
 
         // Target Info
-        if (enemyName.GetComponent<RectTransform>().localPosition != new Vector3(enemyHealthBarPosition.x, enemyHealthBarPosition.y, 0))
-            enemyName.GetComponent<RectTransform>().localPosition = new Vector3(enemyHealthBarPosition.x, enemyHealthBarPosition.y, 0);
         float range = 100f; // Default
         if (currentWeapon && currentWeapon.itemData != null && currentWeapon.itemData.weaponType == ItemData.WEAPON_TYPE.RAYCAST)
             range = currentWeapon.itemData.attackRange;
@@ -622,8 +599,8 @@ public class Player : MonoBehaviour
             Enemy enemy = hit.collider.GetComponent<Enemy>();
             if (currTarget != enemy)
                 currTarget = enemy;
-            if (!enemyName.activeSelf)
-                enemyName.SetActive(true);
+            if (!enemyNameFrame.activeSelf)
+                enemyNameFrame.SetActive(true);
             if (enemyName.GetComponent<TextMeshProUGUI>().text != Enum.GetName(typeof(Enemy.ENEMY_TYPE), enemy.enemyType))
                 enemyName.GetComponent<TextMeshProUGUI>().SetText(Enum.GetName(typeof(Enemy.ENEMY_TYPE), enemy.enemyType));
             Vector3 vector3 = new Vector3(enemy.health / enemy.maxHealth, enemyHealthBar.transform.localScale.y, enemyHealthBar.transform.localScale.z);
@@ -634,8 +611,8 @@ public class Player : MonoBehaviour
         {
             if (currTarget != null)
                 currTarget = null;
-            if (enemyName.activeSelf)
-                enemyName.SetActive(false);
+            if (enemyNameFrame.activeSelf)
+                enemyNameFrame.SetActive(false);
         }
     }
 

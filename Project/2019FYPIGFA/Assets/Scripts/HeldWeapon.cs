@@ -84,6 +84,8 @@ public class HeldWeapon : MonoBehaviour
                     {
                         Enemy enemy = hit.collider.GetComponent<Enemy>();
                         enemy.TakeDamage(itemData.weaponDamage);
+                        if (enemy.target != player.transform)
+                            enemy.target = player.transform;
                         switch (itemData.weaponBuff.buff)
                         {
                             case ItemData.BUFF_TYPE.HOT_SAUCE:
