@@ -157,53 +157,56 @@ public class Enemy : AIManager
     {
         if (gameController.enemyList.Count <= 1)
             target = player.transform;
-        int rand1 = Random.Range(0, gameController.enemyList.Count);
-        int rand2 = Random.Range(1, 11);
-        while (gameController.enemyList[rand1] == this)
-            rand1 = Random.Range(0, gameController.enemyList.Count);
-        switch (gameController.aggressionLevel)
+        else
         {
-            case DOCILE:
-                target = gameController.enemyList[rand1].transform;
-                break;
-            case ANGRY:
-                switch (rand2)
-                {
-                    case 1:
-                    case 2:
-                    case 3:
-                    case 4:
-                        target = gameController.enemyList[rand1].transform;
-                        break;
-                    default:
-                        target = player.transform;
-                        break;
-                }
-                break;
-            case ENRAGED:
-                switch (rand2)
-                {
-                    case 1:
-                    case 2:
-                    case 3:
-                    case 4:
-                        target = player.transform;
-                        break;
-                    default:
-                        target = gameController.enemyList[rand1].transform;
-                        break;
-                }
-                break;
-            case INSANE:
-                target = player.transform;
-                break;
-            default:
-                target = player.transform;
-                break;
+            int rand1 = Random.Range(0, gameController.enemyList.Count);
+            int rand2 = Random.Range(1, 11);
+            while (gameController.enemyList[rand1] == this)
+                rand1 = Random.Range(0, gameController.enemyList.Count);
+            switch (gameController.aggressionLevel)
+            {
+                case DOCILE:
+                    target = gameController.enemyList[rand1].transform;
+                    break;
+                case ANGRY:
+                    switch (rand2)
+                    {
+                        case 1:
+                        case 2:
+                        case 3:
+                        case 4:
+                            target = gameController.enemyList[rand1].transform;
+                            break;
+                        default:
+                            target = player.transform;
+                            break;
+                    }
+                    break;
+                case ENRAGED:
+                    switch (rand2)
+                    {
+                        case 1:
+                        case 2:
+                        case 3:
+                        case 4:
+                            target = player.transform;
+                            break;
+                        default:
+                            target = gameController.enemyList[rand1].transform;
+                            break;
+                    }
+                    break;
+                case INSANE:
+                    target = player.transform;
+                    break;
+                default:
+                    target = player.transform;
+                    break;
+            }
+            if (target.GetComponent<Enemy>() != null)
+                target.GetComponent<Enemy>().target = this.transform;
+            Debug.Log(target);
         }
-        if (target.GetComponent<Enemy>() != null)
-            target.GetComponent<Enemy>().target = this.transform;
-        Debug.Log(target);
     }
 
     public virtual void ChangeSpeedMultiplier(float _newMult)
