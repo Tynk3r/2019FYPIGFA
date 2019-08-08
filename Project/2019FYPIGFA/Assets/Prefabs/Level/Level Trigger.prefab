@@ -44,9 +44,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13ff93fa2eaf5f6468decbad3ce87c4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  quitScene: 1
-  nextScene: 
-  timer: {fileID: 0}
+  quitScene: 0
+  nextScene: 2
 --- !u!65 &1888480080451062617
 BoxCollider:
   m_ObjectHideFlags: 0

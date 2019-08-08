@@ -83,33 +83,42 @@ public class HeldWeapon : MonoBehaviour
                     {
                         m_animator.SetBool("attack", false);
                         //Debug.Log("Worked");
-                            m_attacking = false;
+                        m_attacking = false;
                         if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out RaycastHit hit, itemData.attackRange))
                         {
-                            if (hit.collider.GetComponent<Enemy>() != null) // TODO: OPTIMIZE IN CASE OF DEATH
-                            {
-                                Enemy enemy = hit.collider.GetComponent<Enemy>();
-                                enemy.TakeDamage(itemData.weaponDamage);
-                                switch (itemData.weaponBuff.buff)
-                                {
-                                    case ItemData.BUFF_TYPE.HOT_SAUCE:
-                                        enemy.ApplyBuff(Buffable.CHAR_BUFF.DEBUFF_BURN, ItemData.DURATION_BURN);
-                                        break;
-                                }
-                                attackTimer = 1 / itemData.attackRate;
-                                itemData.durability = Mathf.Clamp(itemData.durability - itemData.durabilityDecay, 0, 100);
-                                Debug.Log("Hit " + enemy.enemyType + " for " + itemData.weaponDamage + " damage with " + itemData.type + ". Durability Left: " + itemData.durability + "%");
-                            }
-
-                            if (itemData.impactEffect)
-                            {
-                                GameObject impackEfek = Instantiate(itemData.impactEffect, hit.point, Quaternion.LookRotation((transform.position - hit.point).normalized), hit.transform);
-                                Destroy(impackEfek, 2f);
-                            }
+                            Enemy enemy = hit.collider.GetComponent<Enemy>();
+                            enemy.TakeDamage(itemData.weaponDamage);
+                            if (enemy.target != player.transform)
+                                enemy.target = player.transform;
                         }
+                        //switch (itemData.weaponBuff.buff)
+                        //{
+                        //    case ItemData.BUFF_TYPE.HOT_SAUCE:
+                        //    if (hit.collider.GetComponent<Enemy>() != null) // TODO: OPTIMIZE IN CASE OF DEATH
+                        //    {
+                        //        Enemy enemy = hit.collider.GetComponent<Enemy>();
+                        //        enemy.TakeDamage(itemData.weaponDamage);
+                        //        switch (itemData.weaponBuff.buff)
+                        //        {
+                        //            case ItemData.BUFF_TYPE.HOT_SAUCE:
+                        //                enemy.ApplyBuff(Buffable.CHAR_BUFF.DEBUFF_BURN, ItemData.DURATION_BURN);
+                        //                break;
+                        //        }
+                        //        attackTimer = 1 / itemData.attackRate;
+                        //        itemData.durability = Mathf.Clamp(itemData.durability - itemData.durabilityDecay, 0, 100);
+                        //        Debug.Log("Hit " + enemy.enemyType + " for " + itemData.weaponDamage + " damage with " + itemData.type + ". Durability Left: " + itemData.durability + "%");
+                        //    }
+
+                        //    if (itemData.impactEffect)
+                        //    {
+                        //        GameObject impackEfek = Instantiate(itemData.impactEffect, hit.point, Quaternion.LookRotation((transform.position - hit.point).normalized), hit.transform);
+                        //        Destroy(impackEfek, 2f);
+                        //    }
+                        //        break;
+                        //}
                     }
+                    break;
                 }
-                break;
             default:
                 break;
         }

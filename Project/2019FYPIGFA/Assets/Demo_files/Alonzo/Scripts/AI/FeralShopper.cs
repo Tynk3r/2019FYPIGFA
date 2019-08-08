@@ -63,7 +63,6 @@ public class FeralShopper : Enemy
 
         m_meleeWeapon.weaponType = ItemData.WEAPON_TYPE.NONE;
         m_rangedWeapon.weaponType = ItemData.WEAPON_TYPE.NONE;
-        target = FindObjectOfType<Player>().transform;
         if (null == heldWeapon)
             Debug.LogError("Missing the held weapon gameObject");
         //else if (null == heldWeapon.GetComponent<MeshFilter>() || null == heldWeapon.GetComponent<MeshRenderer>())
@@ -110,8 +109,8 @@ public class FeralShopper : Enemy
                     // TODO: raycast for covers
                     //int layerMask = 1 << 9; // For now it's just enemy
                     //RaycastHit hit;
-                    if (Physics.Raycast(transform.position, (target.position -
-                        transform.position), rangedAttackRange) && m_attackCooldown <= 0f)
+                    if (Physics.Raycast(transform.position, target.position - transform.position, rangedAttackRange) 
+                        && m_attackCooldown <= 0f)
                         ChangeState(STATES.RANGED_ATTACK);
                 }
                 break;
@@ -294,9 +293,12 @@ public class FeralShopper : Enemy
                 return;
             // Attack codes here
             if (target.GetComponent<Player>() != null)
-                target.GetComponent<Player>().TakeDamage(m_meleeWeapon.weaponDamage * 0.5f);
+                target.GetComponent<Player>().TakeDamage(m_meleeWeapon.weaponDamage * 0.25f);
             else if (target.GetComponent<Enemy>() != null)
-                target.GetComponent<Enemy>().TakeDamage(m_meleeWeapon.weaponDamage * 0.5f);
+            {
+                if (target.GetComponent<Enemy>().TakeDamage(m_meleeWeapon.weaponDamage * 0.5f))
+                    SwitchTarget();
+            }
         }
     }
 

@@ -31,13 +31,16 @@ public class Enemy : AIManager
         player = FindObjectOfType<Player>();
         m_buffList = new List<Buffable.Buff>();
 
-        SwitchTarget();
+        if (target == null
+            || (target.GetComponent<Enemy>() != null && !target.GetComponent<Enemy>().alive))
+            SwitchTarget();
     }
 
     // Update is called once per frame
     public virtual void Update()
     {
-        if (target == null)
+        if (target == null
+            || (target.GetComponent<Enemy>() != null && !target.GetComponent<Enemy>().alive))
             SwitchTarget();
         UpdateBuffs();
     }
@@ -152,20 +155,16 @@ public class Enemy : AIManager
 
     public void SwitchTarget()
     {
+        if (gameController.enemyList.Count <= 1)
+            target = player.transform;
         int rand1 = Random.Range(0, gameController.enemyList.Count);
         int rand2 = Random.Range(1, 11);
+        while (gameController.enemyList[rand1] == this)
+            rand1 = Random.Range(0, gameController.enemyList.Count);
         switch (gameController.aggressionLevel)
         {
             case DOCILE:
-                switch (rand2)
-                {
-                    case 1:
-                        target = player.transform;
-                        break;
-                    default:
-                        target = gameController.enemyList[rand1].transform;
-                        break;
-                }
+                target = gameController.enemyList[rand1].transform;
                 break;
             case ANGRY:
                 switch (rand2)
@@ -202,6 +201,8 @@ public class Enemy : AIManager
                 target = player.transform;
                 break;
         }
+        if (target.GetComponent<Enemy>() != null)
+            target.GetComponent<Enemy>().target = this.transform;
         Debug.Log(target);
     }
 

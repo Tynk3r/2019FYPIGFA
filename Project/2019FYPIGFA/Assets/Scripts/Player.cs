@@ -5,6 +5,7 @@ using System;
 using TMPro;
 using UnityEditor;
 using static SpawnPoint;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(CharacterController))]
 public class Player : MonoBehaviour
@@ -15,6 +16,8 @@ public class Player : MonoBehaviour
         CIRCUITOUS
     }
     public OBJECTIVE_PROGRESSION gameMode = OBJECTIVE_PROGRESSION.LINEAR;
+    [DrawIf("gameMode", OBJECTIVE_PROGRESSION.CIRCUITOUS)]
+    public float maxHeldObjectives = 6969f;
     private CharacterController characterController;
     private SoundManager soundController;
     public GameController gameController;
@@ -35,18 +38,14 @@ public class Player : MonoBehaviour
     private bool staminaRecovering;
 
     [Header("UI")]
-    public GameObject staminaBarOutline;
     public GameObject staminaBar;
-    public Vector2 staminaBarPosition;
-    public GameObject healthBarOutline;
     public GameObject healthBar;
-    public Vector2 healthBarPosition;
     public GameObject enemyName;
+    public GameObject enemyNameFrame;
     public GameObject enemyHealthBarOutline;
     public GameObject enemyHealthBar;
-    public Vector2 enemyHealthBarPosition;
+    public GameObject objectivePanel;
     private Enemy currTarget = null;
-    public GameObject shoppingList;
     public GameObject objectiveArrow;
     public SpawnPoint.POINT_TYPE arrowLocationType;
     public Transform objectiveFloaterParent;
@@ -102,7 +101,6 @@ public class Player : MonoBehaviour
     [Header("Inventory")]
     public Inventory weaponInventory;
     public HeldWeapon currentWeapon;
-    public RectTransform inventoryPanel;
     [ReadOnly]
     public GameObject floorWeapon = null;
     [ReadOnly]
@@ -113,6 +111,7 @@ public class Player : MonoBehaviour
     public List<string> submittedObjectives = new List<string>();
     public List<string> heldObjectives = new List<string>();
     private Transform nextObjective = null;
+    private bool floorObjective = false;
     private bool walkingSound = false;
     private bool sprinting;
 
@@ -130,12 +129,12 @@ public class Player : MonoBehaviour
         characterController = GetComponent<CharacterController>();
         soundController = gameController.GetComponent<SoundManager>();
         smoothWeaponLandingDistanceMultiplier = weaponLandingDistanceMultiplier;
-        inventoryPanel.gameObject.SetActive(false);
-        shoppingList.SetActive(false);
         externalForce = new Vector3(0f, 0f, 0f);
         characterController.detectCollisions = false;
         hasExternalForce = false;
         heldObjectives.Clear();
+        if (maxHeldObjectives == 6969f)
+            maxHeldObjectives = 0.25f * (float)gameController.numberOfObjectives;
         // Misc QOL Stuff
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -250,7 +249,7 @@ public class Player : MonoBehaviour
             else
                 walkModifier = 1f;
 
-            moveDirection = 
+            moveDirection =
                 transform.forward * Input.GetAxis("Vertical") * walkSpeed * walkModifier
                 + transform.right * Input.GetAxis("Horizontal") * walkSpeed * strafeSpeedModifier;
 
@@ -264,7 +263,7 @@ public class Player : MonoBehaviour
         }
         else
         {
-            if (doubleJump 
+            if (doubleJump
                 && Input.GetButtonDown("Jump")
                 && !staminaRecovering)
             {
@@ -287,13 +286,14 @@ public class Player : MonoBehaviour
             transform.position - new Vector3(0f, characterController.height, 0f),
             characterController.radius);
         floorWeapon = null;
+        floorObjective = false;
         foreach (Collider c in hitColliders)
         {
             GameObject g = c.gameObject;
 
             // Update closest weapon
             if (g.GetComponent<Interactable>() != null)
-                if (floorWeapon == null 
+                if (floorWeapon == null
                     || (g.transform.position - transform.position).magnitude <= (floorWeapon.transform.position - transform.position).magnitude)
                     floorWeapon = g;
 
@@ -302,10 +302,12 @@ public class Player : MonoBehaviour
             if (pt != null)
                 switch (pt.GetPointType())
                 {
-                    case POINT_TYPE.OBJECTIVE: 
+                    case POINT_TYPE.OBJECTIVE:
                         // if less than one objective held or can pickup multiple objectives
-                        if (heldObjectives.Count < 1 || gameMode == OBJECTIVE_PROGRESSION.LINEAR)
+                        if (gameMode == OBJECTIVE_PROGRESSION.LINEAR
+                            || (gameMode == OBJECTIVE_PROGRESSION.CIRCUITOUS && heldObjectives.Count < maxHeldObjectives))
                             StartCoroutine(PickUpObjective(pt));
+                        floorObjective = true;
                         break;
                     case POINT_TYPE.HEALTH:
                         if (health < maxHealth)
@@ -472,21 +474,12 @@ public class Player : MonoBehaviour
 
     void UpdateUI()
     {
-        // Inventory
-        if (Input.GetKeyDown(KeyCode.U))
-        {
-            inventoryPanel.gameObject.SetActive(!inventoryPanel.gameObject.activeSelf);
-            if (inventoryPanel.gameObject.activeSelf)
-                shoppingList.SetActive(false);
-        }
-
         // Check Objectives
-        if (Input.GetKeyDown(KeyCode.O))
+        if (objectivePanel.activeSelf != Input.GetKey(KeyCode.Tab))
+            objectivePanel.SetActive(Input.GetKey(KeyCode.Tab));
+        if (objectivePanel.activeSelf)
         {
             gameController.UpdateShoppingList();
-            shoppingList.SetActive(!shoppingList.activeSelf);
-            if (shoppingList.gameObject.activeSelf)
-                inventoryPanel.gameObject.SetActive(false);
             string s = "Collected Items: ";
             int i = 0;
             foreach (string ss in submittedObjectives)
@@ -497,7 +490,6 @@ public class Player : MonoBehaviour
                 else
                     s += ss + ", ";
             }
-            Debug.Log(s);
         }
 
         // Update Pickup Info
@@ -508,16 +500,21 @@ public class Player : MonoBehaviour
             string s = "Press [E] to pick up " + floorWeapon.GetComponent<Interactable>().itemData.type;
             pickupInfoText.GetComponent<TextMeshProUGUI>().text = s;
         }
+        else if (floorObjective && gameMode == OBJECTIVE_PROGRESSION.CIRCUITOUS && heldObjectives.Count >= maxHeldObjectives)
+        {
+            if (!pickupInfoText.activeSelf)
+                pickupInfoText.SetActive(true);
+            string s = "You can't carry any more objectives! Check some out to free space.";
+            pickupInfoText.GetComponent<TextMeshProUGUI>().text = s;
+        }
         else
             pickupInfoText.SetActive(false);
 
         // Objective Arrow (MAYBE INEFFICIENT CONSIDER REDOING)
         GameObject pt = null;
         if (arrowLocationType == POINT_TYPE.OBJECTIVE
-         && gameMode == OBJECTIVE_PROGRESSION.CIRCUITOUS
-         && heldObjectives.Count > 0
-         || (gameMode == OBJECTIVE_PROGRESSION.LINEAR 
-            && heldObjectives.Count + submittedObjectives.Count >= gameController.numberOfObjectives))
+            && (gameMode == OBJECTIVE_PROGRESSION.CIRCUITOUS && heldObjectives.Count >= maxHeldObjectives
+                || (gameMode == OBJECTIVE_PROGRESSION.LINEAR && heldObjectives.Count + submittedObjectives.Count >= gameController.numberOfObjectives)))
             pt = ((Cashier)FindObjectOfType(typeof(Cashier))).gameObject;
         if (submittedObjectives.Count == gameController.numberOfObjectives)
             pt = ((LevelTrigger)FindObjectOfType(typeof(LevelTrigger))).gameObject;
@@ -536,8 +533,8 @@ public class Player : MonoBehaviour
             if (!objectiveFloaterParent.gameObject.activeSelf)
                 objectiveFloaterParent.gameObject.SetActive(true);
             objectiveFloaterParent.position = nextObjective.position + new Vector3(
-                0f, 
-                nextObjective.localScale.y * 0.5f, 
+                0f,
+                nextObjective.localScale.y * 0.5f,
                 0f);
         }
         else
@@ -555,11 +552,9 @@ public class Player : MonoBehaviour
             minimapCamera.orthographicSize = minimapZoom;
 
         // Stamina
-        if (staminaBarOutline.GetComponent<RectTransform>().localPosition != new Vector3(staminaBarPosition.x, staminaBarPosition.y, 0))
-            staminaBarOutline.GetComponent<RectTransform>().localPosition = new Vector3(staminaBarPosition.x, staminaBarPosition.y, 0);
         if (GetStam() <= 0f && !staminaRecovering && stamRegenTimerDone)
         {
-            staminaBarOutline.GetComponentInChildren<Blink>().StartBlink();
+            staminaBar.GetComponentInChildren<Blink>().StartBlink();
             stamRegenTimer = 2f;
             stamRegenTimerDone = false;
             staminaRecovering = true;
@@ -572,7 +567,7 @@ public class Player : MonoBehaviour
         else if (GetStam() >= 1f && staminaRecovering)
         {
             staminaRecovering = false;
-            staminaBarOutline.GetComponentInChildren<Blink>().StopBlink();
+            staminaBar.GetComponentInChildren<Blink>().StopBlink();
         }
         else
         {
@@ -587,22 +582,17 @@ public class Player : MonoBehaviour
         staminaBar.GetComponent<RectTransform>().localScale = new Vector3(stamina / maxStamina, staminaBar.transform.localScale.y, staminaBar.transform.localScale.z);
 
         // Health
-        if (healthBarOutline.GetComponent<RectTransform>().localPosition != new Vector3(healthBarPosition.x, healthBarPosition.y, 0))
-            healthBarOutline.GetComponent<RectTransform>().localPosition = new Vector3(healthBarPosition.x, healthBarPosition.y, 0);
         if (healthBar.GetComponent<RectTransform>().localScale != new Vector3(health / maxHealth, healthBar.transform.localScale.y, healthBar.transform.localScale.z))
             healthBar.GetComponent<RectTransform>().localScale = new Vector3(health / maxHealth, healthBar.transform.localScale.y, healthBar.transform.localScale.z);
         if (health == 0)
         {
-#if UNITY_EDITOR
-            EditorApplication.isPlaying = false;
-#else
-        Application.Quit();
-#endif
+            // GOTO LOSE SCREEN
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+            SceneManager.LoadScene(3, LoadSceneMode.Single);
         }
 
         // Target Info
-        if (enemyName.GetComponent<RectTransform>().localPosition != new Vector3(enemyHealthBarPosition.x, enemyHealthBarPosition.y, 0))
-            enemyName.GetComponent<RectTransform>().localPosition = new Vector3(enemyHealthBarPosition.x, enemyHealthBarPosition.y, 0);
         float range = 100f; // Default
         if (currentWeapon && currentWeapon.itemData != null && currentWeapon.itemData.weaponType == ItemData.WEAPON_TYPE.RAYCAST)
             range = currentWeapon.itemData.attackRange;
@@ -611,8 +601,8 @@ public class Player : MonoBehaviour
             Enemy enemy = hit.collider.GetComponent<Enemy>();
             if (currTarget != enemy)
                 currTarget = enemy;
-            if (!enemyName.activeSelf)
-                enemyName.SetActive(true);
+            if (!enemyNameFrame.activeSelf)
+                enemyNameFrame.SetActive(true);
             if (enemyName.GetComponent<TextMeshProUGUI>().text != Enum.GetName(typeof(Enemy.ENEMY_TYPE), enemy.enemyType))
                 enemyName.GetComponent<TextMeshProUGUI>().SetText(Enum.GetName(typeof(Enemy.ENEMY_TYPE), enemy.enemyType));
             Vector3 vector3 = new Vector3(enemy.health / enemy.maxHealth, enemyHealthBar.transform.localScale.y, enemyHealthBar.transform.localScale.z);
@@ -623,8 +613,8 @@ public class Player : MonoBehaviour
         {
             if (currTarget != null)
                 currTarget = null;
-            if (enemyName.activeSelf)
-                enemyName.SetActive(false);
+            if (enemyNameFrame.activeSelf)
+                enemyNameFrame.SetActive(false);
         }
     }
 
@@ -785,7 +775,7 @@ public class Player : MonoBehaviour
         float percentageObjectsCollected = (float)(submittedObjectives.Count + heldObjectives.Count) / (float)(gameController.numberOfObjectives);
         Debug.Log(submittedObjectives.Count + " submitted " + heldObjectives.Count + " held " + gameController.shoppingListText.Count + " left " + (int)(percentageObjectsCollected * 100) + "% Collected");
 
-        if (percentageObjectsCollected < 0.25f 
+        if (percentageObjectsCollected < 0.25f
             && gameController.aggressionLevel != GameController.AGGRESSION_LEVELS.DOCILE)
             gameController.aggressionLevel = GameController.AGGRESSION_LEVELS.DOCILE;
         else if (percentageObjectsCollected >= 0.25f && percentageObjectsCollected < 0.5f

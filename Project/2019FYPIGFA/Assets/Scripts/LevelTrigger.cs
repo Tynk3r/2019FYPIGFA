@@ -8,8 +8,7 @@ public class LevelTrigger : MonoBehaviour
 {
     public bool quitScene = false;
     [DrawIf("quitScene", false)]
-    public string nextScene = default;
-    public Timer timer;
+    public int nextScene;
 
     public void Activate()
     {
@@ -23,6 +22,10 @@ public class LevelTrigger : MonoBehaviour
 #endif
         }
         else
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
             SceneManager.LoadScene(nextScene);
+        }
     }
 }
