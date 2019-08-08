@@ -140,6 +140,7 @@ public class Player : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         buffList = new List<Buffable.Buff>();
+        currentWeapon.m_animator = (Animator)GetComponentInChildren(typeof(Animator));
     }
 
     void Update()
@@ -358,6 +359,7 @@ public class Player : MonoBehaviour
 
     void UpdateWeapon()
     {
+        currentWeapon.UpdateAttack();
         if (currentWeapon && currentWeapon.itemData != null && currentWeapon.itemData.weaponType != ItemData.WEAPON_TYPE.NONE)
         {
             if (Input.GetButtonDown("Fire1"))
@@ -412,7 +414,7 @@ public class Player : MonoBehaviour
                 currentWeapon.RemoveWeapon();
                 Debug.Log("Weapon Broke!");
             }
-            if (Input.GetButtonDown("Next Weapon"))
+            if (Input.GetButtonDown("Next Weapon") && !currentWeapon.m_attacking)
             {
                 if (weaponInventory.itemList.Count == 0)
                     Debug.Log("You Don't Have Any Weapons!");

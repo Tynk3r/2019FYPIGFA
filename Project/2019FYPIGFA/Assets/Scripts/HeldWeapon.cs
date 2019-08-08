@@ -12,6 +12,8 @@ public class HeldWeapon : MonoBehaviour
     private float attackTimer = 0f;
     ProjectilePool projectilePoolInstance;
     private static int projectileID;
+    public Animator m_animator;
+    public bool m_attacking;
     // Start is called before the first frame update
     void Start()
     {
@@ -25,7 +27,7 @@ public class HeldWeapon : MonoBehaviour
         projectileID = projectilePoolInstance.GetPooledObjectIndex(itemData.projectile);
         if (null == projectilePoolInstance)
             Debug.LogError("The projectile pool no exist!");
-
+        m_attacking = false;
     }
 
     // Update is called once per frame
@@ -67,40 +69,90 @@ public class HeldWeapon : MonoBehaviour
         return tempItem;
     }
 
+    public void UpdateAttack()
+    {
+        if (!m_attacking)
+            return;
+        switch (itemData.weaponType)
+        {
+            case ItemData.WEAPON_TYPE.RAYCAST:
+                {
+                    AnimatorStateInfo stateInfo = m_animator.GetCurrentAnimatorStateInfo(0);
+                    Debug.Log(m_animator.GetBool("attack"));
+                    if (m_animator.GetBool("attack") == true)
+                    {
+                        m_animator.SetBool("attack", false);
+                        //Debug.Log("Worked");
+                            m_attacking = false;
+                        if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out RaycastHit hit, itemData.attackRange))
+                        {
+                            if (hit.collider.GetComponent<Enemy>() != null) // TODO: OPTIMIZE IN CASE OF DEATH
+                            {
+                                Enemy enemy = hit.collider.GetComponent<Enemy>();
+                                enemy.TakeDamage(itemData.weaponDamage);
+                                switch (itemData.weaponBuff.buff)
+                                {
+                                    case ItemData.BUFF_TYPE.HOT_SAUCE:
+                                        enemy.ApplyBuff(Buffable.CHAR_BUFF.DEBUFF_BURN, ItemData.DURATION_BURN);
+                                        break;
+                                }
+                                attackTimer = 1 / itemData.attackRate;
+                                itemData.durability = Mathf.Clamp(itemData.durability - itemData.durabilityDecay, 0, 100);
+                                Debug.Log("Hit " + enemy.enemyType + " for " + itemData.weaponDamage + " damage with " + itemData.type + ". Durability Left: " + itemData.durability + "%");
+                            }
+
+                            if (itemData.impactEffect)
+                            {
+                                GameObject impackEfek = Instantiate(itemData.impactEffect, hit.point, Quaternion.LookRotation((transform.position - hit.point).normalized), hit.transform);
+                                Destroy(impackEfek, 2f);
+                            }
+                        }
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
     public bool Fire()
     {
+        if (m_attacking)
+            return false;
         switch (itemData.weaponType)
         {
             case ItemData.WEAPON_TYPE.RAYCAST:
                 // attackrate = times per second can attack
                 // attacktimer = when zero, can attack
                 // attack timer set to (1 / attackrate) when attack
-                if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out RaycastHit hit, itemData.attackRange))
-                {
-                    if (attackTimer > 0f)
-                        return false;
+                m_attacking = true;
+                m_animator.SetTrigger("whack");
+                //if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out RaycastHit hit, itemData.attackRange))
+                //{
+                //    if (attackTimer > 0f)
+                //        return false;
 
-                    if (hit.collider.GetComponent<Enemy>() != null) // TODO: OPTIMIZE IN CASE OF DEATH
-                    {
-                        Enemy enemy = hit.collider.GetComponent<Enemy>();
-                        enemy.TakeDamage(itemData.weaponDamage);
-                        switch (itemData.weaponBuff.buff)
-                        {
-                            case ItemData.BUFF_TYPE.HOT_SAUCE:
-                                enemy.ApplyBuff(Buffable.CHAR_BUFF.DEBUFF_BURN, ItemData.DURATION_BURN);
-                                break;
-                        }
-                        attackTimer = 1 / itemData.attackRate;
-                        itemData.durability = Mathf.Clamp(itemData.durability - itemData.durabilityDecay, 0, 100);
-                        Debug.Log("Hit " + enemy.enemyType + " for " + itemData.weaponDamage + " damage with " + itemData.type + ". Durability Left: " + itemData.durability + "%");
-                    }
+                //    if (hit.collider.GetComponent<Enemy>() != null) // TODO: OPTIMIZE IN CASE OF DEATH
+                //    {
+                //        Enemy enemy = hit.collider.GetComponent<Enemy>();
+                //        enemy.TakeDamage(itemData.weaponDamage);
+                //        switch (itemData.weaponBuff.buff)
+                //        {
+                //            case ItemData.BUFF_TYPE.HOT_SAUCE:
+                //                enemy.ApplyBuff(Buffable.CHAR_BUFF.DEBUFF_BURN, ItemData.DURATION_BURN);
+                //                break;
+                //        }
+                //        attackTimer = 1 / itemData.attackRate;
+                //        itemData.durability = Mathf.Clamp(itemData.durability - itemData.durabilityDecay, 0, 100);
+                //        Debug.Log("Hit " + enemy.enemyType + " for " + itemData.weaponDamage + " damage with " + itemData.type + ". Durability Left: " + itemData.durability + "%");
+                //    }
 
-                    if (itemData.impactEffect)
-                    {
-                        GameObject impackEfek = Instantiate(itemData.impactEffect, hit.point, Quaternion.LookRotation((transform.position - hit.point).normalized), hit.transform);
-                        Destroy(impackEfek, 2f);
-                    }
-                }
+                //    if (itemData.impactEffect)
+                //    {
+                //        GameObject impackEfek = Instantiate(itemData.impactEffect, hit.point, Quaternion.LookRotation((transform.position - hit.point).normalized), hit.transform);
+                //        Destroy(impackEfek, 2f);
+                //    }
+                //}
                 break;
             case ItemData.WEAPON_TYPE.PROJECTILE:
                 // Uses the object pooler to spawn the bullet
