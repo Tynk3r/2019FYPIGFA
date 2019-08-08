@@ -5,12 +5,45 @@ ModelImporter:
   fileIDToRecycleName:
     100000: //RootNode
     100002: polySurface657
+    100004: polySurface657_LOD0
+    100006: polySurface657_LOD1
+    100008: polySurface657_LOD2
+    100010: polySurface657_LOD3
+    100012: polySurface657_LOD4
+    100014: polySurface657_LOD5
+    100016: polySurface657_LOD6
+    100018: polySurface657_LOD7
     400000: //RootNode
     400002: polySurface657
+    400004: polySurface657_LOD0
+    400006: polySurface657_LOD1
+    400008: polySurface657_LOD2
+    400010: polySurface657_LOD3
+    400012: polySurface657_LOD4
+    400014: polySurface657_LOD5
+    400016: polySurface657_LOD6
+    400018: polySurface657_LOD7
     2100000: lambert2
     2300000: polySurface657
+    2300002: polySurface657_LOD0
+    2300004: polySurface657_LOD1
+    2300006: polySurface657_LOD2
+    2300008: polySurface657_LOD3
+    2300010: polySurface657_LOD4
+    2300012: polySurface657_LOD5
+    2300014: polySurface657_LOD6
+    2300016: polySurface657_LOD7
     3300000: polySurface657
+    3300002: polySurface657_LOD0
+    3300004: polySurface657_LOD1
+    3300006: polySurface657_LOD2
+    3300008: polySurface657_LOD3
+    3300010: polySurface657_LOD4
+    3300012: polySurface657_LOD5
+    3300014: polySurface657_LOD6
+    3300016: polySurface657_LOD7
     4300000: polySurface657
+    20500000: //RootNode
   externalObjects: {}
   materials:
     importMaterials: 1
@@ -41,8 +74,16 @@ ModelImporter:
     clipAnimations: []
     isReadable: 1
   meshes:
-    lODScreenPercentages: []
-    globalScale: 15
+    lODScreenPercentages:
+    - 0.5
+    - 0.25
+    - 0.125
+    - 0.0625
+    - 0.03125
+    - 0.015625
+    - 0.0078125
+    - 0.01
+    globalScale: 10
     meshCompression: 0
     addColliders: 0
     useSRGBMaterialColor: 1
