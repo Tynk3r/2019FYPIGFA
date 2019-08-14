@@ -16,7 +16,14 @@ public class SpawnPoint : MonoBehaviour
     public void SetPointTo(Objective objective)
     {
         pointType = POINT_TYPE.OBJECTIVE;
-        pointName = objective.GetItemType().ToString();
+        GetComponent<MeshFilter>().sharedMesh = objective.mesh;
+        GetComponent<MeshRenderer>().material = objective.material;
+        transform.localScale = new Vector3(1f, 1f, 1f);
+        pointName = objective.name;
+        GetComponent<BoxCollider>().size = GetComponent<MeshRenderer>().bounds.size;
+        gameObject.AddComponent<BounceAnimation>();
+        GetComponent<BounceAnimation>().bounce = false;
+        GetComponent<BounceAnimation>().spinRate = 1.5f;
         tag = "Objective";
     }
 
@@ -61,6 +68,7 @@ public class SpawnPoint : MonoBehaviour
     {
         string temp = pointName;
         Destroy(gameObject);
+        gameObject.SetActive(false);
         return temp;
     }
     

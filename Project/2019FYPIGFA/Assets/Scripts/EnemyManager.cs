@@ -10,10 +10,10 @@ public class EnemyManager : MonoBehaviour
     private float m_countdown;
     private int m_currEnemyCount;
     // Max enemies in an instance
-    const int maxDocileEnemies = 6;
-    const int maxAngryEnemies = 12;
-    const int maxEnragedEnemies = 25;
-    const int maxInsaneEnemies = 50;
+    const int maxDocileEnemies = 50;
+    const int maxAngryEnemies = 75;
+    const int maxEnragedEnemies = 100;
+    const int maxInsaneEnemies = 150;
     // SpawnCount
     const int docileEnemySpawnCount = maxDocileEnemies / 2;
     const int angryEnemySpawnCount = maxAngryEnemies / 2;
@@ -78,6 +78,6 @@ public class EnemyManager : MonoBehaviour
     {
         int num1 = Random.Range(0, enemySpawners.Count - 1);
         int num2 =  Random.Range(0, enemies.Count);
-        enemySpawners[num1].SpawnEnemy(enemies[num2]);
+        enemySpawners[num1].SpawnEnemy(enemies[num2], controllerReference);
     }
 }

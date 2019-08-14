@@ -27,6 +27,7 @@ public class GameController : MonoBehaviour
 
     [Header("Shopping List")]
     public int numberOfObjectives;
+    public List<Objective> possibleObjectives = new List<Objective>();
     public List<string> shoppingListText = new List<string>();
     public TextMeshProUGUI shoppingList;
     public AudioClip pickUpSound;
@@ -34,6 +35,7 @@ public class GameController : MonoBehaviour
     public AudioClip footstepSound;
     public AudioClip hitSound;
     public AudioClip healthSound;
+    public AudioClip enemyHitSound;
 
     [Header("Powerups")]
     public int numberOfHealthPickups;
@@ -48,7 +50,7 @@ public class GameController : MonoBehaviour
     {
         InitPoints();
         InitEnemyList();
-        foreach (SpawnPoint pt in FindObjectsOfType<SpawnPoint>())
+        foreach (SpawnPoint pt in spawnPoints)
         {
             if (pt.GetPointType() == SpawnPoint.POINT_TYPE.OBJECTIVE)
                 shoppingListText.Add(pt.GetPointName());
@@ -80,8 +82,17 @@ public class GameController : MonoBehaviour
             SpawnPoint objective = spawnPoints[rand];
             if (objective.GetPointType() == SpawnPoint.POINT_TYPE.EMPTY)
             {
-                objective.SetPointTo(new Objective());
-                objectivesSpawned++;
+                if (possibleObjectives.Count != 0)
+                {
+                    int rand1 = Random.Range(0, possibleObjectives.Count);
+                    objective.SetPointTo(possibleObjectives[rand1]);
+                }
+                else
+                {
+                    //set to box
+                    Destroy(objective.gameObject);
+                }
+                    objectivesSpawned++;
             }
         }
 

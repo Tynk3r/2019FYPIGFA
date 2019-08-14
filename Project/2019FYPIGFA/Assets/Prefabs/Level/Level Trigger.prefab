@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   quitScene: 0
-  nextScene: 2
+  nextScene: 4
 --- !u!65 &1888480080451062617
 BoxCollider:
   m_ObjectHideFlags: 0

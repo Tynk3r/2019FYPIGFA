@@ -6,6 +6,7 @@ using TMPro;
 using UnityEditor;
 using static SpawnPoint;
 using UnityEngine.SceneManagement;
+using UnityEngine.Rendering.PostProcessing;
 
 [RequireComponent(typeof(CharacterController))]
 public class Player : MonoBehaviour
@@ -19,7 +20,7 @@ public class Player : MonoBehaviour
     [DrawIf("gameMode", OBJECTIVE_PROGRESSION.CIRCUITOUS)]
     public float maxHeldObjectives = 6969f;
     private CharacterController characterController;
-    private SoundManager soundController;
+    public SoundManager soundController;
     public GameController gameController;
     private Vector3 externalForce;
     private bool hasExternalForce;
@@ -52,6 +53,7 @@ public class Player : MonoBehaviour
     public Camera minimapCamera;
     [Range(10f, 1f)]
     public float minimapZoom = 6f;
+    public PostProcessVolume postProcessVolume = null;
 
     [Header("Movement")]
     public float walkSpeed = 5.0f;
@@ -106,6 +108,7 @@ public class Player : MonoBehaviour
     [ReadOnly]
     public Collider[] hitColliders;
     public GameObject pickupInfoText;
+    public GameObject pickupInfoTextFrame;
 
     [Header("Objective")]
     public List<string> submittedObjectives = new List<string>();
@@ -331,6 +334,7 @@ public class Player : MonoBehaviour
             && Input.GetButtonDown("Pick Up")
             && heldObjectives.Count > 0)
         {
+            health = Mathf.Clamp(health + heldObjectives.Count, 0f, maxHealth);
             for (int i = 0; i < heldObjectives.Count; ++i)
             {
                 Debug.Log("Submitted " + heldObjectives[i] + " to Cashier.");
@@ -497,6 +501,8 @@ public class Player : MonoBehaviour
         {
             if (!pickupInfoText.activeSelf)
                 pickupInfoText.SetActive(true);
+            if (!pickupInfoTextFrame.activeSelf)
+                pickupInfoTextFrame.SetActive(true);
             string s = "Press [E] to pick up " + floorWeapon.GetComponent<Interactable>().itemData.type;
             pickupInfoText.GetComponent<TextMeshProUGUI>().text = s;
         }
@@ -504,11 +510,16 @@ public class Player : MonoBehaviour
         {
             if (!pickupInfoText.activeSelf)
                 pickupInfoText.SetActive(true);
+            if (!pickupInfoTextFrame.activeSelf)
+                pickupInfoTextFrame.SetActive(true);
             string s = "You can't carry any more objectives! Check some out to free space.";
             pickupInfoText.GetComponent<TextMeshProUGUI>().text = s;
         }
         else
+        {
             pickupInfoText.SetActive(false);
+            pickupInfoTextFrame.SetActive(false);
+        }
 
         // Objective Arrow (MAYBE INEFFICIENT CONSIDER REDOING)
         GameObject pt = null;
@@ -582,6 +593,11 @@ public class Player : MonoBehaviour
         staminaBar.GetComponent<RectTransform>().localScale = new Vector3(stamina / maxStamina, staminaBar.transform.localScale.y, staminaBar.transform.localScale.z);
 
         // Health
+        if (postProcessVolume != null)
+        {
+            postProcessVolume.profile.TryGetSettings(out Vignette vignette);
+            vignette.intensity.value = 1f - (health / maxHealth);
+        }
         if (healthBar.GetComponent<RectTransform>().localScale != new Vector3(health / maxHealth, healthBar.transform.localScale.y, healthBar.transform.localScale.z))
             healthBar.GetComponent<RectTransform>().localScale = new Vector3(health / maxHealth, healthBar.transform.localScale.y, healthBar.transform.localScale.z);
         if (health == 0)

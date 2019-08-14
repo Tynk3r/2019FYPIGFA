@@ -44,13 +44,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemData:
+    weaponBuff:
+      buff: 0
+      duration: 0
+      magnitude: 0
     skillType: 0
     weaponType: 2
     type: PizzaShuriken
     mesh: {fileID: 4300000, guid: ca5abc6bd7a3f4749a67a1330ee83537, type: 3}
     material: {fileID: 2100000, guid: ca5abc6bd7a3f4749a67a1330ee83537, type: 3}
-    heldPosition: {x: 0.27, y: -0.11, z: 0.41}
-    heldRotation: {x: -12, y: 86, z: -14}
+    heldPosition: {x: -0.18, y: 0.16, z: 0.1}
+    heldRotation: {x: -75, y: 40, z: -10}
     shootOffset: 0.5
     attackRate: 5
     durability: 100

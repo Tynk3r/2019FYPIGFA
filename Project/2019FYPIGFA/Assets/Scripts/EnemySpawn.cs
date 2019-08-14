@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class EnemySpawn : MonoBehaviour
 {
-    public void SpawnEnemy(GameObject _enemyToSpawn)
+    public void SpawnEnemy(GameObject _enemyToSpawn, GameController gameController)
     {
-        Instantiate(_enemyToSpawn, transform);
+        Enemy enemy = Instantiate(_enemyToSpawn, transform).GetComponent<Enemy>();
+        gameController.enemyList.Add(enemy);
     }
 }

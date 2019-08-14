@@ -47,6 +47,8 @@ public class Enemy : AIManager
 
     public virtual bool TakeDamage(float _damage)
     {
+        if (Random.Range(0, 1000) == 0)
+            player.soundController.PlaySingle(gameController.enemyHitSound);
         float trueDamage = Mathf.Clamp(_damage, 0, health);
         health -= trueDamage;
         if (health <= 0f)
